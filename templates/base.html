@@ -51,6 +51,9 @@
       <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
         <span class="icon">🖼️</span> Manage Banners
       </a>
+      <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">💬</span> Doubt Forum
+      </a>
       {% else %}
       <div class="nav-section-title">Overview</div>
       <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
@@ -95,6 +98,9 @@
       <a href="{% url 'notice_list' %}" class="sidebar-link {% if 'notice' in request.resolver_match.url_name %}active{% endif %}">
         <span class="icon">📢</span> Notices
       </a>
+      <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">💬</span> Doubt Forum
+      </a>
 
       <div class="nav-section-title">History</div>
       <a href="{% url 'upload_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'upload_history' %}active{% endif %}">
@@ -138,6 +144,100 @@
     </div>
   </div>
 </div>
+
+<!-- AI CHATBOT FLOATING UI -->
+<div id="aiChatbot" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;">
+    <!-- Chat Button -->
+    <button id="aiChatBtn" style="width: 60px; height: 60px; border-radius: 50%; background: var(--gradient-blue); border: none; color: white; font-size: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.3s;">
+        🤖
+    </button>
+    
+    <!-- Chat Window (Hidden by default) -->
+    <div id="aiChatWindow" style="display: none; position: absolute; bottom: 80px; right: 0; width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0;">
+        <div style="background: var(--gradient-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size: 24px;">🤖</span>
+                <div>
+                    <div style="font-weight: 700; font-size: 14px;">GPTekari AI</div>
+                    <div style="font-size: 10px; opacity: 0.8;">Powered by Gemini</div>
+                </div>
+            </div>
+            <button id="closeAiChat" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
+        </div>
+        
+        <div id="aiMessages" style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
+            <div style="background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                Hi {{ request.user.username }}! I'm your AI assistant. How can I help you today?
+            </div>
+        </div>
+        
+        <div style="padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
+            <input type="text" id="aiInput" placeholder="Type your doubt..." style="flex: 1; border: 1px solid #e2e8f0; border-radius: 20px; padding: 8px 15px; font-size: 13px; outline: none;">
+            <button id="sendAiMsg" style="background: var(--primary-color); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"></path></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const aiBtn = document.getElementById('aiChatBtn');
+    const aiWindow = document.getElementById('aiChatWindow');
+    const closeAi = document.getElementById('closeAiChat');
+    const aiInput = document.getElementById('aiInput');
+    const sendAi = document.getElementById('sendAiMsg');
+    const aiMessages = document.getElementById('aiMessages');
+
+    aiBtn.onclick = () => {
+        aiWindow.style.display = aiWindow.style.display === 'none' ? 'flex' : 'none';
+        aiBtn.style.transform = aiWindow.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0deg)';
+    };
+    
+    closeAi.onclick = () => {
+        aiWindow.style.display = 'none';
+        aiBtn.style.transform = 'rotate(0deg)';
+    };
+
+    async function handleAiMsg() {
+        const text = aiInput.value.trim();
+        if(!text) return;
+        
+        // User message
+        const userMsg = document.createElement('div');
+        userMsg.style.cssText = "background: var(--primary-color); color: white; padding: 10px 14px; border-radius: 15px 15px 0 15px; max-width: 85%; font-size: 13px; align-self: flex-end; box-shadow: 0 2px 5px rgba(0,0,0,0.1);";
+        userMsg.textContent = text;
+        aiMessages.appendChild(userMsg);
+        aiInput.value = '';
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+
+        // Bot thinking
+        const botMsg = document.createElement('div');
+        botMsg.style.cssText = "background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--text-muted);";
+        botMsg.textContent = 'Thinking...';
+        aiMessages.appendChild(botMsg);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+
+        try {
+            const response = await fetch('{% url "ai_chatbot_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ prompt: text })
+            });
+            const data = await response.json();
+            botMsg.textContent = data.response || 'Something went wrong.';
+            botMsg.style.color = 'black';
+        } catch(e) {
+            botMsg.textContent = 'Error connecting to AI.';
+        }
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+
+    sendAi.onclick = handleAiMsg;
+    aiInput.onkeypress = (e) => { if(e.key === 'Enter') handleAiMsg(); };
+</script>
 
 <script>
 function toggleSidebar() {

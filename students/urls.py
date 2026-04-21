@@ -65,4 +65,11 @@ urlpatterns = [
     # Banners (Accessible by Admin and Teachers)
     path('banners/', views.banner_upload, name='banner_upload'),
     path('banners/<int:pk>/delete/', views.banner_delete, name='banner_delete'),
+
+    # Doubt Forum
+    path('forum/', views.doubt_list, name='doubt_list'),
+    path('forum/<int:pk>/', views.doubt_detail, name='doubt_detail'),
+
+    # AI Chatbot
+    path('api/ai-chat/', views.ai_chatbot_api, name='ai_chatbot_api'),
 ]

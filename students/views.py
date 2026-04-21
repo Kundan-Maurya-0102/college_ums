@@ -5,17 +5,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from .ai_helper import get_ai_response
 from .upload_router import process_any_csv_upload
 from .password_links import build_set_password_link
 from .forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    FacultyProfileForm, InternalExamForm, NoticeForm,
-                    StudentProfileForm, StudyMaterialForm, SubjectForm)
+                    DoubtForm, DoubtReplyForm, FacultyProfileForm, InternalExamForm, 
+                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm)
 from .models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     FacultyProfile, InternalExam, Notice, SemesterResult,
-                     StudentProfile, StudyMaterial, Subject, WebsiteVisit)
+                     Doubt, DoubtReply, FacultyProfile, InternalExam, Notice, 
+                     SemesterResult, StudentProfile, StudyMaterial, Subject, WebsiteVisit)
 
 
 def is_admin(user):
@@ -897,3 +898,72 @@ def banner_delete(request, pk):
     banner.delete()
     messages.success(request, "Banner deleted.")
     return redirect('banner_upload')
+
+
+# ─────────────────────────── DOUBT FORUM ───────────────────────────
+
+@login_required(login_url='/login/')
+def doubt_list(request):
+    doubts = Doubt.objects.select_related('student').prefetch_related('replies').all()
+    form = DoubtForm()
+    
+    if request.method == "POST":
+        if not hasattr(request.user, 'studentprofile'):
+            messages.error(request, "Only students can post doubts.")
+            return redirect('doubt_list')
+            
+        form = DoubtForm(request.POST)
+        if form.is_valid():
+            doubt = form.save(commit=False)
+            doubt.student = request.user.studentprofile
+            doubt.save()
+            messages.success(request, "Your doubt has been posted to the community!")
+            return redirect('doubt_list')
+            
+    return render(request, 'forum/doubt_list.html', {'doubts': doubts, 'form': form})
+
+
+@login_required(login_url='/login/')
+def doubt_detail(request, pk):
+    doubt = get_object_or_404(Doubt, pk=pk)
+    replies = doubt.replies.select_related('user').all()
+    form = DoubtReplyForm()
+    
+    if request.method == "POST":
+        form = DoubtReplyForm(request.POST)
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.doubt = doubt
+            reply.user = request.user
+            reply.save()
+            messages.success(request, "Reply posted!")
+            return redirect('doubt_detail', pk=pk)
+            
+    return render(request, 'forum/doubt_detail.html', {'doubt': doubt, 'replies': replies, 'form': form})
+
+
+# ─────────────────────────── AI CHATBOT ───────────────────────────
+
+@login_required(login_url='/login/')
+def ai_chatbot_api(request):
+    if request.method == "POST":
+        import json
+        try:
+            data = json.loads(request.body)
+            prompt = data.get("prompt", "")
+            
+            user_context = f"User: {request.user.username}, Role: "
+            if request.user.is_superuser:
+                user_context += "Admin"
+            elif hasattr(request.user, 'facultyprofile'):
+                user_context += "Teacher"
+            elif hasattr(request.user, 'studentprofile'):
+                user_context += "Student"
+            else:
+                user_context += "Guest"
+                
+            response = get_ai_response(prompt, user_context)
+            return JsonResponse({"response": response})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request"}, status=400)

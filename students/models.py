@@ -348,3 +348,30 @@ class BannerImage(models.Model):
 
     def __str__(self):
         return self.title or f"Banner {self.id}"
+
+
+class Doubt(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="doubts")
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    is_resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class DoubtReply(models.Model):
+    doubt = models.ForeignKey(Doubt, on_delete=models.CASCADE, related_name="replies")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Reply by {self.user.username} on {self.doubt.title}"

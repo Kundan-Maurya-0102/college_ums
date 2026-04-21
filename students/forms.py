@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
 from .models import (Assignment, Attendance, BannerImage, ClassSchedule, CSVUpload,
-                     FacultyProfile, InternalExam, Notice, SemesterResult,
+                     Doubt, DoubtReply, FacultyProfile, InternalExam, Notice, SemesterResult,
                      StudentProfile, StudyMaterial, Subject)
 
 
@@ -266,4 +266,23 @@ class BannerImageForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Annual Fest 2024'}),
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class DoubtForm(forms.ModelForm):
+    class Meta:
+        model = Doubt
+        fields = ['title', 'content']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What is your doubt about?'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe your doubt in detail...'}),
+        }
+
+
+class DoubtReplyForm(forms.ModelForm):
+    class Meta:
+        model = DoubtReply
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Write your answer here...'}),
         }
