@@ -12,13 +12,9 @@ def get_ai_response(prompt, user_context=""):
     try:
         genai.configure(api_key=api_key)
         
-        # Using the latest and most stable model name with full path
-        # Try 2.0 Flash first, then fallback to 1.5 Flash
-        model_name = 'models/gemini-2.0-flash'
-        try:
-            model = genai.GenerativeModel(model_name)
-        except Exception:
-            model = genai.GenerativeModel('models/gemini-1.5-flash')
+        # Switching back to 1.5 Flash which has higher free tier limits
+        model_name = 'models/gemini-1.5-flash'
+        model = genai.GenerativeModel(model_name)
         
         full_prompt = f"""
         You are an AI assistant for the University Management System (UMS) of Government Polytechnic Tekari. 
@@ -33,12 +29,12 @@ def get_ai_response(prompt, user_context=""):
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
-        # Final fallback attempt with the most basic model name
-        if "404" in str(e) or "not found" in str(e).lower():
+        # Fallback to gemini-1.5-flash-8b which has even higher quotas
+        if "429" in str(e) or "quota" in str(e).lower():
             try:
-                model = genai.GenerativeModel('models/gemini-1.5-flash')
+                model = genai.GenerativeModel('models/gemini-1.5-flash-8b')
                 response = model.generate_content(full_prompt)
                 return response.text
             except Exception as e2:
-                return f"AI connection error: Please check if your API key is correct and has billing/quota enabled. (Details: {str(e2)})"
+                return f"AI Limit Reached: Aapki daily free limit khatam ho gayi hai. Please naya API key use karein ya kal try karein. (Error: {str(e2)})"
         return f"I'm sorry, I'm having trouble connecting right now. (Error: {str(e)})"
