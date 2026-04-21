@@ -9,7 +9,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', '.onrender.com'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', '.onrender.com', '.ngrok-free.app'])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -111,6 +111,12 @@ COLLEGE_NAME = env('COLLEGE_NAME', default='College UMS')
 # File upload
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# ── Ngrok & Production Trust ───────────────────────────
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'https://*.onrender.com',
+]
 
 # ── Production hardening (toggle via DEBUG) ───────────────────────────
 if not DEBUG:
