@@ -123,11 +123,11 @@
   <div class="main-content">
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button onclick="toggleSidebar()" style="background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;">☰</button>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
         <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
       </div>
       <div class="topbar-right">
-        <div style="font-size:13px;color:var(--text-muted);">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong></div>
+        <div style="font-size:13px;color:var(--text-muted); white-space: nowrap;">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong></div>
       </div>
     </div>
 
@@ -146,14 +146,14 @@
 </div>
 
 <!-- AI CHATBOT FLOATING UI -->
-<div id="aiChatbot" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;">
+<div id="aiChatbot" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
     <!-- Chat Button -->
-    <button id="aiChatBtn" style="width: 60px; height: 60px; border-radius: 50%; background: var(--gradient-blue); border: none; color: white; font-size: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.3s;">
+    <button id="aiChatBtn" style="width: 50px; height: 50px; border-radius: 50%; background: var(--gradient-blue); border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.3s;">
         🤖
     </button>
     
     <!-- Chat Window (Hidden by default) -->
-    <div id="aiChatWindow" style="display: none; position: absolute; bottom: 80px; right: 0; width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div id="aiChatWindow" style="display: none; position: absolute; bottom: 70px; right: 0; width: calc(100vw - 40px); max-width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="background: var(--gradient-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size: 24px;">🤖</span>
