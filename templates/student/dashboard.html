@@ -49,6 +49,22 @@
       {% endfor %}
     {% endif %}
 
+    <!-- NEWS BANNER -->
+    <div class="news-banner fade-in-up">
+      <div class="news-label">Latest News</div>
+      <div class="news-marquee">
+        <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();">
+          {% if notices %}
+            {% for n in notices %}
+              <a href="#notice-section">📢 {{ n.title }} ({{ n.created_at|date:"d M" }})</a>
+            {% endfor %}
+          {% else %}
+            <span>Welcome to {{ COLLEGE_NAME }} UMS Portal! Stay tuned for upcoming events and notices.</span>
+          {% endif %}
+        </marquee>
+      </div>
+    </div>
+
     <!-- PROFILE HERO -->
     <div class="profile-hero fade-in-up">
       <div class="profile-hero-inner">

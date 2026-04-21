@@ -14,9 +14,11 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">🎓</div>
+      <div class="sidebar-brand-icon">
+        <img src="{% static 'images/college_logo.jpg' %}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+      </div>
       <h2>{{ COLLEGE_NAME }}</h2>
-      <span>{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher Panel{% else %}Admin Panel{% endif %}</span>
+      <span class="portal-badge">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher Panel{% else %}Admin Panel{% endif %}</span>
     </div>
 
     <nav class="sidebar-nav">
