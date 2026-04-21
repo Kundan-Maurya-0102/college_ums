@@ -12,12 +12,13 @@ def get_ai_response(prompt, user_context=""):
     try:
         genai.configure(api_key=api_key)
         
-        # Determine the model to use
-        model_name = 'gemini-1.5-flash'
+        # Using the latest and most stable model name with full path
+        # Try 2.0 Flash first, then fallback to 1.5 Flash
+        model_name = 'models/gemini-2.0-flash'
         try:
             model = genai.GenerativeModel(model_name)
         except Exception:
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('models/gemini-1.5-flash')
         
         full_prompt = f"""
         You are an AI assistant for the University Management System (UMS) of Government Polytechnic Tekari. 
@@ -32,12 +33,12 @@ def get_ai_response(prompt, user_context=""):
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
-        # If it was a model error, try one last time with gemini-pro directly
+        # Final fallback attempt with the most basic model name
         if "404" in str(e) or "not found" in str(e).lower():
             try:
-                model = genai.GenerativeModel('gemini-pro')
+                model = genai.GenerativeModel('models/gemini-1.5-flash')
                 response = model.generate_content(full_prompt)
                 return response.text
             except Exception as e2:
-                return f"AI connection error: {str(e2)}"
+                return f"AI connection error: Please check if your API key is correct and has billing/quota enabled. (Details: {str(e2)})"
         return f"I'm sorry, I'm having trouble connecting right now. (Error: {str(e)})"
