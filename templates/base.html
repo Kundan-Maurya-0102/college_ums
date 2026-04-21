@@ -48,6 +48,9 @@
       <a href="{% url 'teacher_notices' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_notices' %}active{% endif %}">
         <span class="icon">📢</span> Notices
       </a>
+      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
+        <span class="icon">🖼️</span> Manage Banners
+      </a>
       {% else %}
       <div class="nav-section-title">Overview</div>
       <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
@@ -55,6 +58,9 @@
       </a>
       <a href="{% url 'teacher_list' %}" class="sidebar-link {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
         <span class="icon">👨‍🏫</span> Teachers
+      </a>
+      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
+        <span class="icon">🖼️</span> Manage Banners
       </a>
 
       <div class="nav-section-title">Students</div>

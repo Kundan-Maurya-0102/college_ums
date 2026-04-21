@@ -49,6 +49,68 @@
       {% endfor %}
     {% endif %}
 
+    <!-- IMAGE CAROUSEL -->
+    {% if banners %}
+    <div class="banner-carousel fade-in-up" style="margin-bottom: 24px; position: relative; border-radius: var(--radius); overflow: hidden; height: 300px; box-shadow: var(--shadow-card);">
+        <div class="carousel-track" id="carouselTrack" style="display: flex; height: 100%; transition: transform 0.5s ease-in-out;">
+            {% for banner in banners %}
+            <div class="carousel-slide" style="min-width: 100%; height: 100%; position: relative;">
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% if banner.title %}
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white;">
+                    <h3 style="margin: 0; font-size: 20px; font-weight: 700;">{{ banner.title }}</h3>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Dots -->
+        <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+            {% for banner in banners %}
+            <div class="carousel-dot" onclick="goToSlide({{ forloop.counter0 }})" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer;"></div>
+            {% endfor %}
+        </div>
+        <!-- Arrows -->
+        <button onclick="prevSlide()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.3); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">❮</button>
+        <button onclick="nextSlide()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.3); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">❯</button>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const track = document.getElementById('carouselTrack');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const slideCount = {{ banners|length }};
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.style.background = i === currentSlide ? 'white' : 'rgba(255,255,255,0.5)';
+                dot.style.width = i === currentSlide ? '20px' : '8px';
+                dot.style.borderRadius = i === currentSlide ? '4px' : '50%';
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slideCount;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+            updateCarousel();
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            updateCarousel();
+        }
+
+        if(slideCount > 1) {
+            setInterval(nextSlide, 5000);
+        }
+        updateCarousel();
+    </script>
+    {% endif %}
+
     <!-- NEWS BANNER -->
     <div class="news-banner fade-in-up">
       <div class="news-label">Latest News</div>

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .models import (Assignment, Attendance, ClassSchedule, CSVUpload,
+from .models import (Assignment, Attendance, BannerImage, ClassSchedule, CSVUpload,
                      FacultyProfile, InternalExam, Notice, SemesterResult,
                      StudentProfile, StudyMaterial, Subject)
 
@@ -256,3 +256,14 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class BannerImageForm(forms.ModelForm):
+    class Meta:
+        model = BannerImage
+        fields = ['title', 'image', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Annual Fest 2024'}),
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

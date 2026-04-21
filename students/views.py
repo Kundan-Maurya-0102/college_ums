@@ -10,10 +10,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .upload_router import process_any_csv_upload
 from .password_links import build_set_password_link
-from .forms import (AssignmentForm, CSVUploadForm, ClassScheduleForm,
+from .forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
                     FacultyProfileForm, InternalExamForm, NoticeForm,
                     StudentProfileForm, StudyMaterialForm, SubjectForm)
-from .models import (Assignment, Attendance, CSVUpload, ClassSchedule,
+from .models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
                      FacultyProfile, InternalExam, Notice, SemesterResult,
                      StudentProfile, StudyMaterial, Subject, WebsiteVisit)
 
@@ -867,3 +867,33 @@ def take_attendance_bulk(request):
         'present_ids': present_ids if 'present_ids' in locals() else [],
         'has_attendance': has_attendance if 'has_attendance' in locals() else False,
     })
+
+
+# ─────────────────────────── BANNER MANAGEMENT ───────────────────────────
+
+@login_required(login_url='/login/')
+def banner_upload(request):
+    if not (is_admin(request.user) or is_teacher(request.user)):
+        messages.error(request, "You do not have permission to upload banners.")
+        return redirect('student_dashboard')
+        
+    form = BannerImageForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        banner = form.save(commit=False)
+        banner.uploaded_by = request.user
+        banner.save()
+        messages.success(request, "Banner image uploaded successfully.")
+        return redirect('banner_upload')
+        
+    banners = BannerImage.objects.all().order_by('-created_at')
+    return render(request, 'admin_dashboard/banner_upload.html', {'form': form, 'banners': banners})
+
+
+@login_required(login_url='/login/')
+def banner_delete(request, pk):
+    if not (is_admin(request.user) or is_teacher(request.user)):
+        return redirect('student_dashboard')
+    banner = get_object_or_404(BannerImage, pk=pk)
+    banner.delete()
+    messages.success(request, "Banner deleted.")
+    return redirect('banner_upload')

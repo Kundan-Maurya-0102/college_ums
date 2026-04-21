@@ -61,4 +61,8 @@ urlpatterns = [
     path('teacher/notices/', views.teacher_notices, name='teacher_notices'),
     path('teacher/notices/<int:pk>/edit/', views.teacher_notice_edit, name='teacher_notice_edit'),
     path('teacher/notices/<int:pk>/delete/', views.teacher_notice_delete, name='teacher_notice_delete'),
+    
+    # Banners (Accessible by Admin and Teachers)
+    path('banners/', views.banner_upload, name='banner_upload'),
+    path('banners/<int:pk>/delete/', views.banner_delete, name='banner_delete'),
 ]

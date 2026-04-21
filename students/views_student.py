@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.utils.http import urlsafe_base64_decode
 
 from .forms import CustomPasswordChangeForm, StudentSelfProfileForm
-from .models import (Assignment, Attendance, ClassSchedule, InternalExam,
+from .models import (Assignment, Attendance, BannerImage, ClassSchedule, InternalExam,
                      Notice, SemesterResult, StudentProfile, StudyMaterial,
                      Subject)
 from .password_links import token_generator
@@ -204,6 +204,7 @@ def student_dashboard(request):
         'materials': materials,
         'schedules': schedules,
         'teachers': teachers,
+        'banners': BannerImage.objects.filter(is_active=True),
     }
     return render(request, 'student/dashboard.html', context)
 
