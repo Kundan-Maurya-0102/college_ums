@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Delete Student — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}🗑️ Delete Student{% endblock %}
+
+{% block content %}
+<div style="max-width:500px;margin:0 auto;">
+  <div class="card">
+    <div class="card-body" style="text-align:center;padding:40px;">
+      <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Confirm Deletion</h2>
+      <p style="color:var(--text-secondary);margin-bottom:6px;">
+        You are about to permanently delete:
+      </p>
+      <p style="font-size:18px;font-weight:700;color:var(--accent-red);margin-bottom:4px;">{{ profile.name }}</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">
+        {{ profile.registration_number }} · {{ profile.phone }}
+      </p>
+      <div class="alert alert-danger">
+        ⚠️ This will delete the student's login account and ALL their records (marks, attendance, results). This cannot be undone.
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">🗑️ Yes, Delete Permanently</button>
+        </form>
+        <a href="{% url 'student_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

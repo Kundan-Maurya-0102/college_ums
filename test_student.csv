@@ -1,0 +1,11 @@
+name,phone,registration_number,email,address,branch,semester,year_of_admission,father_name,mother_name,date_of_birth
+Kundan Kumar,7562995360,1411823001,kundan.kumar@college.edu,"Gaya, Bihar",CS,6,2023,xyz,abc,2007-04-24
+akhilesh Kumar,7061655020,1411823014,akhilesh.kumar@college.edu,"Gaya, Bihar",EC,6,2023,xyz,abc,2007-04-24
+Rahul Sharma,9876543210,1411823020,rahul.s@college.edu,"Patna, Bihar",IT,6,2023,Mr Sharma,Mrs Sharma,2006-05-12
+Priya Singh,9876543211,1411823021,priya.s@college.edu,"Delhi",IT,6,2023,Mr Singh,Mrs Singh,2007-01-15
+Amit Patel,9876543212,1411823022,amit.p@college.edu,"Ahmedabad, Gujarat",ME,4,2024,Mr Patel,Mrs Patel,2008-08-20
+Sneha Reddy,9876543213,1411823023,sneha.r@college.edu,"Hyderabad, TS",CE,4,2024,Mr Reddy,Mrs Reddy,2008-03-10
+Vikram Verma,9876543214,1411823024,vikram.v@college.edu,"Lucknow, UP",EE,2,2025,Mr Verma,Mrs Verma,2009-07-22
+Neha Gupta,9876543215,1411823025,neha.g@college.edu,"Mumbai, MH",CS,2,2025,Mr Gupta,Mrs Gupta,2009-02-18
+Arjun Rao,9876543216,1411823026,arjun.r@college.edu,"Bangalore, KA",EC,4,2024,Mr Rao,Mrs Rao,2008-11-05
+Divya Menon,9876543217,1411823027,divya.m@college.edu,"Kochi, KL",IT,2,2025,Mr Menon,Mrs Menon,2009-09-30

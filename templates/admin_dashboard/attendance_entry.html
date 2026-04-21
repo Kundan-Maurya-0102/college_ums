@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Entry — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}📅 Attendance Entry{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:360px 1fr;gap:24px;">
+  <div class="card" style="height:fit-content;">
+    <div class="card-header"><span class="card-title">Mark Attendance</span></div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div style="margin-bottom:14px;">
+          <label class="form-label">{{ field.label }}</label>
+          {% if field.field.widget.input_type == 'checkbox' %}
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+            {{ field }}<span style="color:var(--text-secondary);font-size:13px;">Present</span>
+          </div>
+          {% else %}
+          {{ field }}
+          {% endif %}
+          {% if field.errors %}<div style="color:var(--accent-red);font-size:12px;margin-top:4px;">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-100">💾 Save Attendance</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">🕑 Recent Attendance Records</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Subject</th><th>Date</th><th>Status</th><th>Marked By</th></tr></thead>
+        <tbody>
+          {% for a in recent %}
+          <tr>
+            <td style="font-weight:500;">{{ a.student.name }}</td>
+            <td>{{ a.subject.subject_code }}</td>
+            <td>{{ a.date|date:"d M Y" }}</td>
+            <td>
+              {% if a.is_present %}<span class="badge badge-green">✅ Present</span>
+              {% else %}<span class="badge badge-red">❌ Absent</span>{% endif %}
+            </td>
+            <td style="font-size:12px;color:var(--text-muted);">{{ a.marked_by }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">No records yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

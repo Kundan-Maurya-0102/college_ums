@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="profile-hero">
+  <div class="profile-hero-inner">
+    <div class="profile-avatar"><span class="profile-avatar-text">{{ faculty.name|first|upper }}</span></div>
+    <div class="profile-hero-info">
+      <div class="profile-hero-title">
+        <h2 class="profile-name">{{ faculty.name }}</h2>
+        <span class="profile-pill">{{ faculty.designation }}</span>
+      </div>
+      <div class="profile-subtitle">{{ faculty.department }}{% if faculty.email %} · {{ faculty.email }}{% endif %}</div>
+    </div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-label">Assigned Subjects</div><div class="stat-value">{{ subjects|length }}</div></div>
+  <div class="stat-card"><div class="stat-label">Students Under You</div><div class="stat-value">{{ student_count }}</div></div>
+  <div class="stat-card"><div class="stat-label">Classes Taken</div><div class="stat-value">{{ classes_taken }}</div></div>
+  <div class="stat-card"><div class="stat-label">Average Attendance</div><div class="stat-value">{{ avg_attendance }}%</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Assigned Classes</span></div>
+    <div class="card-body">
+      {% for subject in subjects %}
+        <div class="notice-card">
+          <div class="notice-title">{{ subject.subject_name }} ({{ subject.subject_code }})</div>
+          <div class="notice-date">Sem {{ subject.semester }} · {{ subject.get_branch_display }} · {{ subject.credits }} credits</div>
+        </div>
+      {% empty %}
+        <p class="text-muted">No subject assigned yet. HOD can assign subjects from Teacher Management.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Upcoming Schedule</span></div>
+    <div class="card-body">
+      {% for schedule in schedules %}
+        <div class="notice-card">
+          <div class="notice-title">{{ schedule.subject.subject_code }} · {{ schedule.get_weekday_display }}</div>
+          <div class="notice-date">{{ schedule.start_time }} - {{ schedule.end_time }}{% if schedule.room %} · Room {{ schedule.room }}{% endif %}</div>
+        </div>
+      {% empty %}
+        <p class="text-muted">No class schedule added yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Low Attendance Watchlist</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Subject</th><th>Attendance</th></tr></thead>
+        <tbody>
+          {% for row in low_attendance %}
+          <tr><td>{{ row.student.name }}</td><td>{{ row.subject.subject_code }}</td><td><span class="badge badge-red">{{ row.percentage }}%</span></td></tr>
+          {% empty %}
+          <tr><td colspan="3" class="text-muted">No low attendance cases found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">High Marks</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Subject</th><th>Marks</th></tr></thead>
+        <tbody>
+          {% for mark in high_marks %}
+          <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject.subject_code }}</td><td><span class="badge badge-green">{{ mark.marks_obtained }}/{{ mark.max_marks }}</span></td></tr>
+          {% empty %}
+          <tr><td colspan="3" class="text-muted">No marks entered yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

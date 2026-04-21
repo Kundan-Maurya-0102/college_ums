@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Delete Subject - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Delete Subject{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Confirm Delete</span>
+      <a href="{% url 'subject_list' %}" class="btn btn-outline btn-sm">Back</a>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-warning">
+        Deleting this subject will also remove linked attendance, marks, results, assignments, notes and schedules.
+      </div>
+
+      <div class="notice-card">
+        <div class="notice-title">{{ subject.subject_code }} - {{ subject.subject_name }}</div>
+        <div class="notice-date">{{ subject.get_branch_display }} · Sem {{ subject.semester }} · {{ subject.credits }} credits</div>
+      </div>
+
+      <table class="data-table mb-24">
+        <tbody>
+          <tr><td>Attendance records</td><td>{{ related_counts.attendance }}</td></tr>
+          <tr><td>Internal marks</td><td>{{ related_counts.marks }}</td></tr>
+          <tr><td>Semester results</td><td>{{ related_counts.results }}</td></tr>
+          <tr><td>Assignments</td><td>{{ related_counts.assignments }}</td></tr>
+          <tr><td>Notes / PDFs</td><td>{{ related_counts.materials }}</td></tr>
+          <tr><td>Schedules</td><td>{{ related_counts.schedules }}</td></tr>
+        </tbody>
+      </table>
+
+      <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
+        {% csrf_token %}
+        <a href="{% url 'subject_list' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete Subject</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Delete Teacher - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Delete Teacher{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Confirm Delete</span>
+      <a href="{% url 'teacher_list' %}" class="btn btn-outline btn-sm">Back</a>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-warning">
+        This will delete the teacher profile and login account. Existing assignments and notes will stay, but their teacher name may become empty.
+      </div>
+
+      <div class="notice-card">
+        <div class="notice-title">{{ teacher.name }}</div>
+        <div class="notice-date">{{ teacher.designation }} · {{ teacher.department }} · Login: {{ teacher.user.username }}</div>
+      </div>
+
+      <table class="data-table mb-24">
+        <tbody>
+          <tr><td>Assigned subjects</td><td>{{ related_counts.subjects }}</td></tr>
+          <tr><td>Assignments created</td><td>{{ related_counts.assignments }}</td></tr>
+          <tr><td>Notes / PDFs uploaded</td><td>{{ related_counts.materials }}</td></tr>
+          <tr><td>Class schedules</td><td>{{ related_counts.schedules }}</td></tr>
+        </tbody>
+      </table>
+
+      <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
+        {% csrf_token %}
+        <a href="{% url 'teacher_list' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete Teacher</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

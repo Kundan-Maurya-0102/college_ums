@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Attendance - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Take Attendance{% endblock %}
+
+{% block content %}
+<div class="card mb-24">
+  <div class="card-header"><span class="card-title">Class and Date</span></div>
+  <div class="card-body">
+    <form method="get" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+      <div><label class="form-label">Date</label><input type="date" name="date" class="form-control" value="{{ selected_date }}" required></div>
+      <div style="flex:1;min-width:280px;">
+        <label class="form-label">Subject</label>
+        <select name="subject" class="form-select" required>
+          <option value="">Select subject</option>
+          {% for subject in subjects %}
+          <option value="{{ subject.id }}" {% if selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_name }} ({{ subject.subject_code }}) - Sem {{ subject.semester }} {{ subject.get_branch_display }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Fetch Students</button>
+    </form>
+  </div>
+</div>
+
+{% if selected_subject %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">{{ selected_subject.subject_code }} - {{ selected_date }}</span>
+    <span class="badge badge-blue">{{ students|length }} students</span>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="subject" value="{{ selected_subject.id }}">
+    <input type="hidden" name="date" value="{{ selected_date }}">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>S.No.</th><th>Reg. No.</th><th>Name</th><th style="text-align:right;">Present</th></tr></thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ student.registration_number }}</td>
+            <td style="font-weight:600;">{{ student.name }}</td>
+            <td style="text-align:right;">
+              <input type="checkbox" name="present_student_ids" value="{{ student.id }}" style="width:18px;height:18px;accent-color:var(--accent-blue);" {% if has_attendance %}{% if student.id in present_ids %}checked{% endif %}{% else %}checked{% endif %}>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-muted">No students found for this class.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body" style="display:flex;justify-content:flex-end;">
+      <button type="submit" class="btn btn-success">Save Attendance</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

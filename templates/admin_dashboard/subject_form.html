@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Subject — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}📚 {{ action }} Subject{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">{{ action }} Subject</span>
+      <a href="{% url 'subject_list' %}" class="btn btn-outline btn-sm">← Back</a>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label class="form-label">Branch</label>{{ form.branch }}</div>
+          <div><label class="form-label">Semester</label>{{ form.semester }}</div>
+          <div><label class="form-label">Subject Code</label>{{ form.subject_code }}</div>
+          <div><label class="form-label">Credits</label>{{ form.credits }}</div>
+        </div>
+        <div style="margin-bottom:14px;"><label class="form-label">Subject Name</label>{{ form.subject_name }}</div>
+        <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+          {{ form.is_active }}<label class="form-label mb-0">Active</label>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button type="submit" class="btn btn-primary">💾 Save</button>
+          <a href="{% url 'subject_list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

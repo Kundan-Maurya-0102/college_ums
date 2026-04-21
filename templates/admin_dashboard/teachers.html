@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Teachers - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Teacher Management{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Teachers and Subject Access</span>
+    <a href="{% url 'teacher_create' %}" class="btn btn-primary btn-sm">Add Teacher</a>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Login</th>
+          <th>Department</th>
+          <th>Assigned Subjects</th>
+          <th>Permissions</th>
+          <th>Status</th>
+          <th style="text-align:right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for teacher in teachers %}
+        <tr>
+          <td style="font-weight:600;">{{ teacher.name }}<br><small class="text-muted">{{ teacher.designation }}</small></td>
+          <td>{{ teacher.user.username }}</td>
+          <td>{{ teacher.department }}</td>
+          <td>
+            {% for subject in teacher.subjects.all %}
+              <span class="badge badge-blue">{{ subject.subject_code }} Sem {{ subject.semester }} {{ subject.branch }}</span>
+            {% empty %}
+              <span class="text-muted">No subject assigned</span>
+            {% endfor %}
+          </td>
+          <td>
+            {% if teacher.can_enter_marks %}<span class="badge badge-green">Marks</span>{% endif %}
+            {% if teacher.can_send_notices %}<span class="badge badge-blue">Notices</span>{% endif %}
+            {% if teacher.can_upload_materials %}<span class="badge badge-purple">Notes</span>{% endif %}
+          </td>
+          <td>{% if teacher.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Disabled</span>{% endif %}</td>
+          <td style="text-align:right;">
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <a href="{% url 'teacher_edit' teacher.pk %}" class="btn btn-outline btn-sm">Edit</a>
+              <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-muted">No teachers added yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

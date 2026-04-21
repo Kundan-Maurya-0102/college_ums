@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ COLLEGE_NAME }} UMS{% endblock %}</title>
+  <meta name="description" content="{{ COLLEGE_NAME }} University Management System — Student portal for marks, attendance, results and notices.">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🎓</div>
+      <h2>{{ COLLEGE_NAME }}</h2>
+      <span>{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher Panel{% else %}Admin Panel{% endif %}</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% if request.user.facultyprofile and not request.user.is_superuser %}
+      <div class="nav-section-title">Teacher</div>
+      <a href="{% url 'teacher_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'teacher_students' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_students' %}active{% endif %}">
+        <span class="icon">👥</span> My Students
+      </a>
+      <a href="{% url 'teacher_take_attendance' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_take_attendance' %}active{% endif %}">
+        <span class="icon">✅</span> Attendance
+      </a>
+      <a href="{% url 'teacher_marks' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_marks' %}active{% endif %}">
+        <span class="icon">✏️</span> Marks Entry
+      </a>
+      <a href="{% url 'teacher_assignments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_assignments' %}active{% endif %}">
+        <span class="icon">📝</span> Assignments
+      </a>
+      <a href="{% url 'teacher_materials' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_materials' %}active{% endif %}">
+        <span class="icon">📚</span> Notes / PDF
+      </a>
+      <a href="{% url 'teacher_schedule' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_schedule' %}active{% endif %}">
+        <span class="icon">🕒</span> Schedule
+      </a>
+      <a href="{% url 'teacher_notices' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_notices' %}active{% endif %}">
+        <span class="icon">📢</span> Notices
+      </a>
+      {% else %}
+      <div class="nav-section-title">Overview</div>
+      <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'teacher_list' %}" class="sidebar-link {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">👨‍🏫</span> Teachers
+      </a>
+
+      <div class="nav-section-title">Students</div>
+      <a href="{% url 'csv_upload' %}" class="sidebar-link {% if 'upload' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">📤</span> Bulk CSV Upload
+      </a>
+      <a href="{% url 'student_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+        <span class="icon">👥</span> All Students
+      </a>
+      <a href="{% url 'export_students_csv' %}" class="sidebar-link">
+        <span class="icon">⬇️</span> Export CSV
+      </a>
+
+      <div class="nav-section-title">Academics</div>
+      <a href="{% url 'subject_list' %}" class="sidebar-link {% if 'subject' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">📚</span> Subjects
+      </a>
+      <a href="{% url 'marks_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'marks_entry' %}active{% endif %}">
+        <span class="icon">✏️</span> Internal Marks
+      </a>
+      <a href="{% url 'results_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'results_view' %}active{% endif %}">
+        <span class="icon">📈</span> Results
+      </a>
+      <a href="{% url 'attendance_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'attendance_entry' %}active{% endif %}">
+        <span class="icon">📅</span> Manual Attendance
+      </a>
+      <a href="{% url 'take_attendance_bulk' %}" class="sidebar-link {% if request.resolver_match.url_name == 'take_attendance_bulk' %}active{% endif %}">
+        <span class="icon">✅</span> Take Attendance
+      </a>
+
+      <div class="nav-section-title">Communication</div>
+      <a href="{% url 'notice_list' %}" class="sidebar-link {% if 'notice' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">📢</span> Notices
+      </a>
+
+      <div class="nav-section-title">History</div>
+      <a href="{% url 'upload_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'upload_history' %}active{% endif %}">
+        <span class="icon">🕑</span> Upload History
+      </a>
+      <a href="/admin/" class="sidebar-link" target="_blank">
+        <span class="icon">⚙️</span> Django Admin
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'student_logout' %}" class="sidebar-link" style="color: var(--accent-red);">
+        <span class="icon">🚪</span> Logout ({{ request.user.username }})
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="toggleSidebar()" style="background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;">☰</button>
+        <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <div style="font-size:13px;color:var(--text-muted);">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags|default:'info' }}">
+            <span>{{ msg }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

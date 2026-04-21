@@ -1,0 +1,4 @@
+registration_number,subject_code,date,is_present,marked_by
+CS2024001,CS601,2026-04-01,1,Prof A
+CS2024001,CS601,2026-04-02,0,Prof A
+CS2024002,CS602,2026-04-01,1,Prof B

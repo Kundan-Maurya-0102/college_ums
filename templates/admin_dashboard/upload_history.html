@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Upload History — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}🕑 Upload History{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">All CSV Uploads</span>
+    <a href="{% url 'csv_upload' %}" class="btn btn-primary btn-sm">+ New Upload</a>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr><th>Description</th><th>Uploaded By</th><th>Date</th><th>Created</th><th>Updated</th><th>Status</th><th>Errors</th></tr>
+      </thead>
+      <tbody>
+        {% for u in uploads %}
+        <tr>
+          <td style="font-weight:500;">{{ u.description }}</td>
+          <td>{{ u.uploaded_by }}</td>
+          <td style="font-size:12px;color:var(--text-muted);">{{ u.upload_date|date:"d M Y, H:i" }}</td>
+          <td><span class="badge badge-green">{{ u.students_created }}</span></td>
+          <td><span class="badge badge-blue">{{ u.students_updated }}</span></td>
+          <td>
+            {% if u.is_processed %}
+              <span class="badge badge-green">✅ Done</span>
+            {% else %}
+              <span class="badge badge-yellow">⏳ Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.errors %}
+              <details>
+                <summary style="cursor:pointer;color:var(--accent-red);font-size:12px;">❌ View Errors</summary>
+                <pre style="font-size:11px;color:var(--text-muted);margin-top:6px;white-space:pre-wrap;">{{ u.errors }}</pre>
+              </details>
+            {% else %}
+              <span style="color:var(--text-muted);font-size:12px;">None</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">No uploads yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

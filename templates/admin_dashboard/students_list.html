@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Students — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}👥 All Students{% endblock %}
+
+{% block content %}
+<!-- Search & Filter -->
+<div class="card mb-24">
+  <div class="card-body">
+    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label class="form-label">🔍 Search</label>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Name, Reg. No., Phone, Email...">
+      </div>
+      <div style="width:160px;">
+        <label class="form-label">Branch</label>
+        <select name="branch" class="form-select">
+          <option value="">All Branches</option>
+          {% for code, name in branch_choices %}
+          <option value="{{ code }}" {% if branch == code %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="width:130px;">
+        <label class="form-label">Semester</label>
+        <select name="semester" class="form-select">
+          <option value="">All</option>
+          {% for s in semester_choices %}
+          <option value="{{ s }}" {% if semester == s|stringformat:"s" %}selected{% endif %}>Sem {{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'student_list' %}" class="btn btn-outline">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">
+      Students
+      <span class="badge badge-blue" style="margin-left:8px;">{{ page_obj.paginator.count }}</span>
+    </span>
+    <div style="display:flex;gap:8px;">
+      <a href="{% url 'csv_upload' %}" class="btn btn-primary btn-sm">📤 Upload CSV</a>
+      <a href="{% url 'export_students_csv' %}" class="btn btn-outline btn-sm">⬇️ Export</a>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reg. No.</th>
+          <th>Name</th>
+          <th>Branch</th>
+          <th>Sem</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Password?</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in page_obj %}
+        <tr>
+          <td style="color:var(--text-muted);">{{ forloop.counter0|add:page_obj.start_index }}</td>
+          <td><span class="badge badge-blue">{{ s.registration_number }}</span></td>
+          <td style="font-weight:600;">{{ s.name }}</td>
+          <td>{% if s.branch %}<span class="badge badge-purple">{{ s.get_branch_display }}</span>{% else %}—{% endif %}</td>
+          <td>{% if s.semester %}Sem {{ s.semester }}{% else %}—{% endif %}</td>
+          <td>{{ s.phone }}</td>
+          <td style="font-size:12px;">{{ s.email|default:"—" }}</td>
+          <td>
+            {% if s.is_password_changed %}
+              <span class="badge badge-green">✅ Changed</span>
+            {% else %}
+              <span class="badge badge-yellow">⏳ Default</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{{ s.get_whatsapp_url }}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;" title="Send WhatsApp">💬</a>
+              <a href="{% url 'student_edit' s.pk %}" class="btn btn-outline btn-sm" title="Edit">✏️</a>
+              <a href="{% url 'student_delete' s.pk %}" class="btn btn-sm" style="background:var(--gradient-red);color:#fff;" title="Delete">🗑️</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">
+            No students found. <a href="{% url 'csv_upload' %}" style="color:var(--accent-blue);">Upload a CSV</a> to add students.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="card-body" style="padding-top:0;">
+    <div class="pagination-wrap">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&branch={{ branch }}&semester={{ semester }}" class="page-btn">‹</a>
+      {% endif %}
+      {% for i in page_obj.paginator.page_range %}
+        {% if i == page_obj.number %}
+          <span class="page-btn active">{{ i }}</span>
+        {% elif i >= page_obj.number|add:'-3' and i <= page_obj.number|add:'3' %}
+          <a href="?page={{ i }}&q={{ q }}&branch={{ branch }}&semester={{ semester }}" class="page-btn">{{ i }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&branch={{ branch }}&semester={{ semester }}" class="page-btn">›</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

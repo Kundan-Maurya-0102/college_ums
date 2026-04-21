@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Delete Notice — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}🗑️ Delete Notice{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:0 auto;">
+  <div class="card">
+    <div class="card-body" style="text-align:center;padding:40px;">
+      <div style="font-size:48px;margin-bottom:14px;">🗑️</div>
+      <h3 style="margin-bottom:8px;">Delete Notice?</h3>
+      <p style="color:var(--accent-red);font-weight:600;margin-bottom:20px;">"{{ notice.title }}"</p>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <a href="{% url 'notice_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+<!-- #C:\Users\kumar\.gemini\antigravity\scratch\templates\admin_dashboard\notice_delete_confirm.html -->

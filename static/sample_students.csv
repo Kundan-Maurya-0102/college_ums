@@ -1,0 +1,6 @@
+name,phone,registration_number,email,branch,semester,year_of_admission,father_name,mother_name,address
+Rahul Sharma,9876543210,CS2024001,rahul@example.com,CS,6,2024,Rakesh Sharma,Priya Sharma,"123 MG Road, Delhi"
+Priya Patel,8765432109,IT2024002,priya@example.com,IT,6,2024,Vijay Patel,Sunita Patel,"45 Park Street, Mumbai"
+Amit Kumar,7654321098,EC2023003,amit@example.com,EC,6,2023,Suresh Kumar,Meena Kumar,"7 Gandhi Nagar, Jaipur"
+Sneha Reddy,6543210987,ME2024004,sneha@example.com,ME,6,2024,Ramesh Reddy,Lakshmi Reddy,"89 Banjara Hills, Hyderabad"
+Arun Nair,9988776655,CE2023005,,CE,6,2023,Mohan Nair,Usha Nair,"12 Marine Drive, Kochi"

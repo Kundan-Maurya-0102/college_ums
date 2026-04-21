@@ -1,0 +1,576 @@
+{% load static student_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — {{ COLLEGE_NAME }} UMS</title>
+  <meta name="description" content="Your personalized student dashboard at {{ COLLEGE_NAME }}.">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="student-layout">
+
+  <!-- TOP NAVBAR -->
+  <nav class="student-topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:36px;height:36px;background:#1d4ed8;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;">{{ COLLEGE_NAME }}</div>
+        <div style="font-size:11px;">Student Portal</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="{% url 'college_website' %}" class="btn btn-outline btn-sm" style="color:var(--text-primary);border-color:var(--border-color);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        College Website
+      </a>
+      <a href="{% url 'student_profile_edit' %}" class="btn btn-outline btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+        Edit Profile
+      </a>
+      <a href="{% url 'change_password' %}" class="btn btn-outline btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Change Password
+      </a>
+      <a href="{% url 'student_logout' %}" class="btn btn-sm" style="background:rgb(247, 247, 247);border:1px solid rgba(239,68,68,0.2);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <div class="student-content">
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- PROFILE HERO -->
+    <div class="profile-hero fade-in-up">
+      <div class="profile-hero-inner">
+        <div class="profile-avatar" aria-hidden="true">
+          <span class="profile-avatar-text">{{ profile.name|first|upper }}</span>
+        </div>
+
+        <div class="profile-hero-info">
+          <div class="profile-hero-title">
+            <h2 class="profile-name">{{ profile.name }}</h2>
+            <span class="profile-pill">ID: {{ profile.registration_number }}</span>
+          </div>
+
+          {% if profile.email %}
+            <div class="profile-subtitle">{{ profile.email }}</div>
+          {% endif %}
+
+          <div class="profile-meta-grid">
+            <div class="profile-meta-item">
+              <div class="profile-meta-label">Branch</div>
+              <div class="profile-meta-value">{{ profile.get_branch_display|default:"—" }}</div>
+            </div>
+            <div class="profile-meta-item">
+              <div class="profile-meta-label">Semester</div>
+              <div class="profile-meta-value">{% if profile.semester %}{{ profile.semester }}{% else %}—{% endif %}</div>
+            </div>
+            <div class="profile-meta-item">
+              <div class="profile-meta-label">Batch</div>
+              <div class="profile-meta-value">{% if profile.year_of_admission %}{{ profile.year_of_admission }}{% else %}—{% endif %}</div>
+            </div>
+            <div class="profile-meta-item">
+              <div class="profile-meta-label">Phone</div>
+              <div class="profile-meta-value">{{ profile.phone|default:"—" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="stats-grid" style="margin-bottom:24px;">
+      <div class="stat-card fade-in-up">
+        <div class="stat-header">
+          <div class="stat-label">Current Subjects</div>
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+        </div>
+        <div class="stat-value">{{ subjects|length }}</div>
+      </div>
+      
+      <div class="stat-card fade-in-up">
+        <div class="stat-header">
+          <div class="stat-label">Semesters Recorded</div>
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+        </div>
+        <div class="stat-value">
+          {% with pass_count=0 %}
+            {% for sem, res_list in results_by_sem.items %}
+              {% for r in res_list %}{% if r.is_pass %}{% with pass_count=pass_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
+            {% endfor %}
+            {{ results_by_sem.values|length }}
+          {% endwith %}
+        </div>
+      </div>
+      
+      <div class="stat-card fade-in-up">
+        <div class="stat-header">
+          <div class="stat-label">Attendance (1st Subject)</div>
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+        </div>
+        <div class="stat-value">
+          {% if attendance_data %}
+            {% with total_pct=0 %}
+              {% for a in attendance_data %}{% endfor %}
+              {{ attendance_data.0.percentage }}%
+            {% endwith %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      
+      <div class="stat-card fade-in-up">
+        <div class="stat-header">
+          <div class="stat-label">Active Notices</div>
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </div>
+        </div>
+        <div class="stat-value">{{ notices|length }}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+
+      <!-- INTERNAL MARKS -->
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            Internal Marks
+          </span>
+          {% if profile.branch %}<span class="badge" style="border:1px solid var(--border-color);">{{ profile.get_branch_display }} — Sem {{ profile.semester }}</span>{% endif %}
+        </div>
+        <div class="table-responsive">
+          {% if internal_marks %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                {% for et in exam_types %}<th>{{ et }}</th>{% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for code, data in internal_marks.items %}
+              <tr>
+                <td style="font-weight:600;color:var(--text-primary);">
+                  {{ code }}<br><small style="color:var(--text-muted);font-weight:400;">{{ data.subject.subject_name }}</small>
+                </td>
+                {% for et in exam_types %}
+                {% with val=data.marks|marks_display:et pct=data.marks|marks_pct:et %}
+                <td>
+                  {% if val != "—" %}
+                    <span style="font-weight:600;color:{% if pct >= 75 %}var(--accent-green){% elif pct >= 50 %}var(--accent-yellow){% else %}var(--accent-red){% endif %};">{{ val }}</span>
+                    <div style="font-size:11px;color:var(--text-muted);">{{ pct }}%</div>
+                  {% else %}
+                    <span style="color:var(--text-muted);">—</span>
+                  {% endif %}
+                </td>
+                {% endwith %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+            <div style="display:flex;flex-direction:column;align-items:center;padding:32px;color:var(--text-muted);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <p>No internal marks recorded yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ATTENDANCE -->
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Attendance
+          </span>
+        </div>
+        <div class="card-body">
+          {% if attendance_data %}
+            {% for a in attendance_data %}
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <div>
+                  <span style="font-size:14px;font-weight:600;color:var(--text-primary);">{{ a.subject.subject_code }}</span>
+                  <span style="font-size:12px;color:var(--text-muted);margin-left:6px;">{{ a.subject.subject_name }}</span>
+                </div>
+                <span style="font-size:14px;font-weight:700;color:{% if a.status == 'success' %}var(--accent-green){% elif a.status == 'warning' %}var(--accent-yellow){% else %}var(--accent-red){% endif %};">
+                  {{ a.percentage }}%
+                </span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar {{ a.status }}" style="width:{{ a.percentage }}%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="font-size:11px;color:var(--text-muted);">{{ a.present }}/{{ a.total }} classes</span>
+                {% if a.status == 'danger' %}
+                  <span style="font-size:11px;color:var(--accent-red);display:flex;align-items:center;gap:4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    Below 75%
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="display:flex;flex-direction:column;align-items:center;padding:24px;color:var(--text-muted);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <p>No attendance records yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- ATTENDANCE ANALYTICS -->
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;margin-bottom:24px;">
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            Overall Attendance
+          </span>
+        </div>
+        <div class="card-body" style="display:flex; justify-content:center; align-items:center; height: 250px;">
+          <canvas id="overallAttendanceChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Subject-wise Attendance
+          </span>
+        </div>
+        <div class="card-body" style="height: 250px;">
+          <canvas id="subjectAttendanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEMESTER RESULTS -->
+    {% if results_by_sem %}
+    <div class="card mb-24 fade-in-up">
+      <div class="card-header">
+        <span class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          Semester Results
+        </span>
+      </div>
+      {% for sem, res_list in results_by_sem.items %}
+      <div style="padding:16px 22px 0;">
+        <h4 style="font-size:14px;font-weight:600;color:var(--accent-blue);margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          Semester {{ sem }}
+        </h4>
+      </div>
+      <div class="table-responsive" style="margin-bottom:8px;">
+        <table class="data-table marks-table">
+          <thead>
+            <tr><th>Subject</th><th>Internal</th><th>External</th><th>Total</th><th>Grade</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            {% for r in res_list %}
+            <tr>
+              <td style="font-weight:500;color:var(--text-primary);">{{ r.subject.subject_name }}</td>
+              <td>{{ r.internal_marks }}</td>
+              <td>{{ r.external_marks }}</td>
+              <td style="font-weight:700;">{{ r.total_marks }}</td>
+              <td>
+                <span class="badge grade-{{ r.grade|first }}">{{ r.grade }}</span>
+              </td>
+              <td class="{% if r.is_pass %}passed{% else %}failed{% endif %}" style="display:flex;align-items:center;gap:6px;">
+                {% if r.is_pass %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Pass
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                  Fail
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- PERSONAL INFO + NOTICES -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+
+      <!-- PERSONAL INFO -->
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Personal Information
+          </span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
+            <span style="width:140px;font-size:12px;color:var(--text-muted);">Father's Name</span>
+            <span style="font-size:14px;font-weight:500;">{{ profile.father_name|default:"—" }}</span>
+          </div>
+          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
+            <span style="width:140px;font-size:12px;color:var(--text-muted);">Mother's Name</span>
+            <span style="font-size:14px;font-weight:500;">{{ profile.mother_name|default:"—" }}</span>
+          </div>
+          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
+            <span style="width:140px;font-size:12px;color:var(--text-muted);">Date of Birth</span>
+            <span style="font-size:14px;font-weight:500;">{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</span>
+          </div>
+          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
+            <span style="width:140px;font-size:12px;color:var(--text-muted);">Email</span>
+            <span style="font-size:14px;font-weight:500;">{{ profile.email|default:"—" }}</span>
+          </div>
+          <div style="display:flex;padding:10px 0;">
+            <span style="width:140px;font-size:12px;color:var(--text-muted);">Address</span>
+            <span style="font-size:14px;font-weight:500;">{{ profile.address|default:"—" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTICES -->
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Notices
+          </span>
+          <span class="badge badge-blue">{{ notices|length }}</span>
+        </div>
+        <div class="card-body" style="max-height:320px;overflow-y:auto;">
+          {% if notices %}
+            {% for n in notices %}
+            <div class="notice-card">
+              <div class="notice-title">{{ n.title }}</div>
+              <div class="notice-date">{{ n.created_at|date:"d M Y, H:i" }}</div>
+              <div class="notice-content">{{ n.content }}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="display:flex;flex-direction:column;align-items:center;padding:24px;color:var(--text-muted);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <p>No notices for you right now.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">Assignments</span>
+          <span class="badge badge-blue">{{ assignments|length }}</span>
+        </div>
+        <div class="card-body">
+          {% for assignment in assignments %}
+          <div class="notice-card">
+            <div class="notice-title">{{ assignment.title }}</div>
+            <div class="notice-date">{{ assignment.subject.subject_code }}{% if assignment.due_date %} · Due {{ assignment.due_date }}{% endif %}</div>
+            <div class="notice-content">{{ assignment.description|default:"No description" }}</div>
+            {% if assignment.attachment %}<a href="{{ assignment.attachment.url }}" class="btn btn-outline btn-sm mt-16">Open File</a>{% endif %}
+          </div>
+          {% empty %}
+          <p class="text-muted">No assignments yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card fade-in-up">
+        <div class="card-header">
+          <span class="card-title">Notes and PDF</span>
+          <span class="badge badge-purple">{{ materials|length }}</span>
+        </div>
+        <div class="card-body">
+          {% for material in materials %}
+          <div class="notice-card">
+            <div class="notice-title">{{ material.title }}</div>
+            <div class="notice-date">{{ material.subject.subject_code }} · {{ material.get_material_type_display }}</div>
+            <div class="notice-content">{{ material.description|default:"Study material uploaded by faculty." }}</div>
+            <div class="d-flex gap-8 mt-16">
+              {% if material.file %}<a href="{{ material.file.url }}" class="btn btn-outline btn-sm">Open File</a>{% endif %}
+              {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-outline btn-sm" target="_blank">Open Link</a>{% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted">No notes or PDFs uploaded yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+      <div class="card fade-in-up">
+        <div class="card-header"><span class="card-title">Teachers Details</span></div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Teacher</th><th>Subject</th><th>Contact</th></tr></thead>
+            <tbody>
+              {% for row in teachers %}
+              <tr>
+                <td style="font-weight:600;">{{ row.faculty.name }}<br><small class="text-muted">{{ row.faculty.designation }}</small></td>
+                <td>{{ row.subject.subject_code }} - {{ row.subject.subject_name }}</td>
+                <td>{{ row.faculty.email|default:row.faculty.phone|default:"-" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" class="text-muted">Teacher details are not assigned yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card fade-in-up">
+        <div class="card-header"><span class="card-title">Class Schedule</span></div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
+            <tbody>
+              {% for schedule in schedules %}
+              <tr><td>{{ schedule.get_weekday_display }}</td><td>{{ schedule.subject.subject_code }}</td><td>{{ schedule.start_time }} - {{ schedule.end_time }}</td><td>{{ schedule.room|default:"-" }}</td></tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-muted">Schedule not available yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">
+      {{ COLLEGE_NAME }} UMS · Logged in as <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Animate progress bars
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.progress-bar').forEach(bar => {
+    const w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(() => { bar.style.width = w; }, 200);
+  });
+
+  // Extract data from Django context
+  const attendanceData = [
+    {% for a in attendance_data %}
+      {
+        subject: '{{ a.subject.subject_code }}',
+        total: {{ a.total }},
+        present: {{ a.present }},
+        absent: {{ a.absent }},
+        percentage: {{ a.percentage }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  if(attendanceData.length > 0) {
+    let totalPresent = 0;
+    let totalAbsent = 0;
+    const labels = [];
+    const percentages = [];
+    const colors = [];
+
+    attendanceData.forEach(item => {
+      totalPresent += item.present;
+      totalAbsent += item.absent;
+      labels.push(item.subject);
+      percentages.push(item.percentage);
+      if(item.percentage >= 85) colors.push('rgba(16, 185, 129, 0.8)'); // green
+      else if(item.percentage >= 75) colors.push('rgba(245, 158, 11, 0.8)'); // yellow
+      else colors.push('rgba(239, 68, 68, 0.8)'); // red
+    });
+
+    if(totalPresent > 0 || totalAbsent > 0) {
+      // Pie Chart
+      const ctxPie = document.getElementById('overallAttendanceChart').getContext('2d');
+      new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent'],
+          datasets: [{
+            data: [totalPresent, totalAbsent],
+            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+            borderColor: '#18181b',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#a1a1aa', padding: 20 } }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Bar Chart
+      const ctxBar = document.getElementById('subjectAttendanceChart').getContext('2d');
+      new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Attendance %',
+            data: percentages,
+            backgroundColor: colors,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#27272a' }, ticks: { color: '#a1a1aa' } },
+            x: { grid: { display: false }, ticks: { color: '#a1a1aa' } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.y + '%';
+                }
+              }
+            }
+          }
+        }
+      });
+    } else {
+        document.getElementById('overallAttendanceChart').parentElement.innerHTML = '<div style="color:var(--text-muted);">No attendance recorded yet.</div>';
+        document.getElementById('subjectAttendanceChart').parentElement.innerHTML = '<div style="color:var(--text-muted);">No attendance recorded yet.</div>';
+    }
+  }
+});
+</script>
+</body>
+</html>

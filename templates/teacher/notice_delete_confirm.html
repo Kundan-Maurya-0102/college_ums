@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Delete Notice - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Delete Notice{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Confirm Delete</span>
+      <a href="{% url 'teacher_notices' %}" class="btn btn-outline btn-sm">Back</a>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-warning">This notice will be removed from student dashboards.</div>
+      <div class="notice-card">
+        <div class="notice-title">{{ notice.title }}</div>
+        <div class="notice-date">{{ notice.created_at|date:"d M Y H:i" }} · {{ notice.target_branches|default:"All" }} Sem {{ notice.target_semesters|default:"All" }}</div>
+        <div class="notice-content">{{ notice.content }}</div>
+      </div>
+      <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
+        {% csrf_token %}
+        <a href="{% url 'teacher_notices' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete Notice</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

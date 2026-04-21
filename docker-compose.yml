@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: "change-me"
+      ALLOWED_HOSTS: "127.0.0.1,localhost"
+      PORTAL_URL: "http://127.0.0.1:8000"
+      COLLEGE_NAME: "College UMS"
+      DB_ENGINE: "django.db.backends.postgresql"
+      DB_NAME: "college_ums"
+      DB_USER: "college_ums"
+      DB_PASSWORD: "college_ums"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "college_ums"
+      POSTGRES_USER: "college_ums"
+      POSTGRES_PASSWORD: "college_ums"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+

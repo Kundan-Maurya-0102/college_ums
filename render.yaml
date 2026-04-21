@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: college-ums
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn college_ums.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 60"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: PORTAL_URL
+        value: "https://YOUR-RENDER-SERVICE.onrender.com"
+      - key: COLLEGE_NAME
+        value: "My College"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_ENGINE
+        value: "django.db.backends.postgresql"
+      - key: DB_NAME
+        fromDatabase:
+          name: college-ums-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: college-ums-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: college-ums-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: college-ums-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: college-ums-db
+          property: port
+
+databases:
+  - name: college-ums-db
+    plan: free
+

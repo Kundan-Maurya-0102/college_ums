@@ -1,0 +1,7 @@
+branch,semester,subject_code,subject_name,credits,is_active
+CS,6,CS601,Machine Learning,4,1
+CS,6,CS602,Computer Networks,4,1
+IT,6,IT601,Data Warehousing,4,1
+EC,6,EC601,Embedded Systems,4,1
+ME,6,ME601,IC Engines,4,1
+CE,6,CE601,Structural Analysis,4,1

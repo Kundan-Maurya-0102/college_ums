@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Marks Entry - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Marks Entry{% endblock %}
+
+{% block content %}
+<div class="card mb-24">
+  <div class="card-header"><span class="card-title">Select Class</span></div>
+  <div class="card-body">
+    <form method="get" style="display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:14px;align-items:end;">
+      <div>
+        <label class="form-label">Semester</label>
+        <select name="semester" class="form-select" required>
+          <option value="">Select semester</option>
+          {% for sem in available_semesters %}
+          <option value="{{ sem }}" {% if selected_semester|stringformat:"s" == sem|stringformat:"s" %}selected{% endif %}>Sem {{ sem }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Branch</label>
+        <select name="branch" class="form-select" required>
+          <option value="">Select branch</option>
+          {% for code, name in branch_choices %}
+            {% if code in available_branches %}
+            <option value="{{ code }}" {% if selected_branch == code %}selected{% endif %}>{{ name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Subject</label>
+        <select name="subject" class="form-select">
+          <option value="">Auto / all assigned</option>
+          {% for subject in filtered_subjects %}
+          <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_code }} - {{ subject.subject_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Load Students</button>
+    </form>
+    {% if selected_semester and selected_branch %}
+      <div class="text-muted mt-16" style="font-size:13px;">Loaded {{ students|length }} students for Sem {{ selected_semester }} {{ selected_branch }}{% if selected_subject %} · {{ selected_subject.subject_code }}{% endif %}</div>
+    {% else %}
+      <div class="text-muted mt-16" style="font-size:13px;">Choose semester and branch first, then marks entry will show only that class.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:24px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Add / Update Marks</span></div>
+    <div class="card-body">
+      <form method="post" style="display:grid;gap:14px;">
+        {% csrf_token %}
+        <input type="hidden" name="semester" value="{{ selected_semester }}">
+        <input type="hidden" name="branch" value="{{ selected_branch }}">
+        {% for field in form %}
+          <div>
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="text-muted" style="font-size:12px;margin-top:4px;">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="text-danger" style="font-size:12px;">{{ error }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        {% if selected_semester and selected_branch and students %}
+          <button class="btn btn-primary" type="submit">Save Marks</button>
+        {% else %}
+          <button class="btn btn-primary" type="submit" disabled>Select Class First</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Recent Marks</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Subject</th><th>Exam</th><th>Marks</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for mark in recent_marks %}
+          <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject.subject_code }}</td><td>{{ mark.exam_type }}</td><td>{{ mark.marks_obtained }}/{{ mark.max_marks }}</td><td>{{ mark.exam_date }}</td></tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted">No marks yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

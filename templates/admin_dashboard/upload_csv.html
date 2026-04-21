@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Bulk CSV Upload — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}📤 Bulk CSV Upload{% endblock %}
+
+{% block extra_head %}
+<style>
+  .result-row-created {
+    border-left: 3px solid var(--accent-green);
+  }
+
+  .result-row-updated {
+    border-left: 3px solid var(--accent-blue);
+  }
+
+  .result-row-error {
+    border-left: 3px solid var(--accent-red);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+  <!-- Upload Form -->
+  <div>
+    <div class="card mb-24">
+      <div class="card-header">
+        <span class="card-title">📤 CSV Upload (Teachers-friendly)</span>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+          {% csrf_token %}
+
+          <div style="margin-bottom:14px;">
+            <label class="form-label">What do you want to upload?</label>
+            {{ form.upload_type }}
+            {% if form.upload_type.errors %}
+            <div class="alert alert-danger" style="margin-top:8px;">{{ form.upload_type.errors }}</div>
+            {% endif %}
+            <div style="margin-top:8px;color:var(--text-muted);font-size:12px;line-height:1.4;">
+              Tip: Subjects/Marks/Results/Attendance/Notices — sab kuch CSV se upload kar sakte ho.
+            </div>
+          </div>
+
+          <!-- Drop Zone -->
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvFileInput').click()">
+            <div class="drop-zone-icon" id="dropIcon">📁</div>
+            <div class="drop-zone-title" id="dropTitle">Drag & Drop CSV File Here</div>
+            <div class="drop-zone-sub" id="dropSub">or click to browse · Max 10 MB</div>
+            <input type="file" name="file" id="csvFileInput" accept=".csv" style="display:none;" required>
+          </div>
+
+          <div style="margin-top:18px;">
+            <label class="form-label">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div class="alert alert-danger" style="margin-top:8px;">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" style="margin-top:18px;" id="submitBtn">
+            🚀 Process CSV
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Credentials Management -->
+    <div class="card mb-24">
+      <div class="card-header">
+        <span class="card-title">🔐 Credentials Management</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+          Students ko password share mat karo. Set-password link share karo.
+        </p>
+        <div style="display:flex;gap:12px;flex-direction:column;">
+          <a href="{% url 'export_set_password_links_csv' %}" class="btn btn-outline" style="justify-content:center;">
+            ⬇️ Export Set-Password Links CSV
+          </a>
+          <a href="{% url 'student_list' %}" class="btn btn-outline"
+            style="color:var(--accent-green);border-color:var(--accent-green);justify-content:center;">
+            💬 Send Individual WhatsApp Messages
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CSV Format Guide -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 CSV Format Guide</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="/static/sample_students.csv" download class="btn btn-outline btn-sm">Students</a>
+          <a href="/static/sample_subjects.csv" download class="btn btn-outline btn-sm">Subjects</a>
+          <a href="/static/sample_internal_marks.csv" download class="btn btn-outline btn-sm">Marks</a>
+          <a href="/static/sample_results.csv" download class="btn btn-outline btn-sm">Results</a>
+          <a href="/static/sample_attendance.csv" download class="btn btn-outline btn-sm">Attendance</a>
+          <a href="/static/sample_notices.csv" download class="btn btn-outline btn-sm">Notices</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info" style="margin-bottom:14px;">
+          <strong>Rule:</strong> Data automatically unhi students ko dikhega jinke <strong>branch + semester</strong>
+          match honge.
+          Subjects/Marks/Attendance me subject ko resolve karne ke liye student ka branch+semester use hota hai.
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Column</th>
+              <th>Required</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">name</code></td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td>Rahul Sharma</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">phone</code></td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td>9876543210</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">registration_number</code></td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td>CS2024001</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">email</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>rahul@gmail.com</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">branch</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>CS, IT, EC, ME, CE</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">semester</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>1 – 6</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">year_of_admission</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>2024</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">father_name</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>Rakesh Sharma</td>
+            </tr>
+            <tr>
+              <td><code style="color:var(--accent-cyan);">mother_name</code></td>
+              <td><span class="badge badge-green">Optional</span></td>
+              <td>Priya Sharma</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+          📱 <strong>Distribution:</strong> Students ko set-password link WhatsApp/SMS/Email se bhejo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Panel -->
+  <div>
+    {% if result %}
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 Processing Results</span>
+        <div style="display:flex;gap:8px;">
+          <span class="badge badge-green">✅ {{ result.created }} Created</span>
+          <span class="badge badge-blue">🔄 {{ result.updated }} Updated</span>
+          <span class="badge badge-red">❌ {{ result.errors|length }} Errors</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;max-height:600px;overflow-y:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Row</th>
+              <th>Reg. No.</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result.rows %}
+            <tr class="result-row-{{ row.status }}">
+              <td style="color:var(--text-muted);">{{ forloop.counter }}</td>
+              <td><span class="badge badge-purple">{{ row.row }}</span></td>
+              <td style="font-weight:600;color:black">{{ row.reg }}</td>
+              <td>{{ row.name }}</td>
+              <td>
+                {% if row.status == 'created' %}
+                <span class="badge badge-green">✅ Created</span>
+                {% elif row.status == 'updated' %}
+                <span class="badge badge-blue">🔄 Updated</span>
+                {% else %}
+                <span class="badge badge-red">❌ Error</span>
+                {% endif %}
+              </td>
+              <td style="font-size:12px;color:var(--text-muted);">{{ row.message|truncatechars:60 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">No rows processed.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;padding:60px 20px;">
+      <div style="font-size:64px;margin-bottom:16px;">📊</div>
+      <h3 style="color:var(--text-secondary);margin-bottom:8px;">Results Will Appear Here</h3>
+      <p style="color:var(--text-muted);font-size:14px;">Upload and process a CSV file to see the results panel with
+        created/updated/error rows.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('csvFileInput');
+  const dropIcon = document.getElementById('dropIcon');
+  const dropTitle = document.getElementById('dropTitle');
+  const dropSub = document.getElementById('dropSub');
+  const submitBtn = document.getElementById('submitBtn');
+
+  fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) {
+      const f = this.files[0];
+      dropIcon.textContent = '✅';
+      dropTitle.textContent = f.name;
+      dropSub.textContent = (f.size / 1024).toFixed(1) + ' KB · Click to change';
+      dropZone.style.borderColor = 'var(--accent-green)';
+      dropZone.style.background = 'rgba(16,185,129,0.05)';
+    }
+  });
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.name.endsWith('.csv')) {
+      fileInput.files = e.dataTransfer.files;
+      dropIcon.textContent = '✅';
+      dropTitle.textContent = f.name;
+      dropSub.textContent = (f.size / 1024).toFixed(1) + ' KB dropped';
+      dropZone.style.borderColor = 'var(--accent-green)';
+    } else {
+      alert('Please drop a valid .csv file!');
+    }
+  });
+
+  document.getElementById('uploadForm').addEventListener('submit', function () {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Processing...';
+  });
+</script>
+{% endblock %}

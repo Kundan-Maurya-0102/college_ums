@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login — {{ COLLEGE_NAME }} UMS</title>
+  <meta name="description" content="Login to {{ COLLEGE_NAME }} Student Portal to view your marks, attendance, and results.">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="login-page">
+  <!-- Background orbs -->
+  <div class="login-bg-orb" style="width:400px;height:400px;background:rgba(79,142,247,0.15);top:-100px;left:-100px;"></div>
+  <div class="login-bg-orb" style="width:300px;height:300px;background:rgba(139,92,246,0.12);bottom:-80px;right:-80px;"></div>
+
+  <div class="login-card fade-in-up">
+    <div class="login-logo">
+      <div class="login-logo-icon">🎓</div>
+      <h1>{{ COLLEGE_NAME }}</h1>
+      <p>University Management System</p>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }}" style="margin-bottom:16px;">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Username (Registration Number)</label>
+        <input type="text" name="username" class="form-control" placeholder="e.g. cs2024001"
+               value="{{ form.username.value|default:'' }}" id="id_username" required autofocus>
+      </div>
+      <div style="margin-bottom:20px;">
+        <label class="form-label">Password</label>
+        <div style="position:relative;">
+          <input type="password" name="password" class="form-control" placeholder="Enter your password"
+                 id="id_password" required style="padding-right:44px;">
+          <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;">👁</button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100" style="padding:12px;">
+        🚀 Login to Portal
+      </button>
+    </form>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color);text-align:center;">
+      <p style="font-size:12px;color:var(--text-muted);">
+        If this is your first time, use the set-password link provided by your college/admin.
+      </p>
+    </div>
+  </div>
+</div>
+<script>
+function togglePwd() {
+  const p = document.getElementById('id_password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+}
+</script>
+</body>
+</html>

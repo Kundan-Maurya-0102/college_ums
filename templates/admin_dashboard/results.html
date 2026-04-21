@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Results — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}📈 Semester Results{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:300px 1fr;gap:24px;">
+  <div class="card" style="height:fit-content;">
+    <div class="card-header"><span class="card-title">Filter</span></div>
+    <div class="card-body">
+      <form method="get">
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Student</label>
+          <select name="student_id" class="form-select">
+            <option value="">-- Select Student --</option>
+            {% for s in students %}
+            <option value="{{ s.pk }}" {% if student and student.pk == s.pk %}selected{% endif %}>{{ s.name }} ({{ s.registration_number }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Semester (optional)</label>
+          <select name="semester" class="form-select">
+            <option value="">All Semesters</option>
+            {% for i in "12345678" %}
+            <option value="{{ i }}" {% if semester == i %}selected{% endif %}>Sem {{ i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">View Results</button>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    {% if student %}
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">{{ student.name }} — Results</span>
+        <span class="badge badge-blue">{{ student.registration_number }}</span>
+      </div>
+      {% if results %}
+      <div class="table-responsive">
+        <table class="data-table marks-table">
+          <thead>
+            <tr><th>Sem</th><th>Subject</th><th>Internal</th><th>External</th><th>Total</th><th>Grade</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            {% for r in results %}
+            <tr>
+              <td>{{ r.semester }}</td>
+              <td style="font-weight:500;">{{ r.subject.subject_name }}</td>
+              <td>{{ r.internal_marks }}</td>
+              <td>{{ r.external_marks }}</td>
+              <td style="font-weight:600;">{{ r.total_marks }}</td>
+              <td>
+                <span class="badge grade-{{ r.grade|slice:':1' }}">{{ r.grade }}</span>
+              </td>
+              <td>
+                {% if r.is_pass %}
+                  <span class="badge badge-green">✅ Pass</span>
+                {% else %}
+                  <span class="badge badge-red">❌ Fail</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted);">No results found for selected filters.</div>
+      {% endif %}
+    </div>
+    {% else %}
+      <div class="card" style="text-align:center;padding:60px;color:var(--text-muted);">
+        <div style="font-size:48px;margin-bottom:12px;">📈</div>
+        <p>Select a student to view their semester results.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

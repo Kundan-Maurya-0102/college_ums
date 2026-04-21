@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Edit Student — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}✏️ Edit Student Profile{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">{{ profile.name }}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+          Reg: {{ profile.registration_number }} · Added {{ profile.created_at|date:"d M Y" }}
+        </div>
+      </div>
+      <a href="{% url 'student_list' %}" class="btn btn-outline btn-sm">← Back</a>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div>
+            <label class="form-label">Full Name *</label>
+            {{ form.name }}
+          </div>
+          <div>
+            <label class="form-label">Phone *</label>
+            {{ form.phone }}
+          </div>
+          <div>
+            <label class="form-label">Registration Number *</label>
+            {{ form.registration_number }}
+          </div>
+          <div>
+            <label class="form-label">Email</label>
+            {{ form.email }}
+          </div>
+          <div>
+            <label class="form-label">Branch</label>
+            {{ form.branch }}
+          </div>
+          <div>
+            <label class="form-label">Semester</label>
+            {{ form.semester }}
+          </div>
+          <div>
+            <label class="form-label">Year of Admission</label>
+            {{ form.year_of_admission }}
+          </div>
+          <div>
+            <label class="form-label">Date of Birth</label>
+            {{ form.date_of_birth }}
+          </div>
+          <div>
+            <label class="form-label">Father's Name</label>
+            {{ form.father_name }}
+          </div>
+          <div>
+            <label class="form-label">Mother's Name</label>
+            {{ form.mother_name }}
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label class="form-label">Address</label>
+          {{ form.address }}
+        </div>
+
+        {% for field in form %}
+          {% if field.errors %}
+          <div class="alert alert-danger">{{ field.label }}: {{ field.errors }}</div>
+          {% endif %}
+        {% endfor %}
+
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+          <a href="{% url 'student_list' %}" class="btn btn-outline">Cancel</a>
+          <a href="{% url 'student_delete' profile.pk %}" class="btn btn-danger" style="margin-left:auto;">🗑️ Delete Student</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

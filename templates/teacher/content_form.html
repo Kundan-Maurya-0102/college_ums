@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:24px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Create {{ title }}</span></div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" style="display:grid;gap:14px;">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<div class="text-danger" style="font-size:12px;">{{ error }}</div>{% endfor %}
+        </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Save {{ title }}</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Recent {{ title }}</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title / Subject</th>
+            <th>Status</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td style="font-weight:600;">{{ item.title|default:item.subject.subject_code }}<br><small
+                class="text-muted">{{ item.subject.subject_code }} · Sem {{ item.subject.semester }} {{
+                item.subject.branch }}</small></td>
+            <td>{% if item.is_active %}<span class="badge badge-green">Active</span>{% else %}<span
+                class="badge badge-red">Hidden</span>{% endif %}</td>
+            <td>
+              {% if item.due_date %}Due {{ item.due_date }}{% endif %}
+              {% if item.material_type %}{{ item.get_material_type_display }}{% endif %}
+              {% if item.start_time %}{{ item.get_weekday_display }} {{ item.start_time }} - {{ item.end_time }}{% endif
+              %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-muted">Nothing added yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
