@@ -12,17 +12,19 @@
   local compose (Postgres, healthcheck, media volume), `docker-compose.prod.yml`
   (web + db + Caddy TLS), `deploy/Caddyfile`, `scripts/new_college.sh` scaffolder,
   `/healthz/` probe, README deploy docs.
+- Tests: 37 tests in `students/tests/` (permissions/roles, CSV form + import, set-password
+  token expiry/reuse, healthz + visit logging, env branding, settings hardening).
+  `python manage.py test` → OK.
 
 ## In progress
 - (kuch nahi)
 
 ## Next (is order mein karna ye hai)
-1. Tests likhna (abhi 0 tests)
-2. views.py ko modules mein todna
-3. WhatsApp/SMS alerts
-4. Razorpay fee payment
-5. Parent portal + reports
-6. create_college management command
+1. views.py ko modules mein todna
+2. WhatsApp/SMS alerts
+3. Razorpay fee payment
+4. Parent portal + reports
+5. create_college management command
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →
@@ -54,3 +56,9 @@
   Caddy config validate nahi hue — sirf YAML parse, `bash -n`, scaffold test, `check` chalaye.
 - `.env.example` poora documented hai; `render.yaml` + `docker-compose.yml` me bhi keys hain
   (compose ab SECRET_KEY shell/.env se leta hai, hardcoded "change-me" hata diya).
+- Tests: `students/tests.py` hata kar `students/tests/` package bana (auth/permissions,
+  csv_upload, password_links, ops, settings). Server par `python manage.py test`.
+- ⚠️ Is machine ka venv **Python 3.14** hai jabki Django 4.2 max 3.12 support karta hai;
+  Django 4.2 ka test template-instrumentation `BaseContext.__copy__` 3.14 par crash karta
+  tha. Isliye `students/tests/__init__.py` me chhota shim hai (deployment image 3.12 hai,
+  wahan behavior same). CI/server par Python 3.12 use karna behtar hai.
