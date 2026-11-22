@@ -16,3 +16,11 @@ media/
 staticfiles/
 .env
 
+deployments/
+docs/
+scratch/
+cns_exam/
+image2pdf/
+test_csv/
+*.log
+*.png

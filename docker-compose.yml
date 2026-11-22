@@ -1,43 +1,40 @@
+# Local development stack: Postgres + Django. Copy .env.example to .env first.
 services:
   web:
     build: .
-    ports:
-      - "8000:8000"
+    env_file: .env
     environment:
-      DEBUG: "False"
-      SECRET_KEY: "${SECRET_KEY:?Set SECRET_KEY in .env before running docker compose}"
-      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-127.0.0.1,localhost}"
-      CSRF_TRUSTED_ORIGINS: "${CSRF_TRUSTED_ORIGINS:-}"
-      PASSWORD_TOKEN_TIMEOUT_HOURS: "${PASSWORD_TOKEN_TIMEOUT_HOURS:-48}"
-      CSV_MAX_UPLOAD_MB: "${CSV_MAX_UPLOAD_MB:-5}"
-      PORTAL_URL: "http://127.0.0.1:8000"
-      COLLEGE_NAME: "College UMS"
-      COLLEGE_LOGO: "images/college_logo.jpg"
-      PRIMARY_COLOR: "#000080"
-      COLLEGE_EMAIL: ""
-      COLLEGE_PHONE: ""
-      COLLEGE_ADDRESS: ""
-      COLLEGE_WEBSITE: ""
-      COLLEGE_AFFILIATION: ""
-      COLLEGE_ESTABLISHED: ""
-      COLLEGE_PRINCIPAL_NAME: ""
       DB_ENGINE: "django.db.backends.postgresql"
-      DB_NAME: "college_ums"
-      DB_USER: "college_ums"
-      DB_PASSWORD: "college_ums"
+      DB_NAME: "${DB_NAME:-college_ums}"
+      DB_USER: "${DB_USER:-college_ums}"
+      DB_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in .env}"
       DB_HOST: "db"
       DB_PORT: "5432"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-localhost,127.0.0.1}"
+    ports:
+      - "8000:8000"
+    volumes:
+      - media:/app/media
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: "college_ums"
-      POSTGRES_USER: "college_ums"
-      POSTGRES_PASSWORD: "college_ums"
+      POSTGRES_DB: "${DB_NAME:-college_ums}"
+      POSTGRES_USER: "${DB_USER:-college_ums}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in .env}"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-college_ums} -d ${DB_NAME:-college_ums}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   pgdata:
-
+  media:

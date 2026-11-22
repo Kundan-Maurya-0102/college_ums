@@ -77,6 +77,11 @@ def _subject_class_students(subject):
     return StudentProfile.objects.filter(branch=subject.branch, semester=subject.semester).order_by("registration_number")
 
 
+def healthz(request):
+    """Liveness probe for Docker/Caddy. No DB access, no auth, not visit-logged."""
+    return JsonResponse({"status": "ok"})
+
+
     
 
 # ─────────────────────────── DASHBOARD ───────────────────────────

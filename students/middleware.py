@@ -11,7 +11,7 @@ class WebsiteVisitMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.path.startswith(("/static/", "/media/", "/admin/jsi18n/")):
+        if request.path.startswith(("/static/", "/media/", "/admin/jsi18n/", "/healthz/")):
             return response
         if response.status_code >= 400:
             return response

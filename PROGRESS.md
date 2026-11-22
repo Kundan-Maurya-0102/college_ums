@@ -8,18 +8,21 @@
 - Security fixes: SECRET_KEY mandatory (no fallback), DEBUG default False,
   ALLOWED_HOSTS + CSRF_TRUSTED_ORIGINS env se, prod me secure cookies, set-password
   token expiry 48h, CSV upload type/size/content validation, seed passwords DEBUG-only.
+- Deploy stack: non-root Dockerfile + `entrypoint.sh` (migrate → collectstatic → gunicorn),
+  local compose (Postgres, healthcheck, media volume), `docker-compose.prod.yml`
+  (web + db + Caddy TLS), `deploy/Caddyfile`, `scripts/new_college.sh` scaffolder,
+  `/healthz/` probe, README deploy docs.
 
 ## In progress
 - (kuch nahi)
 
 ## Next (is order mein karna ye hai)
-1. Docker + Postgres + Caddy + deploy script (naya college add karne ka)
-2. Tests likhna
-3. views.py ko modules mein todna
-4. WhatsApp/SMS alerts
-5. Razorpay fee payment
-6. Parent portal + reports
-7. create_college management command
+1. Tests likhna (abhi 0 tests)
+2. views.py ko modules mein todna
+3. WhatsApp/SMS alerts
+4. Razorpay fee payment
+5. Parent portal + reports
+6. create_college management command
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →
@@ -40,5 +43,14 @@
   check (`students/forms.py:CSVUploadForm.clean_file`).
 - Set-password links: `PASSWORD_TOKEN_TIMEOUT_HOURS` (default 48) → `PASSWORD_RESET_TIMEOUT`.
 - `generate_data.py` sirf `DEBUG=True` + `SEED_STUDENT_PASSWORD` set hone par chalta hai.
+- Deploy model: ek college = ek compose project (`docker compose -p <slug> ...`), apna
+  `.env`, apna DB + volumes. `scripts/new_college.sh` `deployments/<slug>/.env`
+  (chmod 600) + README banata hai; `deployments/` gitignored aur dockerignored.
+- prod compose `.env` `--env-file` se aata hai (`ENV_FILE` interpolation). Caddy `/media/*`
+  khud serve karta hai kyunki DEBUG=False par Django media nahi deta.
+- `/healthz/` DB-free hai, `WebsiteVisitMiddleware` ise log nahi karta, aur prod me
+  `SECURE_REDIRECT_EXEMPT` se HTTP par rehta hai (container healthcheck ke liye).
+- ⚠️ Is machine par docker/caddy installed nahi, isliye image build, `compose up` aur
+  Caddy config validate nahi hue — sirf YAML parse, `bash -n`, scaffold test, `check` chalaye.
 - `.env.example` poora documented hai; `render.yaml` + `docker-compose.yml` me bhi keys hain
   (compose ab SECRET_KEY shell/.env se leta hai, hardcoded "change-me" hata diya).

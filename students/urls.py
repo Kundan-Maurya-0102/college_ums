@@ -7,6 +7,9 @@ from .views_student import (student_login, student_logout, change_password,
                             student_feedback, student_events, student_certificates)
 
 urlpatterns = [
+    # ── Ops ───────────────────────────────────────
+    path('healthz/', views.healthz, name='healthz'),
+
     # ── Auth ──────────────────────────────────────
     path('login/', student_login, name='student_login'),
     path('logout/', student_logout, name='student_logout'),
