@@ -10,6 +10,12 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: PASSWORD_TOKEN_TIMEOUT_HOURS
+        value: "48"
+      - key: CSV_MAX_UPLOAD_MB
+        value: "5"
       - key: PORTAL_URL
         value: "https://YOUR-RENDER-SERVICE.onrender.com"
       - key: COLLEGE_NAME

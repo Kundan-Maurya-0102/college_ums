@@ -80,7 +80,9 @@ See `students/urls.py` (single app). Root project urls include admin + app urls.
 - Templates in BASE_DIR/templates.
 
 ## 8. Seed Data
-`generate_data.py` creates students with password `pass123` and set-password links. Admin superuser `admin` (password reset locally to `admin123`).
+`generate_data.py` is development-only: it refuses to run unless `DEBUG=True` and
+`SEED_STUDENT_PASSWORD` is set, so no demo password is hardcoded or usable in production.
+The admin superuser is created with `python manage.py createsuperuser`.
 
 ## 9. Deployment
 - Render free tier (Postgres, gunicorn).

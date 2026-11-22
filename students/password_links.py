@@ -4,6 +4,9 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 
+# Django enforces expiry through settings.PASSWORD_RESET_TIMEOUT (see settings.py,
+# default 48h from PASSWORD_TOKEN_TIMEOUT_HOURS) and invalidates the token once the
+# user's password changes or they log in, so links are effectively one-time.
 token_generator = PasswordResetTokenGenerator()
 
 

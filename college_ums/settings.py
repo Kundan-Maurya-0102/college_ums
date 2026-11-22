@@ -2,14 +2,34 @@ import environ
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, True))
+env = environ.Env()
 environ.Env.read_env(BASE_DIR / '.env')
 
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
-DEBUG = env('DEBUG')
-ALLOWED_HOSTS = ['*']
+# SECRET_KEY is mandatory: there is no insecure fallback.
+# Generate one with:
+#   python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
+try:
+    SECRET_KEY = env('SECRET_KEY')
+except ImproperlyConfigured as exc:
+    raise ImproperlyConfigured(
+        "SECRET_KEY is not set. Add SECRET_KEY=<random 50+ chars> to your .env file "
+        "(see .env.example). Refusing to start with a default key."
+    ) from exc
+
+DEBUG = env.bool('DEBUG', default=False)
+
+if not DEBUG and SECRET_KEY.startswith('django-insecure'):
+    raise ImproperlyConfigured(
+        "SECRET_KEY looks like a development key (starts with 'django-insecure'). "
+        "Set a unique SECRET_KEY before running with DEBUG=False."
+    )
+
+# Comma-separated per deployment, e.g. ALLOWED_HOSTS=ums.college.edu,www.ums.college.edu
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -120,15 +140,15 @@ COLLEGE_ESTABLISHED = env('COLLEGE_ESTABLISHED', default='')
 COLLEGE_PRINCIPAL_NAME = env('COLLEGE_PRINCIPAL_NAME', default='')
 
 # File upload
+CSV_MAX_UPLOAD_MB = env.int('CSV_MAX_UPLOAD_MB', default=5)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
-# ── Ngrok & Production Trust ───────────────────────────
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok-free.app',
-    'https://*.ngrok-free.dev',
-    'https://*.onrender.com',
-]
+# Set-password / reset links expire after this many hours.
+PASSWORD_RESET_TIMEOUT = env.int('PASSWORD_TOKEN_TIMEOUT_HOURS', default=48) * 60 * 60
+
+# ── Trusted origins (set per deployment, e.g. https://ums.college.edu) ──
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 # ── Production hardening (toggle via DEBUG) ───────────────────────────
 if not DEBUG:
@@ -136,7 +156,9 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
     SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24 * 30)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True

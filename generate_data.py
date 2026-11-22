@@ -1,22 +1,45 @@
+"""Seed demo data for local development only.
+
+Refuses to run unless DEBUG=True (so demo passwords never reach production) and
+the demo password comes from the SEED_STUDENT_PASSWORD environment variable,
+never from a hardcoded value.
+"""
+import csv
+import datetime
 import os
+import random
+import sys
+
 import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'college_ums.settings')
 django.setup()
 
-import csv
-from students.models import StudentProfile, Subject, Attendance
+from django.conf import settings
 from django.contrib.auth.models import User
-import datetime
-import random
+
+from students.models import Attendance, StudentProfile, Subject
+
 
 def run():
+    if not settings.DEBUG:
+        sys.exit(
+            "Refusing to seed demo data: DEBUG is False. "
+            "Demo students/passwords are only allowed in local development."
+        )
+
+    seed_password = os.getenv('SEED_STUDENT_PASSWORD')
+    if not seed_password:
+        sys.exit(
+            "Set SEED_STUDENT_PASSWORD in your environment/.env to seed demo students."
+        )
+
     print("Reading CSV and creating students...")
     with open('test_student.csv', 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             user, _ = User.objects.get_or_create(username=row['registration_number'])
-            user.set_password('pass123')
+            user.set_password(seed_password)
             user.save()
             StudentProfile.objects.update_or_create(
                 registration_number=row['registration_number'],
@@ -29,7 +52,6 @@ def run():
                     'branch': row['branch'],
                     'semester': int(row['semester']),
                     'year_of_admission': int(row['year_of_admission']),
-                    'current_password': 'pass123',
                     'is_password_changed': True,
                 }
             )
@@ -49,9 +71,10 @@ def run():
             for sub in subjects:
                 Attendance.objects.update_or_create(
                     student=student, subject=sub, date=d,
-                    defaults={'is_present': random.choice([True, True, True, False])} # 75% chance present
+                    defaults={'is_present': random.choice([True, True, True, False])}  # 75% chance present
                 )
     print("Done creating dummy data and attendance!")
+
 
 if __name__ == '__main__':
     run()

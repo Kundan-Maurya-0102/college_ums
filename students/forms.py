@@ -1,4 +1,7 @@
+import csv
+
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
@@ -30,11 +33,47 @@ class CSVUploadForm(forms.ModelForm):
 
     def clean_file(self):
         f = self.cleaned_data.get('file')
-        if f:
-            if not f.name.lower().endswith('.csv'):
-                raise forms.ValidationError("Only CSV files are allowed.")
-            if f.size > 10 * 1024 * 1024:
-                raise forms.ValidationError("File size must be under 10 MB.")
+        if not f:
+            return f
+        if not f.name.lower().endswith('.csv'):
+            raise forms.ValidationError("Only .csv files are allowed.")
+
+        max_mb = int(getattr(settings, 'CSV_MAX_UPLOAD_MB', 5))
+        if f.size > max_mb * 1024 * 1024:
+            raise forms.ValidationError(f"File size must be under {max_mb} MB.")
+        if f.size == 0:
+            raise forms.ValidationError("The uploaded file is empty.")
+
+        # Sniff the content instead of trusting the file extension: reject
+        # binary payloads and files that are not real delimited text.
+        head = f.read(8192)
+        f.seek(0)
+        if b'\x00' in head:
+            raise forms.ValidationError("This file looks binary, not a CSV text file.")
+        try:
+            text = head.decode('utf-8-sig')
+        except UnicodeDecodeError:
+            raise forms.ValidationError("CSV must be UTF-8 encoded text.")
+
+        sample = text[:2048]
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters=',;\t')
+        except csv.Error:
+            raise forms.ValidationError(
+                "Could not detect CSV columns. Upload a comma-separated file with a header row."
+            )
+
+        lines = text.splitlines()
+        if not lines:
+            raise forms.ValidationError("The uploaded file is empty.")
+        try:
+            header = next(csv.reader([lines[0]], dialect))
+        except csv.Error:
+            header = []
+        if len([col for col in header if col.strip()]) < 2:
+            raise forms.ValidationError(
+                "CSV must have a header row with at least two columns."
+            )
         return f
 
 
