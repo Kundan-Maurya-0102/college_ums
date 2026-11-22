@@ -249,7 +249,9 @@ def student_profile_edit(request):
 
 @login_required(login_url='/login/')
 def college_website(request):
-    return render(request, 'student/college_website.html')
+    return render(request, 'student/college_website.html', {
+        'branch_count': len(StudentProfile.BRANCH_CHOICES),
+    })
 
 
 # ─────────────────── STUDENT: FEE STATUS ───────────────────

@@ -104,9 +104,20 @@ TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='')
 TWILIO_WHATSAPP_FROM = env('TWILIO_WHATSAPP_FROM', default='whatsapp:+14155238886')
 
-# College Settings
+# ── College branding (per-deployment, never hardcode in templates) ──
 PORTAL_URL = env('PORTAL_URL', default='http://127.0.0.1:8000')
 COLLEGE_NAME = env('COLLEGE_NAME', default='College UMS')
+# Static path (e.g. images/college_logo.jpg) or absolute https URL. Blank = icon fallback.
+COLLEGE_LOGO = env('COLLEGE_LOGO', default='images/college_logo.jpg')
+PRIMARY_COLOR = env('PRIMARY_COLOR', default='#000080')
+COLLEGE_EMAIL = env('COLLEGE_EMAIL', default='')
+COLLEGE_PHONE = env('COLLEGE_PHONE', default='')
+# Optional public-page details; blank values are hidden in templates.
+COLLEGE_ADDRESS = env('COLLEGE_ADDRESS', default='')
+COLLEGE_WEBSITE = env('COLLEGE_WEBSITE', default='')
+COLLEGE_AFFILIATION = env('COLLEGE_AFFILIATION', default='')
+COLLEGE_ESTABLISHED = env('COLLEGE_ESTABLISHED', default='')
+COLLEGE_PRINCIPAL_NAME = env('COLLEGE_PRINCIPAL_NAME', default='')
 
 # File upload
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB

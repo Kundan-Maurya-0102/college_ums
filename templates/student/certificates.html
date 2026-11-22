@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Certificates — {{ COLLEGE_NAME }} UMS</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include 'partials/college_colors.html' %}
 </head>
 <body>
 <div class="student-layout">
@@ -29,7 +29,7 @@
     {% if cert_type == 'bonafide' %}
     <div class="certificate-page">
       <h2>{{ COLLEGE_NAME|upper }}</h2>
-      <p style="font-size:12px;">Affiliated to SBTE Bihar | Govt. of Bihar</p>
+      {% if COLLEGE_AFFILIATION %}<p style="font-size:12px;">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
       <hr>
       <h1>BONAFIDE CERTIFICATE</h1>
       <div class="cert-body">
@@ -55,7 +55,7 @@
     {% if cert_type == 'character' %}
     <div class="certificate-page">
       <h2>{{ COLLEGE_NAME|upper }}</h2>
-      <p style="font-size:12px;">Affiliated to SBTE Bihar | Govt. of Bihar</p>
+      {% if COLLEGE_AFFILIATION %}<p style="font-size:12px;">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
       <hr>
       <h1>CHARACTER CERTIFICATE</h1>
       <div class="cert-body">

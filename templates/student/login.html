@@ -7,6 +7,7 @@
   <title>Login — {{ COLLEGE_NAME }} UMS</title>
   <meta name="description" content="Login to {{ COLLEGE_NAME }} Student Portal.">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% include 'partials/college_colors.html' %}
   <style>
     .login-page {
       min-height: 100vh;
@@ -38,7 +39,7 @@
     <div class="login-header">&#9632; {{ COLLEGE_NAME }} — Login</div>
 
     <div style="text-align:center;margin-bottom:12px;">
-      <img src="{% static 'images/college_logo.jpg' %}" alt="Logo" style="width:60px;height:60px;object-fit:contain;border:1px solid #999;">
+      <div style="width:60px;height:60px;margin:0 auto;display:flex;align-items:center;justify-content:center;border:1px solid #999;background:var(--bg-white);">{% include 'partials/college_logo.html' %}</div>
       <div style="font-size:12px;margin-top:4px;"><b>University Management System</b></div>
     </div>
 

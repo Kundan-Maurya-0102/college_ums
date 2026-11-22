@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Government Polytechnic Tekari — Official Website</title>
+  <title>{{ COLLEGE_NAME }} — Official Website</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -17,8 +17,8 @@
       --border: #2a2a2a;
       --text: #f0f0f0;
       --muted: #888;
-      --accent: #1d6fdb;
-      --accent-light: #2563eb1a;
+      --accent: {{ PRIMARY_COLOR }};
+      --accent-light: {{ PRIMARY_COLOR }}1a;
       --green: #16a34a;
       --red: #dc2626;
     }
@@ -66,7 +66,7 @@
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
       color: var(--accent); background: var(--accent-light);
-      border: 1px solid #2563eb30; padding: 4px 10px; border-radius: 100px;
+      border: 1px solid var(--accent-light); padding: 4px 10px; border-radius: 100px;
       margin-bottom: 20px;
     }
     .hero h1 {
@@ -115,7 +115,7 @@
     .dept-card:hover { border-color: var(--accent); background: var(--surface-2); }
     .dept-icon {
       width: 40px; height: 40px; border-radius: 8px;
-      background: var(--accent-light); border: 1px solid #2563eb30;
+      background: var(--accent-light); border: 1px solid var(--accent-light);
       display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
       color: var(--accent);
     }
@@ -185,7 +185,7 @@
     <div class="nav-logo">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
     </div>
-    <span class="nav-brand-text">GP Tekari</span>
+    <span class="nav-brand-text">{{ COLLEGE_NAME }}</span>
   </div>
   <div class="nav-links">
     <a href="#about">About</a>
@@ -206,23 +206,27 @@
   <div class="hero" style="padding-left:0;padding-right:0;">
     <div class="hero-label">
       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
-      Est. 2016 · AICTE Approved · SBTE Bihar Affiliated
+      {% if COLLEGE_ESTABLISHED %}Est. {{ COLLEGE_ESTABLISHED }}{% endif %}{% if COLLEGE_AFFILIATION %}{% if COLLEGE_ESTABLISHED %} · {% endif %}{{ COLLEGE_AFFILIATION }} Affiliated{% endif %}
     </div>
-    <h1>Government Polytechnic<br>Tekari</h1>
-    <p>A premier government technical institution in Gaya, Bihar — committed to quality diploma-level engineering education and holistic skill development.</p>
+    <h1>{{ COLLEGE_NAME }}</h1>
+    <p>A technical institution committed to quality engineering education, practical training and holistic skill development.</p>
     <div class="hero-tags">
+      {% if COLLEGE_ADDRESS %}
       <span class="tag">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Tekari, Gaya, Bihar — 824235
+        {{ COLLEGE_ADDRESS }}
       </span>
+      {% endif %}
       <span class="tag">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        3-Year Diploma Programs
+        Technical Education
       </span>
+      {% if COLLEGE_AFFILIATION %}
       <span class="tag">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Dept. of Science &amp; Technology, Govt. of Bihar
+        {{ COLLEGE_AFFILIATION }}
       </span>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -231,48 +235,52 @@
 <div class="wrapper">
   <section id="about">
     <div class="section-label">About the Institute</div>
-    <div class="section-title">Building Technical Excellence Since 2016</div>
+    <div class="section-title">Building Technical Excellence{% if COLLEGE_ESTABLISHED %} Since {{ COLLEGE_ESTABLISHED }}{% endif %}</div>
     <div class="section-body">
-      Government Polytechnic Tekari was established in July 2016 under the Department of Science and Technology, Government of Bihar. Approved by the All India Council for Technical Education (AICTE) and affiliated to the State Board of Technical Education (SBTE), Bihar, the institute is dedicated to providing quality diploma-level technical education to students from the region.<br><br>
-      The institute fosters technical excellence and skill development to prepare students for the demands of modern industry and society. With a strong emphasis on practical training, government-supported infrastructure, and experienced faculty, GP Tekari stands as a beacon of accessible engineering education in Gaya district.
+      {{ COLLEGE_NAME }} was established{% if COLLEGE_ESTABLISHED %} in {{ COLLEGE_ESTABLISHED }}{% endif %}{% if COLLEGE_AFFILIATION %} and is affiliated to {{ COLLEGE_AFFILIATION }}{% endif %}. The institute is dedicated to providing quality technical education to students from the region.<br><br>
+      The institute fosters technical excellence and skill development to prepare students for the demands of modern industry and society. With a strong emphasis on practical training, dependable infrastructure, and experienced faculty, {{ COLLEGE_NAME }} stands as a beacon of accessible engineering education.
     </div>
     <div class="stats-row">
+      {% if COLLEGE_ESTABLISHED %}
       <div class="stat-box">
-        <div class="stat-num">2016</div>
+        <div class="stat-num">{{ COLLEGE_ESTABLISHED }}</div>
         <div class="stat-desc">Year of Establishment</div>
       </div>
+      {% endif %}
       <div class="stat-box">
-        <div class="stat-num">5</div>
+        <div class="stat-num">{{ branch_count }}</div>
         <div class="stat-desc">Engineering Branches</div>
       </div>
       <div class="stat-box">
-        <div class="stat-num">3 Yrs</div>
-        <div class="stat-desc">Diploma Program Duration</div>
+        <div class="stat-num">24×7</div>
+        <div class="stat-desc">Student Portal Access</div>
       </div>
     </div>
   </section>
 
   <!-- PRINCIPAL -->
+  {% if COLLEGE_PRINCIPAL_NAME %}
   <section id="principal">
     <div class="section-label">Leadership</div>
     <div class="section-title">Principal's Desk</div>
     <div class="principal-card">
-      <div class="principal-avatar">B</div>
+      <div class="principal-avatar">{{ COLLEGE_PRINCIPAL_NAME|first|upper }}</div>
       <div>
-        <div class="principal-name">Dr. Bidhi Lal Prabhakar</div>
-        <div class="principal-role">Principal — Government Polytechnic Tekari</div>
+        <div class="principal-name">{{ COLLEGE_PRINCIPAL_NAME }}</div>
+        <div class="principal-role">Principal — {{ COLLEGE_NAME }}</div>
         <div class="principal-msg">
-          "It is my privilege to welcome you to Government Polytechnic Tekari. Our institution is committed to imparting quality technical education with a blend of theoretical knowledge and practical skill. We believe that every student holds immense potential, and our dedicated faculty and modern infrastructure are here to help you realise it. Together, we strive to build a technically competent and socially responsible generation of engineers."
+          "It is my privilege to welcome you to {{ COLLEGE_NAME }}. Our institution is committed to imparting quality technical education with a blend of theoretical knowledge and practical skill. We believe that every student holds immense potential, and our dedicated faculty and modern infrastructure are here to help you realise it.”
         </div>
       </div>
     </div>
   </section>
+  {% endif %}
 
   <!-- DEPARTMENTS -->
   <section id="departments">
     <div class="section-label">Academics</div>
     <div class="section-title">Engineering Departments</div>
-    <div class="section-body">All programs are 3-year full-time diploma courses affiliated to SBTE Bihar.</div>
+    <div class="section-body">{% if COLLEGE_AFFILIATION %}All programs are full-time courses affiliated to {{ COLLEGE_AFFILIATION }}.{% else %}All programs are full-time technical courses.{% endif %}</div>
     <div class="dept-grid">
       <div class="dept-card">
         <div class="dept-icon">
@@ -316,7 +324,7 @@
   <section id="facilities">
     <div class="section-label">Campus</div>
     <div class="section-title">Infrastructure &amp; Facilities</div>
-    <div class="section-body">GP Tekari provides modern infrastructure to support a productive learning environment.</div>
+    <div class="section-body">{{ COLLEGE_NAME }} provides modern infrastructure to support a productive learning environment.</div>
     <div class="facilities-grid">
       <div class="facility-item">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -350,29 +358,43 @@
     <div class="section-label">Get in Touch</div>
     <div class="section-title">Contact &amp; Location</div>
     <div class="contact-grid">
+      {% if COLLEGE_ADDRESS %}
       <div class="contact-card">
         <div class="contact-label">Address</div>
-        <div class="contact-value">Chaita Makhdumpur, PO-Harhi Makhdumpur,<br>Thana-Alipur, Tekari, Gaya, Bihar — 824235</div>
+        <div class="contact-value">{{ COLLEGE_ADDRESS }}</div>
       </div>
+      {% endif %}
+      {% if COLLEGE_WEBSITE %}
       <div class="contact-card">
         <div class="contact-label">Official Website</div>
-        <div class="contact-value"><a href="https://www.gptekari.org" target="_blank" rel="noopener">www.gptekari.org</a></div>
+        <div class="contact-value"><a href="{{ COLLEGE_WEBSITE }}" target="_blank" rel="noopener">{{ COLLEGE_WEBSITE }}</a></div>
       </div>
+      {% endif %}
+      {% if COLLEGE_EMAIL %}
+      <div class="contact-card">
+        <div class="contact-label">Email</div>
+        <div class="contact-value"><a href="mailto:{{ COLLEGE_EMAIL }}">{{ COLLEGE_EMAIL }}</a></div>
+      </div>
+      {% endif %}
+      {% if COLLEGE_PHONE %}
+      <div class="contact-card">
+        <div class="contact-label">Phone</div>
+        <div class="contact-value"><a href="tel:{{ COLLEGE_PHONE }}">{{ COLLEGE_PHONE }}</a></div>
+      </div>
+      {% endif %}
+      {% if COLLEGE_AFFILIATION %}
       <div class="contact-card">
         <div class="contact-label">Affiliation</div>
-        <div class="contact-value">State Board of Technical Education (SBTE), Bihar</div>
+        <div class="contact-value">{{ COLLEGE_AFFILIATION }}</div>
       </div>
-      <div class="contact-card">
-        <div class="contact-label">Approved By</div>
-        <div class="contact-value">All India Council for Technical Education (AICTE)</div>
-      </div>
+      {% endif %}
     </div>
   </section>
 </div>
 
 <footer>
-  <strong>Government Polytechnic Tekari</strong> &nbsp;·&nbsp; Est. 2016 &nbsp;·&nbsp; Tekari, Gaya, Bihar &nbsp;·&nbsp;
-  Viewing via <strong>{{ request.user.username }}</strong>'s Student Portal
+  <strong>{{ COLLEGE_NAME }}</strong>{% if COLLEGE_ESTABLISHED %} &nbsp;·&nbsp; Est. {{ COLLEGE_ESTABLISHED }}{% endif %}{% if COLLEGE_ADDRESS %} &nbsp;·&nbsp; {{ COLLEGE_ADDRESS }}{% endif %}
+  &nbsp;·&nbsp; Viewing via <strong>{{ request.user.username }}</strong>'s Student Portal
 </footer>
 
 </body>

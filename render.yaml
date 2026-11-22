@@ -14,6 +14,24 @@ services:
         value: "https://YOUR-RENDER-SERVICE.onrender.com"
       - key: COLLEGE_NAME
         value: "My College"
+      - key: COLLEGE_LOGO
+        value: "images/college_logo.jpg"
+      - key: PRIMARY_COLOR
+        value: "#000080"
+      - key: COLLEGE_EMAIL
+        value: ""
+      - key: COLLEGE_PHONE
+        value: ""
+      - key: COLLEGE_ADDRESS
+        value: ""
+      - key: COLLEGE_WEBSITE
+        value: ""
+      - key: COLLEGE_AFFILIATION
+        value: ""
+      - key: COLLEGE_ESTABLISHED
+        value: ""
+      - key: COLLEGE_PRINCIPAL_NAME
+        value: ""
       - key: SECRET_KEY
         generateValue: true
       - key: DB_ENGINE

@@ -74,7 +74,7 @@ class StudentProfile(models.Model):
             # Default message with set-password link
             from django.conf import settings
             link = self.get_set_password_link()
-            college = getattr(settings, 'COLLEGE_NAME', "Government Polytechnic Tekari")
+            college = getattr(settings, 'COLLEGE_NAME', '') or 'Student Portal'
             message = (
                 f"🎓 *{college}*\n\n"
                 f"Hello *{self.name}*,\n"

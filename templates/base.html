@@ -7,6 +7,7 @@
   <title>{% block title %}{{ COLLEGE_NAME }} UMS{% endblock %}</title>
   <meta name="description" content="{{ COLLEGE_NAME }} University Management System — Admin Control Panel.">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% include 'partials/college_colors.html' %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -15,7 +16,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon">
-        <img src="{% static 'images/college_logo.jpg' %}" alt="Logo">
+        {% include 'partials/college_logo.html' %}
       </div>
       <h2>UMS Control Panel</h2>
     </div>

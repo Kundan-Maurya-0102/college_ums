@@ -1,0 +1,2 @@
+{% comment %}Brand colour override — include right after the main stylesheet link.{% endcomment %}
+{% if PRIMARY_COLOR %}<style>:root { --highlight: {{ PRIMARY_COLOR }}; --table-header: {{ PRIMARY_COLOR }}; }</style>{% endif %}

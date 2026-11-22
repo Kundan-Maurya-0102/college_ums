@@ -26,7 +26,7 @@ def send_whatsapp_credentials(profile) -> str:
 
     to_whatsapp = f"whatsapp:{phone}"
     from_whatsapp = getattr(settings, 'TWILIO_WHATSAPP_FROM', 'whatsapp:+14155238886')
-    college_name = getattr(settings, 'COLLEGE_NAME', 'College UMS')
+    college_name = getattr(settings, 'COLLEGE_NAME', '') or 'Student Portal'
 
     set_password_link = build_set_password_link(profile.user)
 
