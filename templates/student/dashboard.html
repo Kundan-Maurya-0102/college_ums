@@ -4,241 +4,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Dashboard — {{ COLLEGE_NAME }} UMS</title>
-  <meta name="description" content="Your personalized student dashboard at {{ COLLEGE_NAME }}.">
+  <title>Student Dashboard — {{ COLLEGE_NAME }} UMS</title>
+  <meta name="description" content="Student Dashboard — {{ COLLEGE_NAME }} University Management System.">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 <div class="student-layout">
 
-  <!-- TOP NAVBAR -->
+  <!-- TOP BAR -->
   <nav class="student-topbar">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="width:36px;height:36px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden;">
-        <img src="{% static 'images/college_logo.jpg' %}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
-      </div>
-      <div>
-        <div style="font-size:15px;font-weight:700;">{{ COLLEGE_NAME }}</div>
-        <div style="font-size:11px;">Student Portal</div>
-      </div>
+    <div>
+      <b>{{ COLLEGE_NAME }} — Student Portal</b>
+      &nbsp;|&nbsp; Logged in: <b>{{ request.user.username }}</b>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <a href="{% url 'doubt_list' %}" class="btn btn-outline btn-sm" style="color:var(--accent-purple);border-color:var(--accent-purple);">
-        <span style="font-size:16px;margin-right:4px;">💬</span> Doubt Forum
-      </a>
-      <a href="{% url 'college_website' %}" class="btn btn-outline btn-sm" style="color:var(--text-primary);border-color:var(--border-color);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-        College Website
-      </a>
-      <a href="{% url 'student_profile_edit' %}" class="btn btn-outline btn-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-        Edit Profile
-      </a>
-      <a href="{% url 'change_password' %}" class="btn btn-outline btn-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Change Password
-      </a>
-      <a href="{% url 'student_logout' %}" class="btn btn-sm" style="background:rgb(247, 247, 247);border:1px solid rgba(239,68,68,0.2);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        Logout
-      </a>
+    <div>
+      <a href="{% url 'student_fees' %}">Fees</a>
+      <a href="{% url 'student_exam_schedule' %}">Exams</a>
+      <a href="{% url 'student_leave_apply' %}">Leave</a>
+      <a href="{% url 'student_feedback' %}">Feedback</a>
+      <a href="{% url 'student_events' %}">Events</a>
+      <a href="{% url 'student_certificates' %}">Certificates</a>
+      <a href="{% url 'doubt_list' %}">Forum</a>
+      <a href="{% url 'college_website' %}">College Site</a>
+      <a href="{% url 'student_profile_edit' %}">Edit Profile</a>
+      <a href="{% url 'change_password' %}">Password</a>
+      <a href="{% url 'student_logout' %}" style="color:#ffcccc;">Logout</a>
     </div>
   </nav>
 
   <div class="student-content">
     {% if messages %}
       {% for msg in messages %}
-      <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
+        <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
       {% endfor %}
     {% endif %}
 
-    <!-- IMAGE CAROUSEL -->
-    {% if banners %}
-    <div class="banner-carousel fade-in-up" style="margin-bottom: 24px; position: relative; border-radius: var(--radius); overflow: hidden; height: 300px; box-shadow: var(--shadow-card);">
-        <div class="carousel-track" id="carouselTrack" style="display: flex; height: 100%; transition: transform 0.5s ease-in-out;">
-            {% for banner in banners %}
-            <div class="carousel-slide" style="min-width: 100%; height: 100%; position: relative;">
-                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="width: 100%; height: 100%; object-fit: cover;">
-                {% if banner.title %}
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white;">
-                    <h3 style="margin: 0; font-size: 20px; font-weight: 700;">{{ banner.title }}</h3>
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        <!-- Dots -->
-        <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
-            {% for banner in banners %}
-            <div class="carousel-dot" onclick="goToSlide({{ forloop.counter0 }})" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer;"></div>
-            {% endfor %}
-        </div>
-        <!-- Arrows -->
-        <button onclick="prevSlide()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.3); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">❮</button>
-        <button onclick="nextSlide()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.3); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">❯</button>
-    </div>
-    <script>
-        let currentSlide = 0;
-        const track = document.getElementById('carouselTrack');
-        const dots = document.querySelectorAll('.carousel-dot');
-        const slideCount = {{ banners|length }};
-
-        function updateCarousel() {
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            dots.forEach((dot, i) => {
-                dot.style.background = i === currentSlide ? 'white' : 'rgba(255,255,255,0.5)';
-                dot.style.width = i === currentSlide ? '20px' : '8px';
-                dot.style.borderRadius = i === currentSlide ? '4px' : '50%';
-            });
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slideCount;
-            updateCarousel();
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
-            updateCarousel();
-        }
-
-        function goToSlide(n) {
-            currentSlide = n;
-            updateCarousel();
-        }
-
-        if(slideCount > 1) {
-            setInterval(nextSlide, 5000);
-        }
-        updateCarousel();
-    </script>
-    {% endif %}
-
-    <!-- NEWS BANNER -->
-    <div class="news-banner fade-in-up">
-      <div class="news-label">Latest News</div>
+    <!-- NEWS MARQUEE -->
+    <div class="news-banner">
+      <div class="news-label">NEWS</div>
       <div class="news-marquee">
         <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();">
           {% if notices %}
             {% for n in notices %}
-              <a href="#notice-section">📢 {{ n.title }} ({{ n.created_at|date:"d M" }})</a>
+              <a href="#notices">&#9658; {{ n.title }} ({{ n.created_at|date:"d M" }})</a>
             {% endfor %}
           {% else %}
-            <span>Welcome to {{ COLLEGE_NAME }} UMS Portal! Stay tuned for upcoming events and notices.</span>
+            Welcome to {{ COLLEGE_NAME }} UMS Portal!
           {% endif %}
         </marquee>
       </div>
     </div>
 
-    <!-- PROFILE HERO -->
-    <div class="profile-hero fade-in-up">
-      <div class="profile-hero-inner">
-        <div class="profile-avatar" aria-hidden="true">
-          <span class="profile-avatar-text">{{ profile.name|first|upper }}</span>
-        </div>
-
-        <div class="profile-hero-info">
-          <div class="profile-hero-title">
-            <h2 class="profile-name">{{ profile.name }}</h2>
-            <span class="profile-pill">ID: {{ profile.registration_number }}</span>
+    <!-- BANNER CAROUSEL -->
+    {% if banners %}
+    <div class="card mb-10">
+      <div class="card-header">
+        <span class="card-title">&#9632; Announcements & Updates</span>
+        <span class="badge badge-blue" id="carouselIndex">1 / {{ banners|length }}</span>
+      </div>
+      <div class="card-body" style="position: relative; background: var(--bg-light); padding: 4px; height: auto;">
+        {% for banner in banners %}
+        <div class="carousel-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %}; width: 100%; position: relative; height: 220px; overflow: hidden;">
+          <img src="{{ banner.image.url }}" alt="{{ banner.title|default:'Banner' }}" style="width: 100%; height: 100%; object-fit: cover; display: block; border: 2px solid; border-color: var(--border-darkest) var(--border-light) var(--border-light) var(--border-darkest);">
+          {% if banner.title %}
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: #fff; padding: 6px 10px; font-size: 12px; font-weight: bold; text-align: center; border-top: 1px solid var(--border-dark);">
+            {{ banner.title }}
           </div>
-
-          {% if profile.email %}
-            <div class="profile-subtitle">{{ profile.email }}</div>
           {% endif %}
-
-          <div class="profile-meta-grid">
-            <div class="profile-meta-item">
-              <div class="profile-meta-label">Branch</div>
-              <div class="profile-meta-value">{{ profile.get_branch_display|default:"—" }}</div>
-            </div>
-            <div class="profile-meta-item">
-              <div class="profile-meta-label">Semester</div>
-              <div class="profile-meta-value">{% if profile.semester %}{{ profile.semester }}{% else %}—{% endif %}</div>
-            </div>
-            <div class="profile-meta-item">
-              <div class="profile-meta-label">Batch</div>
-              <div class="profile-meta-value">{% if profile.year_of_admission %}{{ profile.year_of_admission }}{% else %}—{% endif %}</div>
-            </div>
-            <div class="profile-meta-item">
-              <div class="profile-meta-label">Phone</div>
-              <div class="profile-meta-value">{{ profile.phone|default:"—" }}</div>
-            </div>
-          </div>
         </div>
+        {% endfor %}
+        
+        <!-- Navigation buttons -->
+        {% if banners|length > 1 %}
+        <div style="position: absolute; top: 50%; left: 10px; right: 10px; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events: none; width: calc(100% - 20px); z-index: 10;">
+          <button onclick="prevSlide()" style="pointer-events: auto; font-family: monospace; font-weight: bold; font-size: 11px; padding: 2px 8px;">&lt; Prev</button>
+          <button onclick="nextSlide()" style="pointer-events: auto; font-family: monospace; font-weight: bold; font-size: 11px; padding: 2px 8px;">Next &gt;</button>
+        </div>
+        {% endif %}
       </div>
     </div>
 
+    <script>
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.carousel-slide');
+      const indexIndicator = document.getElementById('carouselIndex');
+      const slideCount = slides.length;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.style.display = i === index ? 'flex' : 'none';
+        });
+        if (indexIndicator) {
+          indexIndicator.textContent = `${index + 1} / ${slideCount}`;
+        }
+      }
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % slideCount;
+        showSlide(currentSlide);
+      }
+
+      function prevSlide() {
+        currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+        showSlide(currentSlide);
+      }
+
+      {% if banners|length > 1 %}
+      let slideInterval = setInterval(nextSlide, 5000);
+      
+      // Reset timer on manual button click
+      const buttons = document.querySelectorAll('.card-body button');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          clearInterval(slideInterval);
+          slideInterval = setInterval(nextSlide, 5000);
+        });
+      });
+      {% endif %}
+    </script>
+    {% endif %}
+
+    <!-- PROFILE -->
+    <fieldset>
+      <legend>&#9632; Student Profile</legend>
+      <table class="data-table" style="max-width:600px;">
+        <tr><td style="width:140px;font-weight:bold;">Name</td><td>{{ profile.name }}</td></tr>
+        <tr><td style="font-weight:bold;">Reg. Number</td><td>{{ profile.registration_number }}</td></tr>
+        <tr><td style="font-weight:bold;">Branch</td><td>{{ profile.get_branch_display|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">Semester</td><td>{% if profile.semester %}{{ profile.semester }}{% else %}—{% endif %}</td></tr>
+        <tr><td style="font-weight:bold;">Batch</td><td>{% if profile.year_of_admission %}{{ profile.year_of_admission }}{% else %}—{% endif %}</td></tr>
+        <tr><td style="font-weight:bold;">Phone</td><td>{{ profile.phone|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">Email</td><td>{{ profile.email|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">Father</td><td>{{ profile.father_name|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">Mother</td><td>{{ profile.mother_name|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">DOB</td><td>{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">Address</td><td>{{ profile.address|default:"—" }}</td></tr>
+      </table>
+    </fieldset>
+
     <!-- QUICK STATS -->
-    <div class="stats-grid" style="margin-bottom:24px;">
-      <div class="stat-card fade-in-up">
-        <div class="stat-header">
-          <div class="stat-label">Current Subjects</div>
-          <div class="stat-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          </div>
-        </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Subjects</div>
         <div class="stat-value">{{ subjects|length }}</div>
       </div>
-      
-      <div class="stat-card fade-in-up">
-        <div class="stat-header">
-          <div class="stat-label">Semesters Recorded</div>
-          <div class="stat-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          </div>
-        </div>
-        <div class="stat-value">
-          {% with pass_count=0 %}
-            {% for sem, res_list in results_by_sem.items %}
-              {% for r in res_list %}{% if r.is_pass %}{% with pass_count=pass_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
-            {% endfor %}
-            {{ results_by_sem.values|length }}
-          {% endwith %}
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Semesters</div>
+        <div class="stat-value">{{ results_by_sem.values|length }}</div>
       </div>
-      
-      <div class="stat-card fade-in-up">
-        <div class="stat-header">
-          <div class="stat-label">Attendance (1st Subject)</div>
-          <div class="stat-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          </div>
-        </div>
-        <div class="stat-value">
-          {% if attendance_data %}
-            {% with total_pct=0 %}
-              {% for a in attendance_data %}{% endfor %}
-              {{ attendance_data.0.percentage }}%
-            {% endwith %}
-          {% else %}—{% endif %}
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Attendance</div>
+        <div class="stat-value">{% if attendance_data %}{{ attendance_data.0.percentage }}%{% else %}—{% endif %}</div>
       </div>
-      
-      <div class="stat-card fade-in-up">
-        <div class="stat-header">
-          <div class="stat-label">Active Notices</div>
-          <div class="stat-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          </div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Notices</div>
         <div class="stat-value">{{ notices|length }}</div>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+    <div class="responsive-grid">
 
       <!-- INTERNAL MARKS -->
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-            Internal Marks
-          </span>
-          {% if profile.branch %}<span class="badge" style="border:1px solid var(--border-color);">{{ profile.get_branch_display }} — Sem {{ profile.semester }}</span>{% endif %}
-        </div>
+      <fieldset>
+        <legend>&#9632; Internal Marks {% if profile.branch %}({{ profile.get_branch_display }} Sem {{ profile.semester }}){% endif %}</legend>
+        {% if internal_marks %}
         <div class="table-responsive">
-          {% if internal_marks %}
           <table class="data-table">
             <thead>
               <tr>
@@ -249,18 +179,14 @@
             <tbody>
               {% for code, data in internal_marks.items %}
               <tr>
-                <td style="font-weight:600;color:var(--text-primary);">
-                  {{ code }}<br><small style="color:var(--text-muted);font-weight:400;">{{ data.subject.subject_name }}</small>
-                </td>
+                <td><b>{{ code }}</b><br><small>{{ data.subject.subject_name }}</small></td>
                 {% for et in exam_types %}
                 {% with val=data.marks|marks_display:et pct=data.marks|marks_pct:et %}
                 <td>
                   {% if val != "—" %}
-                    <span style="font-weight:600;color:{% if pct >= 75 %}var(--accent-green){% elif pct >= 50 %}var(--accent-yellow){% else %}var(--accent-red){% endif %};">{{ val }}</span>
-                    <div style="font-size:11px;color:var(--text-muted);">{{ pct }}%</div>
-                  {% else %}
-                    <span style="color:var(--text-muted);">—</span>
-                  {% endif %}
+                    <span style="color:{% if pct >= 75 %}green{% elif pct >= 50 %}#996600{% else %}red{% endif %};font-weight:bold;">{{ val }}</span>
+                    <br><small>{{ pct }}%</small>
+                  {% else %}—{% endif %}
                 </td>
                 {% endwith %}
                 {% endfor %}
@@ -268,128 +194,64 @@
               {% endfor %}
             </tbody>
           </table>
-          {% else %}
-            <div style="display:flex;flex-direction:column;align-items:center;padding:32px;color:var(--text-muted);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              <p>No internal marks recorded yet.</p>
-            </div>
-          {% endif %}
         </div>
-      </div>
+        {% else %}
+          <p class="text-muted">No internal marks recorded yet.</p>
+        {% endif %}
+      </fieldset>
 
       <!-- ATTENDANCE -->
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Attendance
-          </span>
-        </div>
-        <div class="card-body">
-          {% if attendance_data %}
-            {% for a in attendance_data %}
-            <div style="margin-bottom:16px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                <div>
-                  <span style="font-size:14px;font-weight:600;color:var(--text-primary);">{{ a.subject.subject_code }}</span>
-                  <span style="font-size:12px;color:var(--text-muted);margin-left:6px;">{{ a.subject.subject_name }}</span>
-                </div>
-                <span style="font-size:14px;font-weight:700;color:{% if a.status == 'success' %}var(--accent-green){% elif a.status == 'warning' %}var(--accent-yellow){% else %}var(--accent-red){% endif %};">
-                  {{ a.percentage }}%
-                </span>
-              </div>
-              <div class="progress">
-                <div class="progress-bar {{ a.status }}" style="width:{{ a.percentage }}%;"></div>
-              </div>
-              <div style="display:flex;justify-content:space-between;margin-top:4px;">
-                <span style="font-size:11px;color:var(--text-muted);">{{ a.present }}/{{ a.total }} classes</span>
-                {% if a.status == 'danger' %}
-                  <span style="font-size:11px;color:var(--accent-red);display:flex;align-items:center;gap:4px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    Below 75%
-                  </span>
-                {% endif %}
-              </div>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div style="display:flex;flex-direction:column;align-items:center;padding:24px;color:var(--text-muted);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              <p>No attendance records yet.</p>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    </div>
-
-    <!-- ATTENDANCE ANALYTICS -->
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;margin-bottom:24px;">
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-            Overall Attendance
-          </span>
-        </div>
-        <div class="card-body" style="display:flex; justify-content:center; align-items:center; height: 250px;">
-          <canvas id="overallAttendanceChart"></canvas>
-        </div>
-      </div>
-      
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            Subject-wise Attendance
-          </span>
-        </div>
-        <div class="card-body" style="height: 250px;">
-          <canvas id="subjectAttendanceChart"></canvas>
-        </div>
-      </div>
+      <fieldset>
+        <legend>&#9632; Attendance</legend>
+        {% if attendance_data %}
+          <table class="data-table">
+            <thead>
+              <tr><th>Subject</th><th>Present</th><th>Total</th><th>%</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {% for a in attendance_data %}
+              <tr>
+                <td><b>{{ a.subject.subject_code }}</b> — {{ a.subject.subject_name }}</td>
+                <td>{{ a.present }}</td>
+                <td>{{ a.total }}</td>
+                <td style="font-weight:bold;color:{% if a.status == 'success' %}green{% elif a.status == 'warning' %}#996600{% else %}red{% endif %};">{{ a.percentage }}%</td>
+                <td>
+                  {% if a.status == 'danger' %}<span style="color:red;">&#9888; Below 75%</span>
+                  {% elif a.status == 'warning' %}<span style="color:#996600;">&#9888; Warning</span>
+                  {% else %}<span style="color:green;">&#10004; OK</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-muted">No attendance records yet.</p>
+        {% endif %}
+      </fieldset>
     </div>
 
     <!-- SEMESTER RESULTS -->
     {% if results_by_sem %}
-    <div class="card mb-24 fade-in-up">
-      <div class="card-header">
-        <span class="card-title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-          Semester Results
-        </span>
-      </div>
+    <fieldset>
+      <legend>&#9632; Semester Results</legend>
       {% for sem, res_list in results_by_sem.items %}
-      <div style="padding:16px 22px 0;">
-        <h4 style="font-size:14px;font-weight:600;color:var(--accent-blue);margin-bottom:12px;display:flex;align-items:center;gap:6px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-          Semester {{ sem }}
-        </h4>
-      </div>
-      <div class="table-responsive" style="margin-bottom:8px;">
-        <table class="data-table marks-table">
+      <p style="margin:8px 0 4px;"><b>Semester {{ sem }}</b></p>
+      <div class="table-responsive">
+        <table class="data-table">
           <thead>
             <tr><th>Subject</th><th>Internal</th><th>External</th><th>Total</th><th>Grade</th><th>Result</th></tr>
           </thead>
           <tbody>
             {% for r in res_list %}
             <tr>
-              <td style="font-weight:500;color:var(--text-primary);">{{ r.subject.subject_name }}</td>
+              <td>{{ r.subject.subject_name }}</td>
               <td>{{ r.internal_marks }}</td>
               <td>{{ r.external_marks }}</td>
-              <td style="font-weight:700;">{{ r.total_marks }}</td>
-              <td>
-                <span class="badge grade-{{ r.grade|first }}">{{ r.grade }}</span>
-              </td>
-              <td class="{% if r.is_pass %}passed{% else %}failed{% endif %}" style="display:flex;align-items:center;gap:6px;">
-                {% if r.is_pass %}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                  Pass
-                {% else %}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-                  Fail
-                {% endif %}
+              <td><b>{{ r.total_marks }}</b></td>
+              <td><span class="badge grade-{{ r.grade|first }}">{{ r.grade }}</span></td>
+              <td class="{% if r.is_pass %}passed{% else %}failed{% endif %}">
+                {% if r.is_pass %}&#10004; Pass{% else %}&#10008; Fail{% endif %}
               </td>
             </tr>
             {% endfor %}
@@ -397,357 +259,122 @@
         </table>
       </div>
       {% endfor %}
-    </div>
+    </fieldset>
     {% endif %}
 
-    <!-- PERSONAL INFO + NOTICES -->
-    <div class="responsive-grid" style="margin-bottom:32px;">
-
-      <!-- PERSONAL INFO -->
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Personal Information
-          </span>
-        </div>
-        <div class="card-body">
-          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
-            <span style="width:140px;font-size:12px;color:var(--text-muted);">Father's Name</span>
-            <span style="font-size:14px;font-weight:500;">{{ profile.father_name|default:"—" }}</span>
-          </div>
-          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
-            <span style="width:140px;font-size:12px;color:var(--text-muted);">Mother's Name</span>
-            <span style="font-size:14px;font-weight:500;">{{ profile.mother_name|default:"—" }}</span>
-          </div>
-          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
-            <span style="width:140px;font-size:12px;color:var(--text-muted);">Date of Birth</span>
-            <span style="font-size:14px;font-weight:500;">{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</span>
-          </div>
-          <div style="display:flex;padding:10px 0;border-bottom:1px solid var(--border-color);">
-            <span style="width:140px;font-size:12px;color:var(--text-muted);">Email</span>
-            <span style="font-size:14px;font-weight:500;">{{ profile.email|default:"—" }}</span>
-          </div>
-          <div style="display:flex;padding:10px 0;">
-            <span style="width:140px;font-size:12px;color:var(--text-muted);">Address</span>
-            <span style="font-size:14px;font-weight:500;">{{ profile.address|default:"—" }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- NOTICES -->
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            Notices
-          </span>
-          <span class="badge badge-blue">{{ notices|length }}</span>
-        </div>
-        <div class="card-body" style="max-height:320px;overflow-y:auto;">
-          {% if notices %}
-            {% for n in notices %}
-            <div class="notice-card">
-              <div class="notice-title">{{ n.title }}</div>
-              <div class="notice-date">{{ n.created_at|date:"d M Y, H:i" }}</div>
-              <div class="notice-content">{{ n.content }}</div>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div style="display:flex;flex-direction:column;align-items:center;padding:24px;color:var(--text-muted);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              <p>No notices for you right now.</p>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <div class="responsive-grid" style="margin-bottom:24px;">
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">Assignments</span>
-          <span class="badge badge-blue">{{ assignments|length }}</span>
-        </div>
-        <div class="card-body">
-          {% for assignment in assignments %}
+    <div class="responsive-grid">
+      <!-- ASSIGNMENTS -->
+      <fieldset>
+        <legend>&#9632; Assignments ({{ assignments|length }})</legend>
+        {% for assignment in assignments %}
           <div class="notice-card">
             <div class="notice-title">{{ assignment.title }}</div>
-            <div class="notice-date">{{ assignment.subject.subject_code }}{% if assignment.due_date %} · Due {{ assignment.due_date }}{% endif %}</div>
+            <div class="notice-date">{{ assignment.subject.subject_code }}{% if assignment.due_date %} | Due: {{ assignment.due_date }}{% endif %}</div>
             <div class="notice-content">{{ assignment.description|default:"No description" }}</div>
-            {% if assignment.attachment %}<a href="{{ assignment.attachment.url }}" class="btn btn-outline btn-sm mt-16">Open File</a>{% endif %}
+            {% if assignment.attachment %}<a href="{{ assignment.attachment.url }}" class="btn btn-sm mt-8">Download</a>{% endif %}
           </div>
-          {% empty %}
+        {% empty %}
           <p class="text-muted">No assignments yet.</p>
-          {% endfor %}
-        </div>
-      </div>
+        {% endfor %}
+      </fieldset>
 
-      <div class="card fade-in-up">
-        <div class="card-header">
-          <span class="card-title">Notes and PDF</span>
-          <span class="badge badge-purple">{{ materials|length }}</span>
-        </div>
-        <div class="card-body">
-          {% for material in materials %}
+      <!-- NOTES & PDF -->
+      <fieldset>
+        <legend>&#9632; Notes / PDF ({{ materials|length }})</legend>
+        {% for material in materials %}
           <div class="notice-card">
             <div class="notice-title">{{ material.title }}</div>
-            <div class="notice-date">{{ material.subject.subject_code }} · {{ material.get_material_type_display }}</div>
-            <div class="notice-content">{{ material.description|default:"Study material uploaded by faculty." }}</div>
-            <div class="d-flex gap-8 mt-16">
-              {% if material.file %}<a href="{{ material.file.url }}" class="btn btn-outline btn-sm">Open File</a>{% endif %}
-              {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-outline btn-sm" target="_blank">Open Link</a>{% endif %}
+            <div class="notice-date">{{ material.subject.subject_code }} | {{ material.get_material_type_display }}</div>
+            <div class="notice-content">{{ material.description|default:"Study material." }}</div>
+            <div class="mt-8">
+              {% if material.file %}<a href="{{ material.file.url }}" class="btn btn-sm">Download</a>{% endif %}
+              {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-sm" target="_blank">Open Link</a>{% endif %}
             </div>
           </div>
-          {% empty %}
-          <p class="text-muted">No notes or PDFs uploaded yet.</p>
+        {% empty %}
+          <p class="text-muted">No notes uploaded yet.</p>
+        {% endfor %}
+      </fieldset>
+    </div>
+
+    <div class="responsive-grid">
+      <!-- TEACHERS -->
+      <fieldset>
+        <legend>&#9632; Teachers</legend>
+        <table class="data-table">
+          <thead><tr><th>Teacher</th><th>Subject</th><th>Contact</th></tr></thead>
+          <tbody>
+            {% for row in teachers %}
+            <tr>
+              <td><b>{{ row.faculty.name }}</b><br><small>{{ row.faculty.designation }}</small></td>
+              <td>{{ row.subject.subject_code }} — {{ row.subject.subject_name }}</td>
+              <td>{{ row.faculty.email|default:row.faculty.phone|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-muted">No teachers assigned yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
+
+      <!-- CLASS SCHEDULE -->
+      <fieldset>
+        <legend>&#9632; Class Schedule</legend>
+        <table class="data-table">
+          <thead><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
+          <tbody>
+            {% for schedule in schedules %}
+            <tr><td>{{ schedule.get_weekday_display }}</td><td>{{ schedule.subject.subject_code }}</td><td>{{ schedule.start_time }} — {{ schedule.end_time }}</td><td>{{ schedule.room|default:"—" }}</td></tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted">Schedule not available.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
+    </div>
+
+    <div class="responsive-grid">
+      <!-- NOTICES -->
+      <fieldset id="notices">
+        <legend>&#9632; Notices ({{ notices|length }})</legend>
+        {% if notices %}
+          {% for n in notices %}
+          <div class="notice-card">
+            <div class="notice-title">{{ n.title }}</div>
+            <div class="notice-date">{{ n.created_at|date:"d M Y, H:i" }}</div>
+            <div class="notice-content">{{ n.content }}</div>
+          </div>
           {% endfor %}
-        </div>
-      </div>
+        {% else %}
+          <p class="text-muted">No notices right now.</p>
+        {% endif %}
+      </fieldset>
+
+      <!-- CLASSMATES -->
+      <fieldset>
+        <legend>&#9632; Classmates ({{ profile.get_branch_display }} Sem {{ profile.semester }})</legend>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Reg No.</th><th>Contact</th></tr></thead>
+          <tbody>
+            {% for classmate in classmates %}
+            <tr>
+              <td><b>{{ classmate.name }}</b></td>
+              <td>{{ classmate.registration_number }}</td>
+              <td>{% if classmate.phone %}<a href="https://wa.me/91{{ classmate.phone }}" target="_blank">WhatsApp</a>{% else %}—{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-muted">No classmates found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
     </div>
 
-    <div class="responsive-grid" style="margin-bottom:24px;">
-      <div class="card fade-in-up">
-        <div class="card-header"><span class="card-title">Teachers Details</span></div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead><tr><th>Teacher</th><th>Subject</th><th>Contact</th></tr></thead>
-            <tbody>
-              {% for row in teachers %}
-              <tr>
-                <td style="font-weight:600;">{{ row.faculty.name }}<br><small class="text-muted">{{ row.faculty.designation }}</small></td>
-                <td>{{ row.subject.subject_code }} - {{ row.subject.subject_name }}</td>
-                <td>{{ row.faculty.email|default:row.faculty.phone|default:"-" }}</td>
-              </tr>
-              {% empty %}
-              <tr><td colspan="3" class="text-muted">Teacher details are not assigned yet.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card fade-in-up">
-        <div class="card-header"><span class="card-title">Class Schedule</span></div>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
-            <tbody>
-              {% for schedule in schedules %}
-              <tr><td>{{ schedule.get_weekday_display }}</td><td>{{ schedule.subject.subject_code }}</td><td>{{ schedule.start_time }} - {{ schedule.end_time }}</td><td>{{ schedule.room|default:"-" }}</td></tr>
-              {% empty %}
-              <tr><td colspan="4" class="text-muted">Schedule not available yet.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">
-      {{ COLLEGE_NAME }} UMS · Logged in as <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong>
+    <hr style="margin:10px 0;">
+    <div style="text-align:center;font-size:11px;color:var(--text-muted);">
+      {{ COLLEGE_NAME }} UMS | Logged in: <b>{{ request.user.username }}</b>
     </div>
   </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// Animate progress bars
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.progress-bar').forEach(bar => {
-    const w = bar.style.width;
-    bar.style.width = '0';
-    setTimeout(() => { bar.style.width = w; }, 200);
-  });
-
-  // Extract data from Django context
-  const attendanceData = [
-    {% for a in attendance_data %}
-      {
-        subject: '{{ a.subject.subject_code }}',
-        total: {{ a.total }},
-        present: {{ a.present }},
-        absent: {{ a.absent }},
-        percentage: {{ a.percentage }}
-      }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
-
-  if(attendanceData.length > 0) {
-    let totalPresent = 0;
-    let totalAbsent = 0;
-    const labels = [];
-    const percentages = [];
-    const colors = [];
-
-    attendanceData.forEach(item => {
-      totalPresent += item.present;
-      totalAbsent += item.absent;
-      labels.push(item.subject);
-      percentages.push(item.percentage);
-      if(item.percentage >= 85) colors.push('rgba(16, 185, 129, 0.8)'); // green
-      else if(item.percentage >= 75) colors.push('rgba(245, 158, 11, 0.8)'); // yellow
-      else colors.push('rgba(239, 68, 68, 0.8)'); // red
-    });
-
-    if(totalPresent > 0 || totalAbsent > 0) {
-      // Pie Chart
-      const ctxPie = document.getElementById('overallAttendanceChart').getContext('2d');
-      new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-          labels: ['Present', 'Absent'],
-          datasets: [{
-            data: [totalPresent, totalAbsent],
-            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-            borderColor: '#18181b',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { color: '#a1a1aa', padding: 20 } }
-          },
-          cutout: '70%'
-        }
-      });
-
-      // Bar Chart
-      const ctxBar = document.getElementById('subjectAttendanceChart').getContext('2d');
-      new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Attendance %',
-            data: percentages,
-            backgroundColor: colors,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: '#27272a' }, ticks: { color: '#a1a1aa' } },
-            x: { grid: { display: false }, ticks: { color: '#a1a1aa' } }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.parsed.y + '%';
-                }
-              }
-            }
-          }
-        }
-      });
-    } else {
-        document.getElementById('overallAttendanceChart').parentElement.innerHTML = '<div style="color:var(--text-muted);">No attendance recorded yet.</div>';
-        document.getElementById('subjectAttendanceChart').parentElement.innerHTML = '<div style="color:var(--text-muted);">No attendance recorded yet.</div>';
-    }
-  }
-});
-</script>
-
-<!-- AI CHATBOT FLOATING UI -->
-<div id="aiChatbot" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;">
-    <!-- Chat Button -->
-    <button id="aiChatBtn" style="width: 60px; height: 60px; border-radius: 50%; background: var(--gradient-blue); border: none; color: white; font-size: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.3s;">
-        🤖
-    </button>
-    
-    <!-- Chat Window (Hidden by default) -->
-    <div id="aiChatWindow" style="display: none; position: absolute; bottom: 80px; right: 0; width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0;">
-        <div style="background: var(--gradient-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size: 24px;">🤖</span>
-                <div>
-                    <div style="font-weight: 700; font-size: 14px;">GPTekari AI</div>
-                    <div style="font-size: 10px; opacity: 0.8;">Powered by Gemini</div>
-                </div>
-            </div>
-            <button id="closeAiChat" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
-        </div>
-        
-        <div id="aiMessages" style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
-            <div style="background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                Hi {{ profile.name }}! I'm your AI assistant. How can I help you today?
-            </div>
-        </div>
-        
-        <div style="padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
-            <input type="text" id="aiInput" placeholder="Type your doubt..." style="flex: 1; border: 1px solid #e2e8f0; border-radius: 20px; padding: 8px 15px; font-size: 13px; outline: none;">
-            <button id="sendAiMsg" style="background: var(--primary-color); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"></path></svg>
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    (function() {
-        const aiBtn = document.getElementById('aiChatBtn');
-        const aiWindow = document.getElementById('aiChatWindow');
-        const closeAi = document.getElementById('closeAiChat');
-        const aiInput = document.getElementById('aiInput');
-        const sendAi = document.getElementById('sendAiMsg');
-        const aiMessages = document.getElementById('aiMessages');
-
-        if(!aiBtn) return;
-
-        aiBtn.onclick = () => {
-            aiWindow.style.display = aiWindow.style.display === 'none' ? 'flex' : 'none';
-            aiBtn.style.transform = aiWindow.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0deg)';
-        };
-        
-        closeAi.onclick = () => {
-            aiWindow.style.display = 'none';
-            aiBtn.style.transform = 'rotate(0deg)';
-        };
-
-        async function handleAiMsg() {
-            const text = aiInput.value.trim();
-            if(!text) return;
-            
-            const userMsg = document.createElement('div');
-            userMsg.style.cssText = "background: #1d4ed8; color: white; padding: 10px 14px; border-radius: 15px 15px 0 15px; max-width: 85%; font-size: 13px; align-self: flex-end; box-shadow: 0 2px 5px rgba(0,0,0,0.1);";
-            userMsg.textContent = text;
-            aiMessages.appendChild(userMsg);
-            aiInput.value = '';
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-
-            const botMsg = document.createElement('div');
-            botMsg.style.cssText = "background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #64748b;";
-            botMsg.textContent = 'Thinking...';
-            aiMessages.appendChild(botMsg);
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-
-            try {
-                const response = await fetch('{% url "ai_chatbot_api" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ prompt: text })
-                });
-                const data = await response.json();
-                botMsg.textContent = data.response || 'Something went wrong.';
-                botMsg.style.color = 'black';
-            } catch(e) {
-                botMsg.textContent = 'Error connecting to AI.';
-            }
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-        }
-
-        sendAi.onclick = handleAiMsg;
-        aiInput.onkeypress = (e) => { if(e.key === 'Enter') handleAiMsg(); };
-    })();
-</script>
 </body>
 </html>

@@ -1,40 +1,64 @@
-import google.generativeai as genai
 import os
+import logging
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+
 load_dotenv()
+
+# Predefined responses for when AI is down or quota reached
+DUMMY_RESPONSES = {
+    "attendance": "Aap apni attendance dashboard par dekh sakte hain. Agar attendance 75% se kam hai, toh please apne subject teacher se contact karein.",
+    "marks": "Internal marks aur results dashboard par upload kar diye gaye hain. Aap apne 'Marks' section mein jaakar check kar sakte hain.",
+    "notice": "Sare important notices 'Notices' tab mein available hain. Latest updates ke liye wahan check karein.",
+    "college": "Government Polytechnic Tekari, Gaya (Bihar) ek prestigious technical institution hai jo quality education provide karta hai.",
+    "contact": "Kise bhi technical issue ke liye aap college admin office mein contact kar sakte hain.",
+    "fee": "Fee details aap apne dashboard ke 'Fees' section mein dekh sakte hain. Pending dues ke liye admin office contact karein.",
+    "exam": "Exam schedule dashboard par available hai. 'Exam Timetable' section check karein.",
+    "leave": "Leave apply karne ke liye dashboard mein 'Leave Application' section use karein.",
+    "certificate": "Certificates download karne ke liye 'Certificates' section mein jaayein.",
+}
+
+def get_fallback_response(prompt):
+    prompt_lower = prompt.lower()
+    for key, response in DUMMY_RESPONSES.items():
+        if key in prompt_lower:
+            return f"[Offline Mode] {response}"
+    return "[Offline Mode] Main abhi available nahi hoon. Please thodi der baad try karein ya apne dashboard par details check karein."
 
 def get_ai_response(prompt, user_context=""):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        return "AI is currently unavailable (API key missing). Please add GEMINI_API_KEY in your .env file."
-        
+        return get_fallback_response(prompt)
+
     try:
-        genai.configure(api_key=api_key)
-        
-        # Switching back to 1.5 Flash which has higher free tier limits
-        model_name = 'models/gemini-1.5-flash'
-        model = genai.GenerativeModel(model_name)
-        
+        from google import genai
+
+        client = genai.Client(api_key=api_key)
+
         full_prompt = f"""
-        You are an AI assistant for the University Management System (UMS) of Government Polytechnic Tekari. 
-        Help students, teachers, and admins with their academic or technical queries.
-        Keep the tone professional and helpful.
-        
-        User context: {user_context}
-        
-        User question: {prompt}
+        You are 'UMS AI Assistant', a helpful AI for the University Management System (UMS) of Government Polytechnic Tekari (G.P. Tekari, Gaya).
+
+        Your Goal:
+        - Provide high-quality, accurate, and helpful answers to students, teachers, and admins.
+        - If someone asks about college details, mention G.P. Tekari Gaya.
+        - Use a friendly yet professional tone.
+        - Use Markdown for formatting (bolding, lists, etc.).
+        - If you don't know something specific about the user's personal records (like their exact marks), politely ask them to check their dashboard.
+
+        User Context: {user_context}
+
+        User Query: {prompt}
+
+        Please provide a detailed and helpful response in a mix of Hindi and English (Hinglish).
         """
-        
-        response = model.generate_content(full_prompt)
+
+        response = client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=full_prompt,
+        )
         return response.text
     except Exception as e:
-        # Fallback to gemini-1.5-flash-8b which has even higher quotas
-        if "429" in str(e) or "quota" in str(e).lower():
-            try:
-                model = genai.GenerativeModel('models/gemini-1.5-flash-8b')
-                response = model.generate_content(full_prompt)
-                return response.text
-            except Exception as e2:
-                return f"AI Limit Reached: Aapki daily free limit khatam ho gayi hai. Please naya API key use karein ya kal try karein. (Error: {str(e2)})"
-        return f"I'm sorry, I'm having trouble connecting right now. (Error: {str(e)})"
+        # If API fails for any reason, use fallback instead of showing error
+        logger.error(f"AI Error: {e}")
+        return get_fallback_response(prompt)

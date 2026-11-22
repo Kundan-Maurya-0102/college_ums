@@ -3,7 +3,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
 from .models import (Assignment, Attendance, BannerImage, ClassSchedule, CSVUpload,
-                     Doubt, DoubtReply, FacultyProfile, InternalExam, Notice, SemesterResult,
+                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
+                     Feedback, FeePayment, FeeStructure, InternalExam,
+                     LeaveApplication, Notice, SemesterResult,
                      StudentProfile, StudyMaterial, Subject)
 
 
@@ -29,7 +31,7 @@ class CSVUploadForm(forms.ModelForm):
     def clean_file(self):
         f = self.cleaned_data.get('file')
         if f:
-            if not f.name.endswith('.csv'):
+            if not f.name.lower().endswith('.csv'):
                 raise forms.ValidationError("Only CSV files are allowed.")
             if f.size > 10 * 1024 * 1024:
                 raise forms.ValidationError("File size must be under 10 MB.")
@@ -136,10 +138,12 @@ class AttendanceForm(forms.ModelForm):
 class FacultyProfileForm(forms.ModelForm):
     username = forms.CharField(
         max_length=150,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "teacher username"}),
+        label="Teacher ID / Registration No",
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "e.g., T-1411823"}),
     )
     password = forms.CharField(
         required=False,
+        label="Password",
         help_text="Required only while creating a new teacher.",
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "temporary password"}),
     )
@@ -197,11 +201,12 @@ class FacultyProfileForm(forms.ModelForm):
         else:
             user = User(username=username, is_staff=True)
             user.set_password(password)
-            profile.user = user
         user.first_name = profile.name
         user.email = profile.email
         if commit:
             user.save()
+            if not profile.pk:
+                profile.user = user
             profile.save()
             if subjects is not None:
                 profile.subjects.set(subjects)
@@ -286,3 +291,139 @@ class DoubtReplyForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Write your answer here...'}),
         }
+
+
+class FeeStructureForm(forms.ModelForm):
+    class Meta:
+        model = FeeStructure
+        fields = ['branch', 'semester', 'fee_type', 'amount', 'academic_year', 'is_active']
+        widgets = {
+            'branch': forms.Select(attrs={'class': 'form-control'}),
+            'semester': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 6}),
+            'fee_type': forms.Select(attrs={'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'academic_year': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '2024-2025'}),
+            'is_active': forms.CheckboxInput(),
+        }
+
+
+class FeePaymentForm(forms.ModelForm):
+    class Meta:
+        model = FeePayment
+        fields = ['student', 'fee_structure', 'amount_paid', 'payment_date', 'receipt_number', 'payment_mode', 'status', 'remarks']
+        widgets = {
+            'student': forms.Select(attrs={'class': 'form-control'}),
+            'fee_structure': forms.Select(attrs={'class': 'form-control'}),
+            'amount_paid': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'payment_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'receipt_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'payment_mode': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+
+class ExamScheduleForm(forms.ModelForm):
+    class Meta:
+        model = ExamSchedule
+        fields = ['branch', 'semester', 'subject', 'exam_type', 'exam_date', 'start_time', 'end_time', 'room', 'is_active']
+        widgets = {
+            'branch': forms.Select(attrs={'class': 'form-control'}),
+            'semester': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 6}),
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'exam_type': forms.Select(attrs={'class': 'form-control'}),
+            'exam_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'room': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(),
+        }
+
+
+class LeaveApplicationForm(forms.ModelForm):
+    class Meta:
+        model = LeaveApplication
+        fields = ['leave_type', 'from_date', 'to_date', 'reason']
+        widgets = {
+            'leave_type': forms.Select(attrs={'class': 'form-control'}),
+            'from_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'to_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['subject', 'faculty', 'rating', 'comments']
+        widgets = {
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'faculty': forms.Select(attrs={'class': 'form-control'}),
+            'rating': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5}),
+            'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['title', 'description', 'event_date', 'event_type', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'event_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'event_type': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(),
+        }
+
+
+class AdminUserForm(forms.ModelForm):
+    username = forms.CharField(
+        max_length=150,
+        label="Admin Username / ID",
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "admin username"}),
+    )
+    email = forms.EmailField(
+        required=False,
+        label="Email Address",
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "optional email"}),
+    )
+    password = forms.CharField(
+        required=False,
+        label="Password",
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "password"}),
+    )
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["password"].required = False
+            self.fields["password"].help_text = "Leave blank to keep current password."
+        else:
+            self.fields["password"].required = True
+
+    def clean_username(self):
+        username = self.cleaned_data["username"].strip()
+        qs = User.objects.filter(username=username)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        user.is_superuser = True
+        password = self.cleaned_data.get("password")
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+        return user
+
+

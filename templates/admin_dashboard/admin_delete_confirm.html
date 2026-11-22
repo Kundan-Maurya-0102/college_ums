@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Delete Admin - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Delete Admin Account{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Confirm Admin Account Deletion</span>
+      <a href="{% url 'admin_list' %}" class="btn btn-outline btn-sm">Back</a>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-danger">
+        ⚠️ <strong>Warning:</strong> You are about to permanently delete the admin login account <strong>{{ admin_user.username }}</strong>. This action cannot be undone.
+      </div>
+
+      <div class="notice-card" style="margin-bottom: 20px;">
+        <div class="notice-title">Username: {{ admin_user.username }}</div>
+        <div class="notice-date">Email: {{ admin_user.email|default:"No email registered" }}</div>
+      </div>
+
+      <form method="post" style="display:flex; gap:12px; justify-content:flex-end;">
+        {% csrf_token %}
+        <a href="{% url 'admin_list' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

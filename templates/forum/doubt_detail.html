@@ -29,6 +29,12 @@
             <div style="font-size: 16px; line-height: 1.6; color: #334155; white-space: pre-line;">
                 {{ doubt.content }}
             </div>
+            {% if request.user.studentprofile == doubt.student or request.user.is_staff %}
+            <div style="display: flex; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
+                <a href="{% url 'doubt_edit' doubt.pk %}" style="text-decoration: none; font-size: 13px; color: var(--primary-color); font-weight: 600;">✏️ Edit Doubt</a>
+                <a href="{% url 'doubt_delete' doubt.pk %}" style="text-decoration: none; font-size: 13px; color: #ef4444; font-weight: 600;">🗑️ Delete Doubt</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -55,6 +61,12 @@
                         <div style="font-size: 11px; color: var(--text-muted);">{{ reply.created_at|timesince }} ago</div>
                     </div>
                 </div>
+                {% if reply.user == request.user or request.user.is_staff %}
+                <div style="display: flex; gap: 10px;">
+                    <a href="{% url 'reply_edit' reply.pk %}" title="Edit Reply" style="text-decoration: none; font-size: 13px;">✏️</a>
+                    <a href="{% url 'reply_delete' reply.pk %}" title="Delete Reply" style="text-decoration: none; font-size: 13px;">🗑️</a>
+                </div>
+                {% endif %}
             </div>
             <div style="font-size: 15px; color: #334155; line-height: 1.5;">
                 {{ reply.content }}

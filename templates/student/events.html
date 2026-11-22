@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events — {{ COLLEGE_NAME }} UMS</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="student-layout">
+  <nav class="student-topbar">
+    <div><b>{{ COLLEGE_NAME }} — Academic Calendar</b> | {{ request.user.username }}</div>
+    <div><a href="{% url 'student_dashboard' %}">&#9668; Dashboard</a> <a href="{% url 'student_logout' %}" style="color:#ffcccc;">Logout</a></div>
+  </nav>
+  <div class="student-content">
+    <fieldset>
+      <legend>&#9632; Upcoming Events</legend>
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Title</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          {% for e in events %}
+          <tr>
+            <td><b>{{ e.event_date }}</b></td>
+            <td><b>{{ e.title }}</b></td>
+            <td>{{ e.get_event_type_display }}</td>
+            <td>{{ e.description|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-muted">No events scheduled.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </fieldset>
+  </div>
+</div>
+</body>
+</html>

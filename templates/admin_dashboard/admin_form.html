@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Admin - {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}{{ action }} Admin User{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:600px;">
+  <div class="card-header">
+    <span class="card-title">{{ action }} Admin Account</span>
+    <a href="{% url 'admin_list' %}" class="btn btn-outline btn-sm">Back</a>
+  </div>
+  <div class="card-body">
+    <form method="post" style="display:flex; flex-direction:column; gap:16px;">
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label class="form-label" style="font-weight:bold; display:block; margin-bottom:4px;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="text-muted" style="font-size:11px; margin-top:4px;">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}<div class="text-danger" style="font-size:11px; margin-top:4px;">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <a href="{% url 'admin_list' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Admin Account</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

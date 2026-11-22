@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Fee Payments — UMS{% endblock %}
+{% block page_title %}&#9632; Fee Payments{% endblock %}
+{% block content %}
+<fieldset>
+  <legend>Fee Payments</legend>
+  <div class="mb-8 d-flex gap-8" style="align-items:center;">
+    <a href="{% url 'fee_payment_create' %}" class="btn btn-primary">+ Record Payment</a>
+    <form method="get" style="display:flex;gap:4px;">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search student/receipt..." style="width:200px;">
+      <input type="submit" value="Search" class="btn">
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr><th>Student</th><th>Fee Type</th><th>Amount</th><th>Receipt #</th><th>Mode</th><th>Date</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for p in page_obj %}
+        <tr>
+          <td><b>{{ p.student.name }}</b><br><small>{{ p.student.registration_number }}</small></td>
+          <td>{{ p.fee_structure.get_fee_type_display }}</td>
+          <td><b>₹{{ p.amount_paid }}</b></td>
+          <td>{{ p.receipt_number }}</td>
+          <td>{{ p.get_payment_mode_display }}</td>
+          <td>{{ p.payment_date }}</td>
+          <td><span class="badge {% if p.status == 'PAID' %}badge-green{% elif p.status == 'PARTIAL' %}badge-yellow{% else %}badge-red{% endif %}">{{ p.status }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-muted">No payments recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="pagination mt-8">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">&laquo; Prev</a>{% endif %}
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}">Next &raquo;</a>{% endif %}
+  </div>
+  {% endif %}
+</fieldset>
+{% endblock %}

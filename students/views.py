@@ -1,22 +1,30 @@
 import csv
+import datetime
 import io
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .ai_helper import get_ai_response
 from .upload_router import process_any_csv_upload
 from .password_links import build_set_password_link
 from .forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, FacultyProfileForm, InternalExamForm, 
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm)
+                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
+                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
+                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
+                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
+                    AdminUserForm)
 from .models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, FacultyProfile, InternalExam, Notice, 
-                     SemesterResult, StudentProfile, StudyMaterial, Subject, WebsiteVisit)
+                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
+                     Feedback, FeePayment, FeeStructure, InternalExam,
+                     LeaveApplication, Notice, SemesterResult, StudentProfile,
+                     StudyMaterial, Subject, WebsiteVisit)
 
 
 def is_admin(user):
@@ -45,6 +53,22 @@ def teacher_required(view_func):
     return decorated
 
 
+def _int_or_none(value):
+    """Return an int for valid form/query values, otherwise None."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _date_or_today(value):
+    """Parse an ISO date from a query/form value, falling back to today."""
+    try:
+        return datetime.date.fromisoformat(value)
+    except (TypeError, ValueError):
+        return datetime.date.today()
+
+
 def _faculty_subjects(user):
     return user.facultyprofile.subjects.filter(is_active=True).order_by("branch", "semester", "subject_code")
 
@@ -52,8 +76,6 @@ def _faculty_subjects(user):
 def _subject_class_students(subject):
     return StudentProfile.objects.filter(branch=subject.branch, semester=subject.semester).order_by("registration_number")
 
-def plane(request):
-    return render(request, 'plane.html')
 
     
 
@@ -77,7 +99,7 @@ def admin_dashboard(request):
     present_attendance = Attendance.objects.filter(is_present=True).count()
     attendance_average = round((present_attendance / total_attendance) * 100, 1) if total_attendance else 0
     total_visits = WebsiteVisit.objects.count()
-    today_visits = WebsiteVisit.objects.filter(visited_at__date=__import__("datetime").date.today()).count()
+    today_visits = WebsiteVisit.objects.filter(visited_at__date=datetime.date.today()).count()
     total_visit_minutes = round(sum(v.duration_seconds for v in WebsiteVisit.objects.all()) / 60, 1)
 
     low_attendance_students = []
@@ -157,6 +179,54 @@ def teacher_delete(request, pk):
     })
 
 
+@admin_required
+def admin_list(request):
+    admins = User.objects.filter(is_staff=True).exclude(facultyprofile__isnull=False).order_by("username")
+    return render(request, "admin_dashboard/admins.html", {"admins": admins})
+
+
+@admin_required
+def admin_create(request):
+    form = AdminUserForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            admin_user = form.save()
+            messages.success(request, f"Admin account '{admin_user.username}' created successfully.")
+            return redirect("admin_list")
+        messages.error(request, "Please fix the errors below.")
+    return render(request, "admin_dashboard/admin_form.html", {"form": form, "action": "Create"})
+
+
+@admin_required
+def admin_edit(request, pk):
+    admin_user = get_object_or_404(User, pk=pk, is_staff=True)
+    form = AdminUserForm(request.POST or None, instance=admin_user)
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Admin account '{admin_user.username}' updated.")
+            return redirect("admin_list")
+        messages.error(request, "Please fix the errors below.")
+    return render(request, "admin_dashboard/admin_form.html", {"form": form, "admin_user": admin_user, "action": "Edit"})
+
+
+@admin_required
+def admin_delete(request, pk):
+    admin_user = get_object_or_404(User, pk=pk, is_staff=True)
+    if admin_user == request.user:
+        messages.error(request, "You cannot delete your own logged-in admin account.")
+        return redirect("admin_list")
+    
+    if request.method == "POST":
+        username = admin_user.username
+        admin_user.delete()
+        messages.success(request, f"Admin account '{username}' deleted.")
+        return redirect("admin_list")
+        
+    return render(request, "admin_dashboard/admin_delete_confirm.html", {"admin_user": admin_user})
+
+
+
 @teacher_required
 def teacher_dashboard(request):
     faculty = request.user.facultyprofile
@@ -203,7 +273,7 @@ def teacher_dashboard(request):
 @teacher_required
 def teacher_students(request):
     subjects = _faculty_subjects(request.user)
-    selected_subject_id = request.GET.get("subject")
+    selected_subject_id = _int_or_none(request.GET.get("subject"))
     selected_subject = subjects.filter(pk=selected_subject_id).first() if selected_subject_id else subjects.first()
     students = _subject_class_students(selected_subject) if selected_subject else StudentProfile.objects.none()
     return render(request, "teacher/students.html", {
@@ -218,8 +288,8 @@ def teacher_take_attendance(request):
     import datetime
 
     subjects = _faculty_subjects(request.user)
-    selected_subject_id = request.GET.get("subject") or request.POST.get("subject")
-    selected_date = request.GET.get("date") or request.POST.get("date") or datetime.date.today().strftime("%Y-%m-%d")
+    selected_subject_id = _int_or_none(request.GET.get("subject") or request.POST.get("subject"))
+    selected_date = _date_or_today(request.GET.get("date") or request.POST.get("date"))
     subject = subjects.filter(pk=selected_subject_id).first() if selected_subject_id else None
     students = _subject_class_students(subject) if subject else []
     existing_att = Attendance.objects.filter(subject=subject, date=selected_date) if subject else Attendance.objects.none()
@@ -260,9 +330,9 @@ def teacher_take_attendance(request):
 def teacher_marks(request):
     faculty = request.user.facultyprofile
     subjects = _faculty_subjects(request.user)
-    selected_semester = request.GET.get("semester") or request.POST.get("semester") or ""
-    selected_branch = request.GET.get("branch") or request.POST.get("branch") or ""
-    selected_subject_id = request.GET.get("subject") or request.POST.get("subject") or ""
+    selected_semester = _int_or_none(request.GET.get("semester") or request.POST.get("semester"))
+    selected_branch = (request.GET.get("branch") or request.POST.get("branch") or "").upper()
+    selected_subject_id = _int_or_none(request.GET.get("subject") or request.POST.get("subject"))
 
     available_semesters = sorted({subject.semester for subject in subjects})
     available_branches = sorted({subject.branch for subject in subjects})
@@ -507,7 +577,7 @@ def upload_history(request):
 def student_list(request):
     q = request.GET.get('q', '')
     branch = request.GET.get('branch', '')
-    semester = request.GET.get('semester', '')
+    semester = _int_or_none(request.GET.get('semester'))
 
     students = StudentProfile.objects.select_related('user').order_by('-created_at')
 
@@ -751,8 +821,8 @@ def marks_entry(request):
 
 @admin_required
 def results_view(request):
-    student_id = request.GET.get('student_id')
-    semester = request.GET.get('semester')
+    student_id = _int_or_none(request.GET.get('student_id'))
+    semester = _int_or_none(request.GET.get('semester'))
     results = []
     student = None
 
@@ -815,8 +885,8 @@ def take_attendance_bulk(request):
         return redirect('student_dashboard')
     
     subjects = Subject.objects.filter(is_active=True).order_by('branch', 'semester', 'subject_code')
-    selected_subject_id = request.GET.get('subject') or request.POST.get('subject')
-    selected_date = request.GET.get('date') or request.POST.get('date') or datetime.date.today().strftime('%Y-%m-%d')
+    selected_subject_id = _int_or_none(request.GET.get('subject') or request.POST.get('subject'))
+    selected_date = _date_or_today(request.GET.get('date') or request.POST.get('date'))
     
     subject = None
     students = []
@@ -895,6 +965,9 @@ def banner_delete(request, pk):
     if not (is_admin(request.user) or is_teacher(request.user)):
         return redirect('student_dashboard')
     banner = get_object_or_404(BannerImage, pk=pk)
+    if request.method != 'POST':
+        messages.error(request, "Use the delete button to remove a banner.")
+        return redirect('banner_upload')
     banner.delete()
     messages.success(request, "Banner deleted.")
     return redirect('banner_upload')
@@ -942,6 +1015,75 @@ def doubt_detail(request, pk):
     return render(request, 'forum/doubt_detail.html', {'doubt': doubt, 'replies': replies, 'form': form})
 
 
+@login_required(login_url='/login/')
+def doubt_edit(request, pk):
+    doubt = get_object_or_404(Doubt, pk=pk)
+    is_owner = hasattr(request.user, 'studentprofile') and doubt.student == request.user.studentprofile
+    # Owner or Staff can edit/delete
+    if not (is_owner or request.user.is_staff):
+        messages.error(request, "You don't have permission to edit this doubt.")
+        return redirect('doubt_detail', pk=pk)
+    
+    form = DoubtForm(request.POST or None, instance=doubt)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Doubt updated successfully.")
+        return redirect('doubt_detail', pk=pk)
+        
+    return render(request, 'forum/doubt_form.html', {'form': form, 'doubt': doubt, 'action': 'Edit'})
+
+
+@login_required(login_url='/login/')
+def doubt_delete(request, pk):
+    doubt = get_object_or_404(Doubt, pk=pk)
+    is_owner = hasattr(request.user, 'studentprofile') and doubt.student == request.user.studentprofile
+    # Owner or Staff can edit/delete
+    if not (is_owner or request.user.is_staff):
+        messages.error(request, "You don't have permission to delete this doubt.")
+        return redirect('doubt_detail', pk=pk)
+    
+    if request.method == "POST":
+        doubt.delete()
+        messages.success(request, "Doubt deleted.")
+        return redirect('doubt_list')
+        
+    return render(request, 'forum/doubt_confirm_delete.html', {'doubt': doubt})
+
+
+@login_required(login_url='/login/')
+def reply_edit(request, pk):
+    reply = get_object_or_404(DoubtReply, pk=pk)
+    # Owner or Staff can edit/delete
+    if not (reply.user == request.user or request.user.is_staff):
+        messages.error(request, "You don't have permission to edit this reply.")
+        return redirect('doubt_detail', pk=reply.doubt.pk)
+    
+    form = DoubtReplyForm(request.POST or None, instance=reply)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Reply updated.")
+        return redirect('doubt_detail', pk=reply.doubt.pk)
+        
+    return render(request, 'forum/reply_form.html', {'form': form, 'reply': reply})
+
+
+@login_required(login_url='/login/')
+def reply_delete(request, pk):
+    reply = get_object_or_404(DoubtReply, pk=pk)
+    doubt_pk = reply.doubt.pk
+    # Owner or Staff can edit/delete
+    if not (reply.user == request.user or request.user.is_staff):
+        messages.error(request, "You don't have permission to delete this reply.")
+        return redirect('doubt_detail', pk=doubt_pk)
+    
+    if request.method == "POST":
+        reply.delete()
+        messages.success(request, "Reply deleted.")
+        return redirect('doubt_detail', pk=doubt_pk)
+        
+    return render(request, 'forum/reply_confirm_delete.html', {'reply': reply})
+
+
 # ─────────────────────────── AI CHATBOT ───────────────────────────
 
 @login_required(login_url='/login/')
@@ -967,3 +1109,258 @@ def ai_chatbot_api(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# ─────────────────────────── FEE MANAGEMENT ───────────────────────────
+
+@admin_required
+def fee_structure_list(request):
+    structures = FeeStructure.objects.all().order_by('branch', 'semester', 'fee_type')
+    return render(request, 'admin_dashboard/fees.html', {'structures': structures})
+
+
+@admin_required
+def fee_structure_create(request):
+    form = FeeStructureForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Fee structure created.")
+        return redirect('fee_structure_list')
+    return render(request, 'admin_dashboard/fee_form.html', {'form': form, 'action': 'Create'})
+
+
+@admin_required
+def fee_structure_edit(request, pk):
+    structure = get_object_or_404(FeeStructure, pk=pk)
+    form = FeeStructureForm(request.POST or None, instance=structure)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Fee structure updated.")
+        return redirect('fee_structure_list')
+    return render(request, 'admin_dashboard/fee_form.html', {'form': form, 'action': 'Edit', 'structure': structure})
+
+
+@admin_required
+def fee_structure_delete(request, pk):
+    structure = get_object_or_404(FeeStructure, pk=pk)
+    if request.method == 'POST':
+        structure.delete()
+        messages.success(request, "Fee structure deleted.")
+        return redirect('fee_structure_list')
+    return render(request, 'admin_dashboard/fee_delete_confirm.html', {'structure': structure})
+
+
+@admin_required
+def fee_payments(request):
+    payments = FeePayment.objects.select_related('student', 'fee_structure').all()
+    q = request.GET.get('q', '')
+    if q:
+        payments = payments.filter(
+            Q(student__name__icontains=q) |
+            Q(student__registration_number__icontains=q) |
+            Q(receipt_number__icontains=q)
+        )
+    paginator = Paginator(payments, 25)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'admin_dashboard/fee_payments.html', {'page_obj': page_obj, 'q': q})
+
+
+@admin_required
+def fee_payment_create(request):
+    form = FeePaymentForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        payment = form.save(commit=False)
+        payment.recorded_by = request.user.get_full_name() or request.user.username
+        payment.save()
+        messages.success(request, f"Payment recorded: Receipt #{payment.receipt_number}")
+        return redirect('fee_payments')
+    return render(request, 'admin_dashboard/fee_payment_form.html', {'form': form})
+
+
+# ─────────────────────────── EXAM SCHEDULE ───────────────────────────
+
+@admin_required
+def exam_schedule_list(request):
+    schedules = ExamSchedule.objects.select_related('subject').filter(is_active=True)
+    branch = request.GET.get('branch', '')
+    semester = _int_or_none(request.GET.get('semester'))
+    if branch:
+        schedules = schedules.filter(branch=branch)
+    if semester:
+        schedules = schedules.filter(semester=semester)
+    return render(request, 'admin_dashboard/exam_schedule.html', {
+        'schedules': schedules,
+        'branch': branch,
+        'semester': semester,
+        'branch_choices': StudentProfile.BRANCH_CHOICES,
+    })
+
+
+@admin_required
+def exam_schedule_create(request):
+    form = ExamScheduleForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Exam schedule created.")
+        return redirect('exam_schedule_list')
+    return render(request, 'admin_dashboard/exam_schedule_form.html', {'form': form, 'action': 'Create'})
+
+
+@admin_required
+def exam_schedule_edit(request, pk):
+    schedule = get_object_or_404(ExamSchedule, pk=pk)
+    form = ExamScheduleForm(request.POST or None, instance=schedule)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Exam schedule updated.")
+        return redirect('exam_schedule_list')
+    return render(request, 'admin_dashboard/exam_schedule_form.html', {'form': form, 'action': 'Edit'})
+
+
+@admin_required
+def exam_schedule_delete(request, pk):
+    schedule = get_object_or_404(ExamSchedule, pk=pk)
+    if request.method == 'POST':
+        schedule.delete()
+        messages.success(request, "Exam schedule deleted.")
+        return redirect('exam_schedule_list')
+    return render(request, 'admin_dashboard/generic_delete_confirm.html', {
+        'object': schedule, 'object_name': str(schedule), 'cancel_url': 'exam_schedule_list'
+    })
+
+
+# ─────────────────────────── LEAVE APPLICATIONS ───────────────────────────
+
+@admin_required
+def leave_applications(request):
+    apps = LeaveApplication.objects.select_related('student', 'reviewed_by').all()
+    status = request.GET.get('status', '')
+    if status:
+        apps = apps.filter(status=status)
+    return render(request, 'admin_dashboard/leave_applications.html', {'applications': apps, 'status_filter': status})
+
+
+@admin_required
+def leave_review(request, pk):
+    app = get_object_or_404(LeaveApplication, pk=pk)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        remarks = request.POST.get('remarks', '')
+        if action in ('APPROVED', 'REJECTED'):
+            app.status = action
+            app.reviewed_by = request.user
+            app.reviewed_at = timezone.now()
+            app.admin_remarks = remarks
+            app.save()
+            messages.success(request, f"Leave application {action.lower()}.")
+        return redirect('leave_applications')
+    return render(request, 'admin_dashboard/leave_review.html', {'application': app})
+
+
+# ─────────────────────────── EVENTS ───────────────────────────
+
+@admin_required
+def event_list(request):
+    events = Event.objects.all()
+    return render(request, 'admin_dashboard/events.html', {'events': events})
+
+
+@admin_required
+def event_create(request):
+    form = EventForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        event = form.save(commit=False)
+        event.created_by = request.user
+        event.save()
+        messages.success(request, "Event created.")
+        return redirect('event_list')
+    return render(request, 'admin_dashboard/event_form.html', {'form': form, 'action': 'Create'})
+
+
+@admin_required
+def event_edit(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    form = EventForm(request.POST or None, instance=event)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Event updated.")
+        return redirect('event_list')
+    return render(request, 'admin_dashboard/event_form.html', {'form': form, 'action': 'Edit'})
+
+
+@admin_required
+def event_delete(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if request.method == 'POST':
+        event.delete()
+        messages.success(request, "Event deleted.")
+        return redirect('event_list')
+    return render(request, 'admin_dashboard/generic_delete_confirm.html', {
+        'object': event, 'object_name': str(event), 'cancel_url': 'event_list'
+    })
+
+
+# ─────────────────────────── FEEDBACK REPORT ───────────────────────────
+
+@admin_required
+def feedback_report(request):
+    feedbacks = Feedback.objects.select_related('student', 'subject', 'faculty').all()
+    branch = request.GET.get('branch', '')
+    semester = _int_or_none(request.GET.get('semester'))
+    if branch:
+        feedbacks = feedbacks.filter(subject__branch=branch)
+    if semester:
+        feedbacks = feedbacks.filter(semester=semester)
+
+    # Summary stats
+    avg_rating = feedbacks.aggregate(avg=Avg('rating'))['avg'] or 0
+    total_count = feedbacks.count()
+
+    return render(request, 'admin_dashboard/feedback_report.html', {
+        'feedbacks': feedbacks[:100],
+        'avg_rating': round(avg_rating, 1),
+        'total_count': total_count,
+        'branch': branch,
+        'semester': semester,
+        'branch_choices': StudentProfile.BRANCH_CHOICES,
+    })
+
+
+# ─────────────────────────── REPORTS ───────────────────────────
+
+@admin_required
+def reports_view(request):
+    total_students = StudentProfile.objects.count()
+    total_teachers = FacultyProfile.objects.filter(is_active=True).count()
+    total_subjects = Subject.objects.filter(is_active=True).count()
+
+    # Branch-wise student count
+    branch_data = {}
+    for code, name in StudentProfile.BRANCH_CHOICES:
+        count = StudentProfile.objects.filter(branch=code).count()
+        if count > 0:
+            branch_data[name] = count
+
+    # Attendance defaulters (< 75%)
+    defaulters = []
+    for student in StudentProfile.objects.filter(branch__isnull=False, semester__isnull=False)[:200]:
+        pct = student.get_attendance_percentage()
+        if pct and pct < 75:
+            defaulters.append({'student': student, 'percentage': pct})
+        if len(defaulters) >= 50:
+            break
+
+    # Fee collection summary
+    total_fees_collected = FeePayment.objects.filter(status='PAID').aggregate(total=Sum('amount_paid'))['total'] or 0
+    pending_leaves = LeaveApplication.objects.filter(status='PENDING').count()
+
+    return render(request, 'admin_dashboard/reports.html', {
+        'total_students': total_students,
+        'total_teachers': total_teachers,
+        'total_subjects': total_subjects,
+        'branch_data': branch_data,
+        'defaulters': defaulters[:20],
+        'total_fees_collected': total_fees_collected,
+        'pending_leaves': pending_leaves,
+    })
+

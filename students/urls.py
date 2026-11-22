@@ -1,6 +1,10 @@
 from django.urls import path
 from . import views
-from .views_student import student_login, student_logout, change_password, student_dashboard, plane, college_website, set_password, student_profile_edit
+from .views_student import (student_login, student_logout, change_password,
+                            student_dashboard, plane, college_website,
+                            set_password, student_profile_edit, student_fees,
+                            student_exam_schedule, student_leave_apply,
+                            student_feedback, student_events, student_certificates)
 
 urlpatterns = [
     # ── Auth ──────────────────────────────────────
@@ -14,6 +18,15 @@ urlpatterns = [
     path('profile/edit/', student_profile_edit, name='student_profile_edit'),
     path('plane/', plane, name='plane_page'),
     path('college-website/', college_website, name='college_website'),
+
+    # ── Student: New Feature Pages ──────────────────
+    path('my-fees/', student_fees, name='student_fees'),
+    path('exam-schedule/', student_exam_schedule, name='student_exam_schedule'),
+    path('leave-apply/', student_leave_apply, name='student_leave_apply'),
+    path('feedback/', student_feedback, name='student_feedback'),
+    path('events/', student_events, name='student_events'),
+    path('certificates/', student_certificates, name='student_certificates'),
+
     # ── Admin Panel ────────────────────────────────
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/upload/', views.csv_upload, name='csv_upload'),
@@ -22,6 +35,12 @@ urlpatterns = [
     path('admin-panel/teachers/create/', views.teacher_create, name='teacher_create'),
     path('admin-panel/teachers/<int:pk>/edit/', views.teacher_edit, name='teacher_edit'),
     path('admin-panel/teachers/<int:pk>/delete/', views.teacher_delete, name='teacher_delete'),
+
+    # Admin Management
+    path('admin-panel/admins/', views.admin_list, name='admin_list'),
+    path('admin-panel/admins/create/', views.admin_create, name='admin_create'),
+    path('admin-panel/admins/<int:pk>/edit/', views.admin_edit, name='admin_edit'),
+    path('admin-panel/admins/<int:pk>/delete/', views.admin_delete, name='admin_delete'),
 
     # Students
     path('admin-panel/students/', views.student_list, name='student_list'),
@@ -50,6 +69,34 @@ urlpatterns = [
     path('admin-panel/attendance/', views.attendance_entry, name='attendance_entry'),
     path('admin-panel/take-attendance/', views.take_attendance_bulk, name='take_attendance_bulk'),
 
+    # Fees
+    path('admin-panel/fees/', views.fee_structure_list, name='fee_structure_list'),
+    path('admin-panel/fees/create/', views.fee_structure_create, name='fee_structure_create'),
+    path('admin-panel/fees/<int:pk>/edit/', views.fee_structure_edit, name='fee_structure_edit'),
+    path('admin-panel/fees/<int:pk>/delete/', views.fee_structure_delete, name='fee_structure_delete'),
+    path('admin-panel/fee-payments/', views.fee_payments, name='fee_payments'),
+    path('admin-panel/fee-payments/create/', views.fee_payment_create, name='fee_payment_create'),
+
+    # Exam Schedule
+    path('admin-panel/exam-schedule/', views.exam_schedule_list, name='exam_schedule_list'),
+    path('admin-panel/exam-schedule/create/', views.exam_schedule_create, name='exam_schedule_create'),
+    path('admin-panel/exam-schedule/<int:pk>/edit/', views.exam_schedule_edit, name='exam_schedule_edit'),
+    path('admin-panel/exam-schedule/<int:pk>/delete/', views.exam_schedule_delete, name='exam_schedule_delete'),
+
+    # Leave Applications
+    path('admin-panel/leave-applications/', views.leave_applications, name='leave_applications'),
+    path('admin-panel/leave-applications/<int:pk>/review/', views.leave_review, name='leave_review'),
+
+    # Events
+    path('admin-panel/events/', views.event_list, name='event_list'),
+    path('admin-panel/events/create/', views.event_create, name='event_create'),
+    path('admin-panel/events/<int:pk>/edit/', views.event_edit, name='event_edit'),
+    path('admin-panel/events/<int:pk>/delete/', views.event_delete, name='event_delete'),
+
+    # Feedback & Reports
+    path('admin-panel/feedback/', views.feedback_report, name='feedback_report'),
+    path('admin-panel/reports/', views.reports_view, name='reports_view'),
+
     # Teacher Panel
     path('teacher/', views.teacher_dashboard, name='teacher_dashboard'),
     path('teacher/students/', views.teacher_students, name='teacher_students'),
@@ -69,6 +116,10 @@ urlpatterns = [
     # Doubt Forum
     path('forum/', views.doubt_list, name='doubt_list'),
     path('forum/<int:pk>/', views.doubt_detail, name='doubt_detail'),
+    path('forum/<int:pk>/edit/', views.doubt_edit, name='doubt_edit'),
+    path('forum/<int:pk>/delete/', views.doubt_delete, name='doubt_delete'),
+    path('forum/reply/<int:pk>/edit/', views.reply_edit, name='reply_edit'),
+    path('forum/reply/<int:pk>/delete/', views.reply_delete, name='reply_delete'),
 
     # AI Chatbot
     path('api/ai-chat/', views.ai_chatbot_api, name='ai_chatbot_api'),

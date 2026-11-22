@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Leave Applications — UMS{% endblock %}
+{% block page_title %}&#9632; Leave Applications{% endblock %}
+{% block content %}
+<fieldset>
+  <legend>Leave Applications</legend>
+  <div class="mb-8 d-flex gap-8">
+    <a href="?status=" class="btn {% if not status_filter %}btn-primary{% endif %}">All</a>
+    <a href="?status=PENDING" class="btn {% if status_filter == 'PENDING' %}btn-primary{% endif %}">Pending</a>
+    <a href="?status=APPROVED" class="btn {% if status_filter == 'APPROVED' %}btn-primary{% endif %}">Approved</a>
+    <a href="?status=REJECTED" class="btn {% if status_filter == 'REJECTED' %}btn-primary{% endif %}">Rejected</a>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr><th>Student</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for a in applications %}
+        <tr>
+          <td><b>{{ a.student.name }}</b><br><small>{{ a.student.registration_number }}</small></td>
+          <td>{{ a.get_leave_type_display }}</td>
+          <td>{{ a.from_date }}</td>
+          <td>{{ a.to_date }}</td>
+          <td>{{ a.duration_days }}</td>
+          <td style="max-width:200px;">{{ a.reason|truncatewords:15 }}</td>
+          <td>
+            <span class="badge {% if a.status == 'APPROVED' %}badge-green{% elif a.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">{{ a.status }}</span>
+          </td>
+          <td>
+            {% if a.status == 'PENDING' %}
+            <a href="{% url 'leave_review' a.pk %}" class="btn btn-sm btn-primary">Review</a>
+            {% else %}
+            <small>{{ a.reviewed_by.username|default:"—" }}</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-muted">No leave applications.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</fieldset>
+{% endblock %}

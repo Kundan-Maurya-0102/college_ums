@@ -1,0 +1,28 @@
+branch,semester,subject_code,subject_name,credits,is_active
+CS,3,CS301,Data Structures,4,1
+CS,3,CS302,Database Management Systems,4,1
+CS,3,CS303,Operating Systems,4,1
+CS,3,CS304,Computer Networks,3,1
+CS,3,CS305,Web Development,3,1
+IT,3,IT301,Data Structures,4,1
+IT,3,IT302,Software Engineering,4,1
+IT,3,IT303,Java Programming,4,1
+IT,3,IT304,Computer Networks,3,1
+EC,3,EC301,Digital Electronics,4,1
+EC,3,EC302,Signals and Systems,4,1
+EC,3,EC303,Microprocessor,3,1
+ME,3,ME301,Thermodynamics,4,1
+ME,3,ME302,Fluid Mechanics,4,1
+ME,3,ME303,Strength of Materials,3,1
+CE,3,CE301,Structural Analysis,4,1
+CE,3,CE302,Surveying,4,1
+CE,3,CE303,Building Materials,3,1
+EE,3,EE301,Power Systems,4,1
+EE,3,EE302,Electrical Machines,4,1
+EE,3,EE303,Control Systems,3,1
+CS,1,CS101,Programming in C,4,1
+CS,1,CS102,Mathematics-I,4,1
+CS,1,CS103,Physics,3,1
+IT,1,IT101,Programming Fundamentals,4,1
+IT,1,IT102,Mathematics-I,4,1
+IT,1,IT103,Digital Logic,3,1

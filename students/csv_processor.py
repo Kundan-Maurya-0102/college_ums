@@ -14,7 +14,7 @@ REQUIRED_COLUMNS = ['name', 'phone', 'registration_number']
 OPTIONAL_COLUMNS = ['email', 'branch', 'semester', 'year_of_admission',
                     'father_name', 'mother_name', 'address', 'date_of_birth']
 
-VALID_BRANCHES = ['CS', 'IT', 'EC', 'ME', 'CE']
+VALID_BRANCHES = ['CS', 'IT', 'EC', 'ME', 'CE', 'EE']
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -164,6 +164,7 @@ def process_csv_upload(csv_upload: CSVUpload) -> dict:
                 'reg': reg_no,
                 'status': 'updated',
                 'message': 'Student record updated successfully.',
+                'whatsapp_url': existing_profile.get_whatsapp_url(),
             })
         else:
             # CREATE new student
@@ -198,6 +199,7 @@ def process_csv_upload(csv_upload: CSVUpload) -> dict:
                 date_of_birth=dob,
             )
 
+            profile.save()
             created_count += 1
             set_password_link = build_set_password_link(user)
             row_results.append({
@@ -207,6 +209,7 @@ def process_csv_upload(csv_upload: CSVUpload) -> dict:
                 'status': 'created',
                 'message': "Created. Share set-password link with student.",
                 'set_password_link': set_password_link,
+                'whatsapp_url': profile.get_whatsapp_url(),
             })
 
     # Save summary to CSVUpload record

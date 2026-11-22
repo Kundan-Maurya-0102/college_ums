@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import (Assignment, Attendance, CSVUpload, ClassSchedule,
-                     FacultyProfile, InternalExam, Notice, SemesterResult,
-                     StudentProfile, StudyMaterial, Subject, WebsiteVisit)
+from .models import (Assignment, Attendance, CSVUpload, ClassSchedule, Event,
+                     ExamSchedule, FacultyProfile, Feedback, FeePayment,
+                     FeeStructure, InternalExam, LeaveApplication, Notice,
+                     SemesterResult, StudentProfile, StudyMaterial, Subject,
+                     WebsiteVisit)
 
 
 @admin.register(StudentProfile)
@@ -22,9 +24,6 @@ class StudentProfileAdmin(admin.ModelAdmin):
         ('Academic Info', {'fields': ('branch', 'semester', 'year_of_admission')}),
         ('System', {'fields': ('created_at',)}),
     )
-
-    def get_export_filename(self):
-        return 'students_export.csv'
 
 
 @admin.register(Subject)
@@ -60,6 +59,8 @@ class NoticeAdmin(admin.ModelAdmin):
     list_display = ['title', 'target_branches', 'target_semesters', 'is_active', 'created_at']
     list_filter = ['is_active']
     search_fields = ['title', 'content']
+
+
 
 
 @admin.register(CSVUpload)
@@ -103,3 +104,47 @@ class WebsiteVisitAdmin(admin.ModelAdmin):
     list_filter = ["visited_at"]
     search_fields = ["path", "user__username", "ip_address"]
     readonly_fields = ["path", "user", "session_key", "ip_address", "user_agent", "duration_seconds", "visited_at"]
+
+
+# ─────────────────── NEW MODULE ADMINS ───────────────────
+
+@admin.register(FeeStructure)
+class FeeStructureAdmin(admin.ModelAdmin):
+    list_display = ['branch', 'semester', 'fee_type', 'amount', 'academic_year', 'is_active']
+    list_filter = ['branch', 'semester', 'fee_type', 'academic_year']
+    search_fields = ['academic_year']
+
+
+@admin.register(FeePayment)
+class FeePaymentAdmin(admin.ModelAdmin):
+    list_display = ['student', 'fee_structure', 'amount_paid', 'payment_date', 'receipt_number', 'payment_mode', 'status']
+    list_filter = ['status', 'payment_mode', 'payment_date']
+    search_fields = ['student__name', 'student__registration_number', 'receipt_number']
+
+
+@admin.register(ExamSchedule)
+class ExamScheduleAdmin(admin.ModelAdmin):
+    list_display = ['subject', 'exam_type', 'exam_date', 'start_time', 'end_time', 'room', 'is_active']
+    list_filter = ['exam_type', 'branch', 'semester', 'is_active']
+    search_fields = ['subject__subject_code', 'subject__subject_name']
+
+
+@admin.register(LeaveApplication)
+class LeaveApplicationAdmin(admin.ModelAdmin):
+    list_display = ['student', 'leave_type', 'from_date', 'to_date', 'status', 'created_at']
+    list_filter = ['status', 'leave_type']
+    search_fields = ['student__name', 'student__registration_number']
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ['student', 'subject', 'faculty', 'rating', 'semester', 'created_at']
+    list_filter = ['rating', 'semester', 'subject__branch']
+    search_fields = ['student__name', 'comments']
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ['title', 'event_type', 'event_date', 'is_active', 'created_at']
+    list_filter = ['event_type', 'is_active']
+    search_fields = ['title', 'description']

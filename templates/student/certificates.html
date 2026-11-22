@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificates — {{ COLLEGE_NAME }} UMS</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="student-layout">
+  <nav class="student-topbar no-print">
+    <div><b>{{ COLLEGE_NAME }} — Certificates</b> | {{ request.user.username }}</div>
+    <div><a href="{% url 'student_dashboard' %}">&#9668; Dashboard</a> <a href="{% url 'student_logout' %}" style="color:#ffcccc;">Logout</a></div>
+  </nav>
+  <div class="student-content">
+    {% if not cert_type %}
+    <fieldset>
+      <legend>&#9632; Download Certificates</legend>
+      <p>Select a certificate type to generate:</p>
+      <div class="btn-group mt-8">
+        <a href="?type=bonafide" class="btn btn-primary">Bonafide Certificate</a>
+        <a href="?type=character" class="btn btn-primary">Character Certificate</a>
+        <a href="?type=idcard" class="btn btn-primary">Student ID Card</a>
+      </div>
+    </fieldset>
+    {% endif %}
+
+    {% if cert_type == 'bonafide' %}
+    <div class="certificate-page">
+      <h2>{{ COLLEGE_NAME|upper }}</h2>
+      <p style="font-size:12px;">Affiliated to SBTE Bihar | Govt. of Bihar</p>
+      <hr>
+      <h1>BONAFIDE CERTIFICATE</h1>
+      <div class="cert-body">
+        <p>This is to certify that <b>{{ profile.name }}</b>,
+        bearing Registration Number <b>{{ profile.registration_number }}</b>,
+        is a bonafide student of this institution.</p>
+        <p>Branch: <b>{{ profile.get_branch_display }}</b><br>
+        Semester: <b>{{ profile.semester }}</b><br>
+        Year of Admission: <b>{{ profile.year_of_admission }}</b></p>
+        <p>This certificate is issued for official purposes upon the request of the student.</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:40px;">
+        <div>Date: _______________</div>
+        <div>Principal's Signature<br>{{ COLLEGE_NAME }}</div>
+      </div>
+    </div>
+    <div class="no-print" style="text-align:center;margin:10px;">
+      <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+      <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
+    </div>
+    {% endif %}
+
+    {% if cert_type == 'character' %}
+    <div class="certificate-page">
+      <h2>{{ COLLEGE_NAME|upper }}</h2>
+      <p style="font-size:12px;">Affiliated to SBTE Bihar | Govt. of Bihar</p>
+      <hr>
+      <h1>CHARACTER CERTIFICATE</h1>
+      <div class="cert-body">
+        <p>This is to certify that <b>{{ profile.name }}</b>,
+        S/D of <b>{{ profile.father_name|default:"_______________" }}</b>,
+        bearing Registration Number <b>{{ profile.registration_number }}</b>,
+        is/was a student of this institution.</p>
+        <p>During their stay at this institution, their character and conduct have been found to be <b>GOOD</b>.</p>
+        <p>This certificate is issued on the request of the student for necessary purposes.</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:40px;">
+        <div>Date: _______________</div>
+        <div>Principal's Signature<br>{{ COLLEGE_NAME }}</div>
+      </div>
+    </div>
+    <div class="no-print" style="text-align:center;margin:10px;">
+      <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+      <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
+    </div>
+    {% endif %}
+
+    {% if cert_type == 'idcard' %}
+    <div class="certificate-page" style="max-width:400px;text-align:center;">
+      <h2 style="font-size:14px;">{{ COLLEGE_NAME }}</h2>
+      <hr>
+      <h1 style="font-size:16px;">STUDENT IDENTITY CARD</h1>
+      <div style="width:80px;height:80px;background:var(--highlight);color:var(--highlight-text);margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;border:2px solid #000;">
+        {{ profile.name|first|upper }}
+      </div>
+      <table class="data-table" style="text-align:left;margin:10px auto;max-width:350px;">
+        <tr><td style="font-weight:bold;">Name</td><td>{{ profile.name }}</td></tr>
+        <tr><td style="font-weight:bold;">Reg. No.</td><td>{{ profile.registration_number }}</td></tr>
+        <tr><td style="font-weight:bold;">Branch</td><td>{{ profile.get_branch_display }}</td></tr>
+        <tr><td style="font-weight:bold;">Semester</td><td>{{ profile.semester }}</td></tr>
+        <tr><td style="font-weight:bold;">Phone</td><td>{{ profile.phone|default:"—" }}</td></tr>
+        <tr><td style="font-weight:bold;">DOB</td><td>{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
+      </table>
+      <p style="font-size:10px;margin-top:10px;">Valid for the academic session only.</p>
+    </div>
+    <div class="no-print" style="text-align:center;margin:10px;">
+      <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+      <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

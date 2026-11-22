@@ -210,7 +210,16 @@
                 <span class="badge badge-red">❌ Error</span>
                 {% endif %}
               </td>
-              <td style="font-size:12px;color:var(--text-muted);">{{ row.message|truncatechars:60 }}</td>
+              <td style="font-size:12px;color:var(--text-muted);">
+                {{ row.message|truncatechars:60 }}
+                {% if row.whatsapp_url %}
+                <div style="margin-top:4px;">
+                  <a href="{{ row.whatsapp_url }}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;padding:2px 8px;font-size:10px;">
+                    💬 Send WhatsApp
+                  </a>
+                </div>
+                {% endif %}
+              </td>
             </tr>
             {% empty %}
             <tr>

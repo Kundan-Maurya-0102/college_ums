@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Record Fee Payment — UMS{% endblock %}
+{% block page_title %}&#9632; Record Fee Payment{% endblock %}
+{% block content %}
+<fieldset style="max-width:500px;">
+  <legend>Record Payment</legend>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<small class="helptext">{{ field.help_text }}</small>{% endif %}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="btn-group">
+      <input type="submit" value="Record Payment" class="btn btn-primary">
+      <a href="{% url 'fee_payments' %}" class="btn">Cancel</a>
+    </div>
+  </form>
+</fieldset>
+{% endblock %}

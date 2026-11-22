@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Event — UMS{% endblock %}
+{% block page_title %}&#9632; {{ action }} Event{% endblock %}
+{% block content %}
+<fieldset style="max-width:500px;">
+  <legend>{{ action }} Event</legend>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+    <div class="btn-group">
+      <input type="submit" value="Save" class="btn btn-primary">
+      <a href="{% url 'event_list' %}" class="btn">Cancel</a>
+    </div>
+  </form>
+</fieldset>
+{% endblock %}

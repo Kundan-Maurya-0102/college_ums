@@ -6,6 +6,7 @@ from django.utils import timezone
 class StudentProfile(models.Model):
     BRANCH_CHOICES = [
         ('CS', 'Computer Science'),
+        ('IT', 'Information Technology'),
         ('CE', 'Civil'),
         ('EC', 'Electronics'),
         ('ME', 'Mechanical'),
@@ -58,6 +59,34 @@ class StudentProfile(models.Model):
         """
         from .password_links import build_set_password_link
         return build_set_password_link(self.user)
+
+    def get_whatsapp_url(self, message=None):
+        """Generates a direct WhatsApp (wa.me) link."""
+        phone = self.phone.strip()
+        # Clean phone number: remove non-digits
+        import re
+        clean_phone = re.sub(r'\D', '', phone)
+        
+        if len(clean_phone) == 10:
+            clean_phone = f"91{clean_phone}"
+        
+        if not message:
+            # Default message with set-password link
+            from django.conf import settings
+            link = self.get_set_password_link()
+            college = getattr(settings, 'COLLEGE_NAME', "Government Polytechnic Tekari")
+            message = (
+                f"🎓 *{college}*\n\n"
+                f"Hello *{self.name}*,\n"
+                f"Your student portal account is ready.\n\n"
+                f"👤 *Username:* {self.registration_number.lower()}\n"
+                f"🔑 *Set Password:* {link}\n\n"
+                f"Please set your password and log in."
+            )
+            
+        import urllib.parse
+        encoded_msg = urllib.parse.quote(message)
+        return f"https://wa.me/{clean_phone}?text={encoded_msg}"
 
 
 class Subject(models.Model):
@@ -375,3 +404,177 @@ class DoubtReply(models.Model):
 
     def __str__(self):
         return f"Reply by {self.user.username} on {self.doubt.title}"
+
+
+# ─────────────────── FEE MANAGEMENT ───────────────────
+
+class FeeStructure(models.Model):
+    FEE_TYPES = [
+        ('TUITION', 'Tuition Fee'),
+        ('EXAM', 'Examination Fee'),
+        ('LAB', 'Laboratory Fee'),
+        ('LIBRARY', 'Library Fee'),
+        ('DEVELOPMENT', 'Development Fee'),
+        ('OTHER', 'Other Fee'),
+    ]
+
+    branch = models.CharField(max_length=2, choices=StudentProfile.BRANCH_CHOICES)
+    semester = models.IntegerField()
+    fee_type = models.CharField(max_length=20, choices=FEE_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    academic_year = models.CharField(max_length=9, help_text="e.g. 2024-2025")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['branch', 'semester', 'fee_type', 'academic_year']
+        ordering = ['branch', 'semester', 'fee_type']
+
+    def __str__(self):
+        return f"{self.get_branch_display()} Sem-{self.semester} {self.get_fee_type_display()} ₹{self.amount}"
+
+    def get_branch_display(self):
+        return dict(StudentProfile.BRANCH_CHOICES).get(self.branch, self.branch)
+
+
+class FeePayment(models.Model):
+    PAYMENT_MODES = [
+        ('CASH', 'Cash'),
+        ('ONLINE', 'Online Transfer'),
+        ('UPI', 'UPI'),
+        ('DD', 'Demand Draft'),
+        ('CHEQUE', 'Cheque'),
+    ]
+    STATUS_CHOICES = [
+        ('PAID', 'Paid'),
+        ('PARTIAL', 'Partial'),
+        ('PENDING', 'Pending'),
+    ]
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='fee_payments')
+    fee_structure = models.ForeignKey(FeeStructure, on_delete=models.CASCADE)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateField()
+    receipt_number = models.CharField(max_length=50, unique=True)
+    payment_mode = models.CharField(max_length=10, choices=PAYMENT_MODES, default='CASH')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PAID')
+    remarks = models.TextField(blank=True)
+    recorded_by = models.CharField(max_length=100, default='Admin')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-payment_date']
+
+    def __str__(self):
+        return f"{self.student.name} — ₹{self.amount_paid} ({self.receipt_number})"
+
+
+# ─────────────────── EXAM TIMETABLE ───────────────────
+
+class ExamSchedule(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('MID_SEM', 'Mid Semester'),
+        ('END_SEM', 'End Semester'),
+        ('PRACTICAL', 'Practical'),
+        ('VIVA', 'Viva'),
+        ('BACKLOG', 'Backlog Exam'),
+    ]
+
+    branch = models.CharField(max_length=2, choices=StudentProfile.BRANCH_CHOICES)
+    semester = models.IntegerField()
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exam_schedules')
+    exam_type = models.CharField(max_length=15, choices=EXAM_TYPE_CHOICES)
+    exam_date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['exam_date', 'start_time']
+
+    def __str__(self):
+        return f"{self.subject.subject_code} {self.get_exam_type_display()} — {self.exam_date}"
+
+
+# ─────────────────── LEAVE APPLICATION ───────────────────
+
+class LeaveApplication(models.Model):
+    LEAVE_TYPES = [
+        ('SICK', 'Sick Leave'),
+        ('CASUAL', 'Casual Leave'),
+        ('FAMILY', 'Family Emergency'),
+        ('OTHER', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='leave_applications')
+    leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
+    from_date = models.DateField()
+    to_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_leaves')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    admin_remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.name} — {self.get_leave_type_display()} ({self.from_date} to {self.to_date})"
+
+    def duration_days(self):
+        return (self.to_date - self.from_date).days + 1
+
+
+# ─────────────────── FEEDBACK ───────────────────
+
+class Feedback(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='feedbacks')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='feedbacks')
+    faculty = models.ForeignKey(FacultyProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedbacks')
+    rating = models.IntegerField(help_text="1 to 5")
+    comments = models.TextField(blank=True)
+    semester = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['student', 'subject', 'semester']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.name} → {self.subject.subject_code} ({self.rating}/5)"
+
+
+# ─────────────────── EVENT / CALENDAR ───────────────────
+
+class Event(models.Model):
+    EVENT_TYPES = [
+        ('HOLIDAY', 'Holiday'),
+        ('EXAM', 'Examination'),
+        ('FEST', 'Festival/Cultural'),
+        ('WORKSHOP', 'Workshop/Seminar'),
+        ('MEETING', 'Meeting'),
+        ('OTHER', 'Other'),
+    ]
+
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    event_date = models.DateField()
+    event_type = models.CharField(max_length=15, choices=EVENT_TYPES, default='OTHER')
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['event_date']
+
+    def __str__(self):
+        return f"{self.title} ({self.event_date})"
+

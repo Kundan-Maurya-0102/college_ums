@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNS Exam Prep - Computer Network Security | Sem 6</title>
+  <meta name="description" content="Complete CNS exam preparation with all important questions and detailed answers for Diploma Sem 6 (2018604A)">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand"><span class="icon">🔐</span> CNS Exam Prep</div>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<section class="hero">
+  <h1>Computer Network Security</h1>
+  <p class="subtitle">Sem-VI Diploma | Subject Code: 2018604A | Complete Exam Preparation</p>
+  <div class="exam-info">
+    <div class="exam-badge">⏱ Time: <span>3 Hours</span></div>
+    <div class="exam-badge">📝 Marks: <span>70</span></div>
+    <div class="exam-badge">📚 Groups: <span>A(20) + B(20) + C(30)</span></div>
+  </div>
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchBox" placeholder="Search any topic or question...">
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <p class="progress-text" id="progressText">0 / 0 topics completed</p>
+</section>
+
+<div class="container" id="content">
+  <!-- Content will be rendered by JS from data.js -->
+  <p style="text-align:center;color:#64748b;padding:60px 0;">Loading questions...</p>
+</div>
+
+<div class="fab-container">
+  <button class="fab fab-expand" onclick="toggleAll()" title="Expand/Collapse All">📖</button>
+  <button class="fab fab-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to Top">⬆</button>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

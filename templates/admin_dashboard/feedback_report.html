@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Feedback Report — UMS{% endblock %}
+{% block page_title %}&#9632; Feedback Report{% endblock %}
+{% block content %}
+<fieldset>
+  <legend>Student Feedback</legend>
+  <div class="mb-8">
+    <b>Total Responses:</b> {{ total_count }} | <b>Average Rating:</b> {{ avg_rating }}/5
+  </div>
+  <div class="mb-8 d-flex gap-8" style="align-items:center;flex-wrap:wrap;">
+    <form method="get" style="display:flex;gap:4px;">
+      <select name="branch">
+        <option value="">All Branches</option>
+        {% for code, name in branch_choices %}
+        <option value="{{ code }}" {% if branch == code %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+      <select name="semester">
+        <option value="">All Semesters</option>
+        {% for i in "123456" %}<option value="{{ i }}" {% if semester == i %}selected{% endif %}>Sem {{ i }}</option>{% endfor %}
+      </select>
+      <input type="submit" value="Filter" class="btn">
+    </form>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr><th>Student</th><th>Subject</th><th>Faculty</th><th>Rating</th><th>Comments</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for f in feedbacks %}
+        <tr>
+          <td>{{ f.student.name }}</td>
+          <td>{{ f.subject.subject_code }}</td>
+          <td>{{ f.faculty.name|default:"—" }}</td>
+          <td><b>{{ f.rating }}/5</b></td>
+          <td>{{ f.comments|truncatewords:10|default:"—" }}</td>
+          <td>{{ f.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">No feedback yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</fieldset>
+{% endblock %}

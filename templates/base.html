@@ -5,116 +5,143 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ COLLEGE_NAME }} UMS{% endblock %}</title>
-  <meta name="description" content="{{ COLLEGE_NAME }} University Management System — Student portal for marks, attendance, results and notices.">
+  <meta name="description" content="{{ COLLEGE_NAME }} University Management System — Admin Control Panel.">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
 <div class="app-layout">
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (Tree-View) -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon">
-        <img src="{% static 'images/college_logo.jpg' %}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="{% static 'images/college_logo.jpg' %}" alt="Logo">
       </div>
-      <h2>{{ COLLEGE_NAME }}</h2>
-      <span class="portal-badge">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher Panel{% else %}Admin Panel{% endif %}</span>
+      <h2>UMS Control Panel</h2>
     </div>
 
     <nav class="sidebar-nav">
       {% if request.user.facultyprofile and not request.user.is_superuser %}
-      <div class="nav-section-title">Teacher</div>
+      <div class="nav-section-title">&#9654; Teacher Panel</div>
       <a href="{% url 'teacher_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-        <span class="icon">📊</span> Dashboard
+        <span class="icon">&#9632;</span> Dashboard
       </a>
       <a href="{% url 'teacher_students' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_students' %}active{% endif %}">
-        <span class="icon">👥</span> My Students
+        <span class="icon">&#9632;</span> My Students
       </a>
       <a href="{% url 'teacher_take_attendance' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_take_attendance' %}active{% endif %}">
-        <span class="icon">✅</span> Attendance
+        <span class="icon">&#9632;</span> Attendance
       </a>
       <a href="{% url 'teacher_marks' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_marks' %}active{% endif %}">
-        <span class="icon">✏️</span> Marks Entry
+        <span class="icon">&#9632;</span> Marks Entry
       </a>
       <a href="{% url 'teacher_assignments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_assignments' %}active{% endif %}">
-        <span class="icon">📝</span> Assignments
+        <span class="icon">&#9632;</span> Assignments
       </a>
       <a href="{% url 'teacher_materials' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_materials' %}active{% endif %}">
-        <span class="icon">📚</span> Notes / PDF
+        <span class="icon">&#9632;</span> Notes / PDF
       </a>
       <a href="{% url 'teacher_schedule' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_schedule' %}active{% endif %}">
-        <span class="icon">🕒</span> Schedule
+        <span class="icon">&#9632;</span> Schedule
       </a>
       <a href="{% url 'teacher_notices' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_notices' %}active{% endif %}">
-        <span class="icon">📢</span> Notices
+        <span class="icon">&#9632;</span> Notices
       </a>
       <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
-        <span class="icon">🖼️</span> Manage Banners
+        <span class="icon">&#9632;</span> Banners
       </a>
       <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">💬</span> Doubt Forum
+        <span class="icon">&#9632;</span> Doubt Forum
       </a>
       {% else %}
-      <div class="nav-section-title">Overview</div>
+      <div class="nav-section-title">&#9654; Overview</div>
       <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-        <span class="icon">📊</span> Dashboard
+        <span class="icon">&#9632;</span> Dashboard
       </a>
       <a href="{% url 'teacher_list' %}" class="sidebar-link {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">👨‍🏫</span> Teachers
-      </a>
-      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
-        <span class="icon">🖼️</span> Manage Banners
+        <span class="icon">&#9632;</span> Teachers
       </a>
 
-      <div class="nav-section-title">Students</div>
+      <div class="nav-section-title">&#9654; Students</div>
       <a href="{% url 'csv_upload' %}" class="sidebar-link {% if 'upload' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📤</span> Bulk CSV Upload
+        <span class="icon">&#9632;</span> CSV Upload
       </a>
       <a href="{% url 'student_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
-        <span class="icon">👥</span> All Students
+        <span class="icon">&#9632;</span> All Students
       </a>
       <a href="{% url 'export_students_csv' %}" class="sidebar-link">
-        <span class="icon">⬇️</span> Export CSV
+        <span class="icon">&#9632;</span> Export CSV
       </a>
 
-      <div class="nav-section-title">Academics</div>
+      <div class="nav-section-title">&#9654; Academics</div>
       <a href="{% url 'subject_list' %}" class="sidebar-link {% if 'subject' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📚</span> Subjects
+        <span class="icon">&#9632;</span> Subjects
       </a>
       <a href="{% url 'marks_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'marks_entry' %}active{% endif %}">
-        <span class="icon">✏️</span> Internal Marks
+        <span class="icon">&#9632;</span> Internal Marks
       </a>
       <a href="{% url 'results_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'results_view' %}active{% endif %}">
-        <span class="icon">📈</span> Results
+        <span class="icon">&#9632;</span> Results
       </a>
       <a href="{% url 'attendance_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'attendance_entry' %}active{% endif %}">
-        <span class="icon">📅</span> Manual Attendance
+        <span class="icon">&#9632;</span> Manual Attendance
       </a>
       <a href="{% url 'take_attendance_bulk' %}" class="sidebar-link {% if request.resolver_match.url_name == 'take_attendance_bulk' %}active{% endif %}">
-        <span class="icon">✅</span> Take Attendance
+        <span class="icon">&#9632;</span> Take Attendance
+      </a>
+      <a href="{% url 'exam_schedule_list' %}" class="sidebar-link {% if 'exam_schedule' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Exam Timetable
       </a>
 
-      <div class="nav-section-title">Communication</div>
+      <div class="nav-section-title">&#9654; Finance</div>
+      <a href="{% url 'fee_structure_list' %}" class="sidebar-link {% if 'fee_structure' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Fee Structure
+      </a>
+      <a href="{% url 'fee_payments' %}" class="sidebar-link {% if 'fee_payment' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Fee Payments
+      </a>
+
+      <div class="nav-section-title">&#9654; Communication</div>
       <a href="{% url 'notice_list' %}" class="sidebar-link {% if 'notice' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">📢</span> Notices
+        <span class="icon">&#9632;</span> Notices
       </a>
       <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">💬</span> Doubt Forum
+        <span class="icon">&#9632;</span> Doubt Forum
+      </a>
+      <a href="{% url 'event_list' %}" class="sidebar-link {% if 'event' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Events
       </a>
 
-      <div class="nav-section-title">History</div>
+      <div class="nav-section-title">&#9654; Management</div>
+      <a href="{% url 'leave_applications' %}" class="sidebar-link {% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Leave Requests
+      </a>
+      <a href="{% url 'feedback_report' %}" class="sidebar-link {% if 'feedback' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Feedback
+      </a>
+      <a href="{% url 'reports_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'reports_view' %}active{% endif %}">
+        <span class="icon">&#9632;</span> Reports
+      </a>
+
+      <div class="nav-section-title">&#9654; System</div>
+      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
+        <span class="icon">&#9632;</span> Banners
+      </a>
+      <a href="{% url 'admin_list' %}" class="sidebar-link {% if 'admin_list' in request.resolver_match.url_name or 'admin_create' in request.resolver_match.url_name or 'admin_edit' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">&#9632;</span> Manage Admins
+      </a>
       <a href="{% url 'upload_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'upload_history' %}active{% endif %}">
-        <span class="icon">🕑</span> Upload History
+        <span class="icon">&#9632;</span> Upload History
       </a>
       <a href="/admin/" class="sidebar-link" target="_blank">
-        <span class="icon">⚙️</span> Django Admin
+        <span class="icon">&#9632;</span> Django Admin
       </a>
       {% endif %}
     </nav>
 
     <div class="sidebar-footer">
-      <a href="{% url 'student_logout' %}" class="sidebar-link" style="color: var(--accent-red);">
-        <span class="icon">🚪</span> Logout ({{ request.user.username }})
+      <a href="{% url 'student_logout' %}" class="sidebar-link" style="color: var(--error);">
+        <span class="icon">&#9744;</span> Logout ({{ request.user.username }})
       </a>
     </div>
   </aside>
@@ -122,21 +149,19 @@
   <!-- MAIN -->
   <div class="main-content">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-        <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <span class="topbar-title">{% block page_title %}Control Panel{% endblock %}</span>
       </div>
-      <div class="topbar-right">
-        <div style="font-size:13px;color:var(--text-muted); white-space: nowrap;">{% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <strong style="color:var(--accent-blue);">{{ request.user.username }}</strong></div>
+      <div style="font-size:12px;">
+        {% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <b>{{ request.user.username }}</b>
       </div>
     </div>
 
     <div class="page-content">
       {% if messages %}
         {% for msg in messages %}
-          <div class="alert alert-{{ msg.tags|default:'info' }}">
-            <span>{{ msg }}</span>
-          </div>
+          <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
         {% endfor %}
       {% endif %}
 
@@ -144,100 +169,6 @@
     </div>
   </div>
 </div>
-
-<!-- AI CHATBOT FLOATING UI -->
-<div id="aiChatbot" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-    <!-- Chat Button -->
-    <button id="aiChatBtn" style="width: 50px; height: 50px; border-radius: 50%; background: var(--gradient-blue); border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.3s;">
-        🤖
-    </button>
-    
-    <!-- Chat Window (Hidden by default) -->
-    <div id="aiChatWindow" style="display: none; position: absolute; bottom: 70px; right: 0; width: calc(100vw - 40px); max-width: 350px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0;">
-        <div style="background: var(--gradient-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size: 24px;">🤖</span>
-                <div>
-                    <div style="font-weight: 700; font-size: 14px;">GPTekari AI</div>
-                    <div style="font-size: 10px; opacity: 0.8;">Powered by Gemini</div>
-                </div>
-            </div>
-            <button id="closeAiChat" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
-        </div>
-        
-        <div id="aiMessages" style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
-            <div style="background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                Hi {{ request.user.username }}! I'm your AI assistant. How can I help you today?
-            </div>
-        </div>
-        
-        <div style="padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
-            <input type="text" id="aiInput" placeholder="Type your doubt..." style="flex: 1; border: 1px solid #e2e8f0; border-radius: 20px; padding: 8px 15px; font-size: 13px; outline: none;">
-            <button id="sendAiMsg" style="background: var(--primary-color); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"></path></svg>
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const aiBtn = document.getElementById('aiChatBtn');
-    const aiWindow = document.getElementById('aiChatWindow');
-    const closeAi = document.getElementById('closeAiChat');
-    const aiInput = document.getElementById('aiInput');
-    const sendAi = document.getElementById('sendAiMsg');
-    const aiMessages = document.getElementById('aiMessages');
-
-    aiBtn.onclick = () => {
-        aiWindow.style.display = aiWindow.style.display === 'none' ? 'flex' : 'none';
-        aiBtn.style.transform = aiWindow.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0deg)';
-    };
-    
-    closeAi.onclick = () => {
-        aiWindow.style.display = 'none';
-        aiBtn.style.transform = 'rotate(0deg)';
-    };
-
-    async function handleAiMsg() {
-        const text = aiInput.value.trim();
-        if(!text) return;
-        
-        // User message
-        const userMsg = document.createElement('div');
-        userMsg.style.cssText = "background: var(--primary-color); color: white; padding: 10px 14px; border-radius: 15px 15px 0 15px; max-width: 85%; font-size: 13px; align-self: flex-end; box-shadow: 0 2px 5px rgba(0,0,0,0.1);";
-        userMsg.textContent = text;
-        aiMessages.appendChild(userMsg);
-        aiInput.value = '';
-        aiMessages.scrollTop = aiMessages.scrollHeight;
-
-        // Bot thinking
-        const botMsg = document.createElement('div');
-        botMsg.style.cssText = "background: white; padding: 10px 14px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--text-muted);";
-        botMsg.textContent = 'Thinking...';
-        aiMessages.appendChild(botMsg);
-        aiMessages.scrollTop = aiMessages.scrollHeight;
-
-        try {
-            const response = await fetch('{% url "ai_chatbot_api" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ prompt: text })
-            });
-            const data = await response.json();
-            botMsg.textContent = data.response || 'Something went wrong.';
-            botMsg.style.color = 'black';
-        } catch(e) {
-            botMsg.textContent = 'Error connecting to AI.';
-        }
-        aiMessages.scrollTop = aiMessages.scrollHeight;
-    }
-
-    sendAi.onclick = handleAiMsg;
-    aiInput.onkeypress = (e) => { if(e.key === 'Enter') handleAiMsg(); };
-</script>
 
 <script>
 function toggleSidebar() {

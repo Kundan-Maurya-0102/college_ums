@@ -1,0 +1,21 @@
+name,phone,registration_number,email,branch,semester,year_of_admission,father_name,mother_name,address,date_of_birth
+Rahul Kumar,9876543210,CS2024001,rahul.cs@gmail.com,CS,3,2024,Rajesh Kumar,Sunita Devi,Tekari Gaya Bihar,2006-05-15
+Ankit Singh,9876543211,CS2024002,ankit.cs@gmail.com,CS,3,2024,Suresh Singh,Meena Devi,Bodh Gaya Bihar,2005-08-22
+Priya Kumari,9876543212,CS2024003,priya.cs@gmail.com,CS,3,2024,Manoj Kumar,Rita Devi,Gaya Bihar,2006-01-10
+Amit Ranjan,9876543213,CS2024004,amit.cs@gmail.com,CS,3,2024,Ramesh Ranjan,Pushpa Devi,Aurangabad Bihar,2005-11-30
+Sneha Gupta,9876543214,CS2024005,sneha.cs@gmail.com,CS,3,2024,Vinod Gupta,Asha Devi,Nawada Bihar,2006-03-25
+Ravi Shankar,9876543220,IT2024001,ravi.it@gmail.com,IT,3,2024,Shankar Prasad,Laxmi Devi,Jehanabad Bihar,2005-07-18
+Pooja Yadav,9876543221,IT2024002,pooja.it@gmail.com,IT,3,2024,Ram Yadav,Savitri Devi,Arwal Bihar,2006-02-14
+Deepak Mishra,9876543222,IT2024003,deepak.it@gmail.com,IT,3,2024,Anil Mishra,Kanti Devi,Patna Bihar,2005-09-05
+Suman Kumari,9876543230,EC2024001,suman.ec@gmail.com,EC,3,2024,Ajay Kumar,Poonam Devi,Nalanda Bihar,2006-04-12
+Vikash Thakur,9876543231,EC2024002,vikash.ec@gmail.com,EC,3,2024,Dinesh Thakur,Usha Devi,Sasaram Bihar,2005-12-08
+Nikhil Kumar,9876543240,ME2024001,nikhil.me@gmail.com,ME,3,2024,Birendra Kumar,Anita Devi,Dehri Bihar,2006-06-20
+Kajal Kumari,9876543241,ME2024002,kajal.me@gmail.com,ME,3,2024,Pramod Kumar,Geeta Devi,Sherghati Bihar,2005-10-15
+Rohit Das,9876543250,CE2024001,rohit.ce@gmail.com,CE,3,2024,Sunil Das,Manju Devi,Imamganj Bihar,2006-08-03
+Sangeeta Singh,9876543251,CE2024002,sangeeta.ce@gmail.com,CE,3,2024,Arvind Singh,Radha Devi,Barachatti Bihar,2005-05-28
+Akhilesh Yadav,9876543260,EE2024001,akhilesh.ee@gmail.com,EE,3,2024,Mahesh Yadav,Shanti Devi,Dobhi Bihar,2006-07-01
+Arti Kumari,9876543261,EE2024002,arti.ee@gmail.com,EE,3,2024,Raju Kumar,Kamla Devi,Konch Bihar,2005-04-17
+Manish Kumar,9876543215,CS2025001,manish.cs@gmail.com,CS,1,2025,Satish Kumar,Sita Devi,Tekari Gaya Bihar,2007-03-10
+Nisha Kumari,9876543216,CS2025002,nisha.cs@gmail.com,CS,1,2025,Pawan Kumar,Rekha Devi,Gaya Bihar,2007-06-22
+Sachin Patel,9876543223,IT2025001,sachin.it@gmail.com,IT,1,2025,Govind Patel,Mamta Devi,Patna Bihar,2007-01-08
+Anjali Sharma,9876543224,IT2025002,anjali.it@gmail.com,IT,1,2025,Suresh Sharma,Neha Devi,Nalanda Bihar,2007-09-15
