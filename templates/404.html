@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}404 — Page not found{% endblock %}
+{% block content %}
+<div class="panel" style="max-width:640px;margin:24px auto;text-align:center;">
+  <div style="font-size:48px;line-height:1;">&#9888;</div>
+  <h2 style="margin:12px 0 8px;">Ye page nahi mila</h2>
+  <p class="text-muted" style="margin-bottom:16px;">
+    Link purana ho sakta hai ya address me typo hai.
+  </p>
+  <p>
+    <a class="btn btn-primary" href="/">Dashboard par jao</a>
+    <a class="btn btn-secondary" href="javascript:history.back()">Wapas</a>
+  </p>
+</div>
+{% endblock %}

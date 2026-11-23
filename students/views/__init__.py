@@ -1,0 +1,37 @@
+"""View package: every module re-exported so `from . import views` keeps working."""
+
+from .common import (  # noqa: F401
+    admin_required, healthz, is_admin, is_teacher, teacher_required,
+)
+
+from .dashboard import (  # noqa: F401
+    admin_dashboard, reports_view, teacher_dashboard,
+)
+
+from .people import (  # noqa: F401
+    admin_create, admin_delete, admin_edit, admin_list, export_set_password_links_csv, export_students_csv, student_delete, student_edit, student_list, teacher_create, teacher_delete, teacher_edit, teacher_list,
+)
+
+from .teacher import (  # noqa: F401
+    teacher_assignments, teacher_marks, teacher_materials, teacher_notice_delete, teacher_notice_edit, teacher_notices, teacher_schedule, teacher_students, teacher_take_attendance,
+)
+
+from .imports import (  # noqa: F401
+    csv_upload, upload_history,
+)
+
+from .academics import (  # noqa: F401
+    attendance_entry, exam_schedule_create, exam_schedule_delete, exam_schedule_edit, exam_schedule_list, marks_entry, results_view, subject_create, subject_delete, subject_edit, subject_list, take_attendance_bulk,
+)
+
+from .content import (  # noqa: F401
+    ai_chatbot_api, banner_delete, banner_upload, doubt_delete, doubt_detail, doubt_edit, doubt_list, event_create, event_delete, event_edit, event_list, notice_create, notice_delete, notice_edit, notice_list, reply_delete, reply_edit,
+)
+
+from .finance import (  # noqa: F401
+    fee_payment_create, fee_payments, fee_structure_create, fee_structure_delete, fee_structure_edit, fee_structure_list,
+)
+
+from .leave_feedback import (  # noqa: F401
+    feedback_report, leave_applications, leave_review,
+)

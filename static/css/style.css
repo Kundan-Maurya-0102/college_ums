@@ -470,3 +470,17 @@ input:focus, select:focus, textarea:focus { outline: 1px dotted var(--highlight)
 
 /* ── ANIMATIONS (minimal, classic feel) ── */
 .fade-in-up { /* disabled for classic look */ }
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 4px 2px;
+  font-size: 12px;
+}
+.pagination-summary { color: var(--text-muted); }
+.pagination-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pagination-current { padding: 0 6px; font-weight: bold; }
+.pagination .btn.disabled { opacity: .5; pointer-events: none; }

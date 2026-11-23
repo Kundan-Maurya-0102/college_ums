@@ -35,6 +35,12 @@ class StudentProfile(models.Model):
     credentials_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["branch", "semester"], name="student_branch_sem_idx"),
+            models.Index(fields=["-created_at"], name="student_created_idx"),
+        ]
+
     def __str__(self):
         return f"{self.name} ({self.registration_number})"
 
@@ -182,6 +188,10 @@ class Attendance(models.Model):
 
     class Meta:
         unique_together = ['student', 'subject', 'date']
+        indexes = [
+            models.Index(fields=["date"], name="attendance_date_idx"),
+            models.Index(fields=["subject", "date"], name="attendance_subject_date_idx"),
+        ]
 
     def __str__(self):
         status = 'P' if self.is_present else 'A'
@@ -288,6 +298,7 @@ class WebsiteVisit(models.Model):
 
     class Meta:
         ordering = ["-visited_at"]
+        indexes = [models.Index(fields=["-visited_at"], name="visit_time_idx")]
 
     def __str__(self):
         return f"{self.path} @ {self.visited_at:%Y-%m-%d %H:%M}"
@@ -312,6 +323,9 @@ class Notice(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=["is_active", "-created_at"], name="notice_active_idx"),
+        ]
 
     def __str__(self):
         return self.title
@@ -463,6 +477,10 @@ class FeePayment(models.Model):
 
     class Meta:
         ordering = ['-payment_date']
+        indexes = [
+            models.Index(fields=["status"], name="feepayment_status_idx"),
+            models.Index(fields=["student", "status"], name="feepayment_student_status_idx"),
+        ]
 
     def __str__(self):
         return f"{self.student.name} — ₹{self.amount_paid} ({self.receipt_number})"
@@ -525,6 +543,7 @@ class LeaveApplication(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [models.Index(fields=["status"], name="leave_status_idx")]
 
     def __str__(self):
         return f"{self.student.name} — {self.get_leave_type_display()} ({self.from_date} to {self.to_date})"

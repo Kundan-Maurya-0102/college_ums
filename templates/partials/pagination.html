@@ -1,0 +1,29 @@
+{% load ui %}
+{% if page_obj.has_other_pages %}
+<div class="pagination" role="navigation" aria-label="Pagination">
+  <span class="pagination-summary">
+    {{ page_obj.start_index }}–{{ page_obj.end_index }} / {{ page_obj.paginator.count }}
+  </span>
+  <span class="pagination-links">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-small btn-secondary" href="?{% query_transform page=1 %}" aria-label="First page">&laquo;</a>
+      <a class="btn btn-small btn-secondary" href="?{% query_transform page=page_obj.previous_page_number %}">Prev</a>
+    {% else %}
+      <span class="btn btn-small btn-secondary disabled" aria-disabled="true">&laquo;</span>
+      <span class="btn btn-small btn-secondary disabled" aria-disabled="true">Prev</span>
+    {% endif %}
+    <span class="pagination-current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="btn btn-small btn-secondary" href="?{% query_transform page=page_obj.next_page_number %}">Next</a>
+      <a class="btn btn-small btn-secondary" href="?{% query_transform page=page_obj.paginator.num_pages %}" aria-label="Last page">&raquo;</a>
+    {% else %}
+      <span class="btn btn-small btn-secondary disabled" aria-disabled="true">Next</span>
+      <span class="btn btn-small btn-secondary disabled" aria-disabled="true">&raquo;</span>
+    {% endif %}
+  </span>
+</div>
+{% elif page_obj %}
+<div class="pagination">
+  <span class="pagination-summary">{{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }}</span>
+</div>
+{% endif %}

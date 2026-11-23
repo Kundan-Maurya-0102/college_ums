@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Server error — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}500 — Server error{% endblock %}
+{% block content %}
+<div class="panel" style="max-width:640px;margin:24px auto;text-align:center;">
+  <div style="font-size:48px;line-height:1;">&#9888;</div>
+  <h2 style="margin:12px 0 8px;">Kuch galat ho gaya</h2>
+  <p class="text-muted" style="margin-bottom:16px;">
+    Error log ho gaya hai. Thodi der baad dobara koshish karein.
+  </p>
+  <p><a class="btn btn-primary" href="/">Dashboard par jao</a></p>
+</div>
+{% endblock %}
