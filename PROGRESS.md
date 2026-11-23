@@ -16,8 +16,29 @@
   token expiry/reuse, healthz + visit logging, env branding, settings hardening).
   `python manage.py test` → OK.
 
+- **Phase 5 (refactor)**: `students/views.py` (1366 lines) → `students/views/` package
+  (common, dashboard, people, teacher, imports, academics, content, finance,
+  leave_feedback) with `__init__` re-exporting all 70 views (URLs unchanged).
+  Added `students/pagination.py` + `partials/pagination.html` (filter-preserving)
+  on 9 list pages, grouped DB aggregates on dashboards (removed per-student
+  attendance N+1), 9 indexes (migration `0013`), custom 403/404/500 pages.
+- **Phase 6.1 (design system + shell)**: `static/css/theme.css` tokens (`--primary`
+  from env), dark mode, cards/buttons/forms/tables/badges/alerts/toasts/empty
+  states, responsive sidebar; rebuilt `base.html` with inline SVG icon sprite,
+  role-based nav, topbar search, breadcrumbs, skip link, `aria-current`; new
+  `static/js/ui.js` (drawer, theme persistence, double-submit lock, confirms,
+  toasts); new login page; Chart.js (vendored in `static/js/vendor/`) doughnut on
+  the admin dashboard; `favicon.svg`; aliased 16 CSS variables templates used but
+  that were undefined.
+- **Phase 6.2 (student panel shell)**: 9 standalone student pages now extend
+  `base.html` with a student nav branch — one header/sidebar, mobile drawer,
+  shared messages.
+- **Tests**: 47 tests total (added pagination tests + a page-smoke suite that
+  renders every admin/teacher/student/public GET route).
+
+
 ## In progress
-- (kuch nahi)
+- Phase 6.3 (tables/forms/teacher polish/PWA) — baaki UI kaam.
 
 ## UI/UX Enhancements (completed)
 - Modernized student panel with fresh color scheme using PRIMARY_COLOR env variable
@@ -35,11 +56,13 @@
 - All 37 existing tests pass with enhanced templates
 
 ## Next (is order mein karna ye hai)
-1. views.py ko modules mein todna
-2. WhatsApp/SMS alerts
-3. Razorpay fee payment
-4. Parent portal + reports
-5. create_college management command
+1. Phase 6.3: tables (search/filter/sort/export/mobile card view), forms
+   validation states, teacher panel polish, empty states, PWA (manifest + SW)
+2. Phase 7: notifications, Razorpay, parent portal, roles/groups, reports,
+   exam PDFs, timetable clash detection, admission, notification bell, global
+   search + bulk actions, AI chatbot scoped to college data
+3. Phase 8: `create_college` management command
+4. Phase 9: final checks, README + docs/USER_GUIDE.md
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →
@@ -77,3 +100,11 @@
   Django 4.2 ka test template-instrumentation `BaseContext.__copy__` 3.14 par crash karta
   tha. Isliye `students/tests/__init__.py` me chhota shim hai (deployment image 3.12 hai,
   wahan behavior same). CI/server par Python 3.12 use karna behtar hai.
+
+- Static assets: `collectstatic` chalana zaroori hai (ManifestStaticFilesStorage);
+  tests naye static file par fail ho sakte hain agar manifest update na ho.
+- Icons inline SVG sprite (`templates/partials/icons.html`) — koi CDN/font dependency
+  nahi. Chart.js `static/js/vendor/chart.umd.min.js` me vendored hai (offline safe).
+- Page smoke test (`students/tests/test_smoke_pages.py`) har role ke har GET route
+  ko render karta hai — naya view todne par turant pakda jayega.
+- Template `{% load %}` `{% extends %}` ke baad hi aayega (Django rule).
