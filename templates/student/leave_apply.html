@@ -6,52 +6,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leave Application — {{ COLLEGE_NAME }} UMS</title>
     {% include 'partials/college_colors.html' %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}>
 </head>
 <body>
-<div class="student-layout">
-  <nav class="student-topbar">
-    <div><b>{{ COLLEGE_NAME }} — Leave Application</b> | {{ request.user.username }}</div>
-    <div><a href="{% url 'student_dashboard' %}">&#9668; Dashboard</a> <a href="{% url 'student_logout' %}" style="color:#ffcccc;">Logout</a></div>
-  </nav>
-  <div class="student-content">
-    {% if messages %}{% for msg in messages %}<div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>{% endfor %}{% endif %}
+  <div class="layout-student">
+    <div class="content-student">
 
-    <fieldset style="max-width:500px;">
-      <legend>&#9632; Apply for Leave</legend>
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-        <div class="form-group">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {{ field.errors }}
+      <!-- TOP BAR -->
+      <header class="topbar-student">
+        <div class="logo">
+          {% include 'partials/college_logo.html' %}
+          <h1>{{ COLLEGE_NAME }} — Leave Application</h1>
         </div>
-        {% endfor %}
-        <input type="submit" value="Submit Application" class="btn btn-primary">
-      </form>
-    </fieldset>
+        <div class="user-info">
+          <a href="{% url 'student_dashboard' %}" title="Back to Dashboard">← Dashboard</a>
+          <a href="{% url 'student_logout' %}" title="Logout">Logout</a>
+        </div>
+      </header>
 
-    <fieldset>
-      <legend>&#9632; My Leave History</legend>
-      <table class="data-table">
-        <thead><tr><th>Type</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Remarks</th></tr></thead>
-        <tbody>
-          {% for l in my_leaves %}
-          <tr>
-            <td>{{ l.get_leave_type_display }}</td>
-            <td>{{ l.from_date }}</td>
-            <td>{{ l.to_date }}</td>
-            <td>{{ l.reason|truncatewords:10 }}</td>
-            <td><span class="badge {% if l.status == 'APPROVED' %}badge-green{% elif l.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">{{ l.status }}</span></td>
-            <td>{{ l.admin_remarks|default:"—" }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6" class="text-muted">No leave applications yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </fieldset>
+      {% if messages %}
+      <div class="alerts-student">
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- APPLY FOR LEAVE -->
+      <fieldset class="fieldset-student">
+        <legend>&#9632; Apply for Leave</legend>
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-student">
+            {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+            {% endfor %}
+          </div>
+          <div style="margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary ml-2">Cancel</a>
+          </div>
+        </form>
+      </fieldset>
+
+      <!-- MY LEAVE HISTORY -->
+      <fieldset class="fieldset-student">
+        <legend>&#9632; My Leave History</legend>
+        <table class="table-student">
+          <thead>
+            <tr><th>Type</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Remarks</th></tr>
+          </thead>
+          <tbody>
+            {% for l in my_leaves %}
+            <tr>
+              <td>{{ l.get_leave_type_display }}</td>
+              <td>{{ l.from_date }}</td>
+              <td>{{ l.to_date }}</td>
+              <td>{{ l.reason|truncatewords:8 }}</td>
+              <td>
+                <span class="badge badge-student {% if l.status == 'APPROVED' %}success{% elif l.status == 'REJECTED' %}danger{% else %}warning{% endif %}">
+                  {{ l.status }}
+                </span>
+              </td>
+              <td>{{ l.admin_remarks|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-muted">No leave applications yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
+
+    </div>
   </div>
-</div>
 </body>
 </html>

@@ -6,50 +6,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feedback — {{ COLLEGE_NAME }} UMS</title>
     {% include 'partials/college_colors.html' %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-<div class="student-layout">
-  <nav class="student-topbar">
-    <div><b>{{ COLLEGE_NAME }} — Feedback</b> | {{ request.user.username }}</div>
-    <div><a href="{% url 'student_dashboard' %}">&#9668; Dashboard</a> <a href="{% url 'student_logout' %}" style="color:#ffcccc;">Logout</a></div>
-  </nav>
-  <div class="student-content">
-    {% if messages %}{% for msg in messages %}<div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>{% endfor %}{% endif %}
+  <div class="layout-student">
+    <div class="content-student">
 
-    <fieldset style="max-width:500px;">
-      <legend>&#9632; Submit Feedback</legend>
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-        <div class="form-group">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {{ field.errors }}
+      <!-- TOP BAR -->
+      <header class="topbar-student">
+        <div class="logo">
+          {% include 'partials/college_logo.html' %}
+          <h1>{{ COLLEGE_NAME }} — Feedback</h1>
         </div>
-        {% endfor %}
-        <input type="submit" value="Submit Feedback" class="btn btn-primary">
-      </form>
-    </fieldset>
+        <div class="user-info">
+          <a href="{% url 'student_dashboard' %}" title="Back to Dashboard">← Dashboard</a>
+          <a href="{% url 'student_logout' %}" title="Logout">Logout</a>
+        </div>
+      </header>
 
-    {% if existing %}
-    <fieldset>
-      <legend>&#9632; Your Feedback (Sem {{ profile.semester }})</legend>
-      <table class="data-table">
-        <thead><tr><th>Subject</th><th>Rating</th><th>Comments</th><th>Date</th></tr></thead>
-        <tbody>
-          {% for f in existing %}
-          <tr>
-            <td>{{ f.subject.subject_code }}</td>
-            <td><b>{{ f.rating }}/5</b></td>
-            <td>{{ f.comments|default:"—" }}</td>
-            <td>{{ f.created_at|date:"d M Y" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </fieldset>
-    {% endif %}
+      {% if messages %}
+      <div class="alerts-student">
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- SUBMIT FEEDBACK -->
+      <fieldset class="fieldset-student">
+        <legend>&#9632; Submit Feedback</legend>
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-student">
+            {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+            {% endfor %}
+          </div>
+          <div style="margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary ml-2">Cancel</a>
+          </div>
+        </form>
+      </fieldset>
+
+      <!-- YOUR FEEDBACK HISTORY -->
+      {% if existing %}
+      <fieldset class="fieldset-student mt-3">
+        <legend>&#9632; Your Feedback (Sem {{ profile.semester }})</legend>
+        <table class="table-student">
+          <thead>
+            <tr><th>Subject</th><th>Rating</th><th>Comments</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            {% for f in existing %}
+            <tr>
+              <td>{{ f.subject.subject_code }}</td>
+              <td><b>{{ f.rating }}/5</b></td>
+              <td>{{ f.comments|default:"—" }}</td>
+              <td>{{ f.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
+      {% endif %}
+
+    </div>
   </div>
-</div>
 </body>
 </html>

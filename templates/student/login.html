@@ -6,8 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — {{ COLLEGE_NAME }} UMS</title>
   <meta name="description" content="Login to {{ COLLEGE_NAME }} Student Portal.">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  {% include 'partials/college_colors.html' %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include 'partials/college_colors.html' %}
+    {% include 'partials/college_logo.html' %}
   <style>
     .login-page {
       min-height: 100vh;
@@ -17,59 +18,62 @@
       justify-content: center;
     }
     .login-box {
-      background: var(--bg);
+      background: var(--bg-white);
       border: 2px solid;
-      border-color: var(--border-light) var(--border-darkest) var(--border-darkest) var(--border-light);
-      padding: 20px;
-      width: 340px;
+      border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+      padding: 2.5rem 2rem;
+      width: 360px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     .login-header {
-      background: var(--highlight);
+      background: var(--gradient-primary);
       color: var(--highlight-text);
-      padding: 6px 8px;
-      font-weight: bold;
-      font-size: 13px;
-      margin: -20px -20px 16px -20px;
+      padding: 0.6rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-weight: 600;
+      font-size: 14px;
+      margin: -2.5rem -2.5rem 1.5rem -2.5rem;
+      text-align: center;
     }
+    .login-header svg { display: block; margin: 0 auto 0.5rem; }
   </style>
 </head>
 <body>
-<div class="login-page">
-  <div class="login-box">
-    <div class="login-header">&#9632; {{ COLLEGE_NAME }} — Login</div>
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-header">&#9632; {{ COLLEGE_NAME }} — Login</div>
 
-    <div style="text-align:center;margin-bottom:12px;">
-      <div style="width:60px;height:60px;margin:0 auto;display:flex;align-items:center;justify-content:center;border:1px solid #999;background:var(--bg-white);">{% include 'partials/college_logo.html' %}</div>
-      <div style="font-size:12px;margin-top:4px;"><b>University Management System</b></div>
+      {% if messages %}
+        {% for msg in messages %}
+        <div style="background:var(--error-light);color:var(--error);padding:0.75rem 1rem;margin-bottom 1rem;border-radius:6px;text-align:center;">
+          {{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-student">
+          <div class="form-group">
+            <label for="id_username"><b>Username</b> (Registration Number)</label>
+            <input type="text" name="username" id="id_username" class="form-control"
+                   placeholder="e.g. cs2024001" value="{{ form.username.value|default:'' }}" required autofocus>
+          </div>
+          <div class="form-group">
+            <label for="id_password"><b>Password</b></label>
+            <input type="password" name="password" id="id_password" class="form-control"
+                   placeholder="Enter password" required>
+          </div>
+          <div style="margin-top:1.5rem;">
+            <input type="submit" value="Login" class="btn btn-primary w-100" style="padding:0.75rem;font-size:1rem;">
+          </div>
+        </form>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;text-align:center;">
+          <small class="text-muted">First time? Use the set-password link from your admin.</small>
+        </div>
+      </div>
     </div>
-
-    {% if messages %}
-      {% for msg in messages %}
-      <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
-      {% endfor %}
-    {% endif %}
-
-    <form method="post">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="id_username"><b>Username</b> (Registration Number)</label>
-        <input type="text" name="username" id="id_username" class="form-control"
-               placeholder="e.g. cs2024001" value="{{ form.username.value|default:'' }}" required autofocus>
-      </div>
-      <div class="form-group">
-        <label for="id_password"><b>Password</b></label>
-        <input type="password" name="password" id="id_password" class="form-control"
-               placeholder="Enter password" required>
-      </div>
-      <div style="margin-top:12px;">
-        <input type="submit" value="Login" class="btn btn-primary" style="width:100%;">
-      </div>
-    </form>
-
-    <div style="margin-top:12px;border-top:1px solid #999;padding-top:8px;text-align:center;">
-      <small class="text-muted">First time? Use the set-password link from your admin.</small>
-    </div>
-  </div>
-</div>
-</body>
+  </body>
 </html>
