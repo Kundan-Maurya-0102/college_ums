@@ -1,59 +1,34 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Events — {{ COLLEGE_NAME }} UMS</title>
-    {% include 'partials/college_colors.html' %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}>
-</head>
-<body>
-  <div class="layout-student">
-    <div class="content-student">
+{% block title %}Events — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Events{% endblock %}
+{% block breadcrumb %}Events{% endblock %}
+{% block content %}
+            <!-- TOP BAR -->
 
-      <!-- TOP BAR -->
-      <header class="topbar-student">
-        <div class="logo">
-          {% include 'partials/college_logo.html' %}
-          <h1>{{ COLLEGE_NAME }} — Academic Calendar</h1>
-        </div>
-        <div class="user-info">
-          <a href="{% url 'student_dashboard' %}" title="Back to Dashboard">← Dashboard</a>
-          <a href="{% url 'student_logout' %}" title="Logout">Logout</a>
-        </div>
-      </header>
 
-      {% if messages %}
-      <div class="alerts-student">
-        {% for msg in messages %}
-        <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
-        {% endfor %}
-      </div>
-      {% endif %}
 
-      <fieldset class="fieldset-student">
-        <legend>&#9632; Upcoming Events</legend>
-        <table class="table-student">
-          <thead>
-            <tr><th>Date</th><th>Title</th><th>Type</th><th>Description</th></tr>
-          </thead>
-          <tbody>
-            {% for e in events %}
-            <tr>
-              <td><b>{{ e.event_date }}</b></td>
-              <td><b>{{ e.title }}</b></td>
-              <td>{{ e.get_event_type_display }}</td>
-              <td>{{ e.description|default:"—" }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="4" class="text-muted">No events scheduled.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </fieldset>
 
-    </div>
-  </div>
-</body>
-</html>
+            <fieldset class="fieldset-student">
+              <legend>&#9632; Upcoming Events</legend>
+              <table class="table-student">
+                <thead>
+                  <tr><th>Date</th><th>Title</th><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  {% for e in events %}
+                  <tr>
+                    <td><b>{{ e.event_date }}</b></td>
+                    <td><b>{{ e.title }}</b></td>
+                    <td>{{ e.get_event_type_display }}</td>
+                    <td>{{ e.description|default:"—" }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="4" class="text-muted">No events scheduled.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </fieldset>
+
+
+{% endblock %}

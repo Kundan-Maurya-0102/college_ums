@@ -30,7 +30,23 @@
     </div>
 
     <nav class="sidebar-nav">
-      {% if request.user.facultyprofile and not request.user.is_superuser %}
+      {% if request.user.studentprofile %}
+        <div class="nav-section-title">My College</div>
+        {% url 'student_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
+        {% url 'student_fees' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_fees' %}" {% if request.resolver_match.url_name == 'student_fees' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> My Fees</a>
+        {% url 'student_exam_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_exam_schedule' %}" {% if request.resolver_match.url_name == 'student_exam_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Exam Schedule</a>
+        {% url 'student_certificates' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_certificates' %}" {% if request.resolver_match.url_name == 'student_certificates' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> Certificates</a>
+        {% url 'student_events' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_events' %}" {% if request.resolver_match.url_name == 'student_events' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Events</a>
+
+        <div class="nav-section-title">Requests</div>
+        {% url 'student_leave_apply' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_leave_apply' %}" {% if request.resolver_match.url_name == 'student_leave_apply' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Leave Application</a>
+        {% url 'student_feedback' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_feedback' %}" {% if request.resolver_match.url_name == 'student_feedback' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> Feedback</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
+
+        <div class="nav-section-title">Account</div>
+        {% url 'student_profile_edit' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_profile_edit' %}" {% if request.resolver_match.url_name == 'student_profile_edit' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-edit"/></svg></span> Edit Profile</a>
+        {% url 'change_password' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'change_password' %}" {% if request.resolver_match.url_name == 'change_password' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> Change Password</a>
+      {% elif request.user.facultyprofile and not request.user.is_superuser %}
         <div class="nav-section-title">Teaching</div>
         {% url 'teacher_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
         {% url 'teacher_students' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_students' %}" {% if request.resolver_match.url_name == 'teacher_students' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> My Students</a>
@@ -99,7 +115,7 @@
       </div>
 
       <div class="topbar-right">
-        {% if not request.user.facultyprofile or request.user.is_superuser %}
+        {% if not request.user.studentprofile and not request.user.facultyprofile or request.user.is_superuser and not request.user.studentprofile %}
         <form action="{% url 'student_list' %}" method="get" role="search" class="topbar-search">
           <label class="visually-hidden" for="global-search">Search students</label>
           <input id="global-search" type="search" name="q" placeholder="Search students…" value="{{ request.GET.q|default:'' }}">
@@ -112,7 +128,7 @@
           <span class="avatar" aria-hidden="true">{{ request.user.username|slice:":2" }}</span>
           <span class="user-name">
             <b>{{ request.user.get_full_name|default:request.user.username }}</b><br>
-            {% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Administrator{% endif %}
+            {% if request.user.studentprofile %}Student{% elif request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Administrator{% endif %}
           </span>
         </div>
       </div>

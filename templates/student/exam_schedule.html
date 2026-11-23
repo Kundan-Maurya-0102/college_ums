@@ -1,60 +1,35 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Schedule — {{ COLLEGE_NAME }} UMS</title>
-    {% include 'partials/college_colors.html' %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}>
-</head>
-<body>
-  <div class="layout-student">
-    <div class="content-student">
+{% block title %}Exam Schedule — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}Exam Schedule{% endblock %}
+{% block breadcrumb %}Exam Schedule{% endblock %}
+{% block content %}
+            <!-- TOP BAR -->
 
-      <!-- TOP BAR -->
-      <header class="topbar-student">
-        <div class="logo">
-          {% include 'partials/college_logo.html' %}
-          <h1>{{ COLLEGE_NAME }} — Exam Timetable</h1>
-        </div>
-        <div class="user-info">
-          <a href="{% url 'student_dashboard' %}" title="Back to Dashboard">← Dashboard</a>
-          <a href="{% url 'student_logout' %}" title="Logout">Logout</a>
-        </div>
-      </header>
 
-      {% if messages %}
-      <div class="alerts-student">
-        {% for msg in messages %}
-        <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
-        {% endfor %}
-      </div>
-      {% endif %}
 
-      <fieldset class="fieldset-student">
-        <legend>&#9632; Exam Schedule ({{ profile.get_branch_display }} Sem {{ profile.semester }})</legend>
-        <table class="table-student">
-          <thead>
-            <tr><th>Subject</th><th>Exam Type</th><th>Date</th><th>Time</th><th>Room</th></tr>
-          </thead>
-          <tbody>
-            {% for s in schedules %}
-            <tr>
-              <td><b>{{ s.subject.subject_code }}</b> — {{ s.subject.subject_name }}</td>
-              <td>{{ s.get_exam_type_display }}</td>
-              <td>{{ s.exam_date }}</td>
-              <td>{{ s.start_time }} — {{ s.end_time }}</td>
-              <td>{{ s.room|default:"—" }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" class="text-muted">No exam schedule available.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </fieldset>
 
-    </div>
-  </div>
-</body>
-</html>
+            <fieldset class="fieldset-student">
+              <legend>&#9632; Exam Schedule ({{ profile.get_branch_display }} Sem {{ profile.semester }})</legend>
+              <table class="table-student">
+                <thead>
+                  <tr><th>Subject</th><th>Exam Type</th><th>Date</th><th>Time</th><th>Room</th></tr>
+                </thead>
+                <tbody>
+                  {% for s in schedules %}
+                  <tr>
+                    <td><b>{{ s.subject.subject_code }}</b> — {{ s.subject.subject_name }}</td>
+                    <td>{{ s.get_exam_type_display }}</td>
+                    <td>{{ s.exam_date }}</td>
+                    <td>{{ s.start_time }} — {{ s.end_time }}</td>
+                    <td>{{ s.room|default:"—" }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="5" class="text-muted">No exam schedule available.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </fieldset>
+
+
+{% endblock %}
