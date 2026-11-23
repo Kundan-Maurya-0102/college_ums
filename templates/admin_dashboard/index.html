@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Dashboard — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
@@ -309,4 +310,66 @@
     {% endif %}
   </div>
 </div>
+
+<div class="grid-two">
+  <div class="card fade-in-up">
+    <div class="card-header"><h3 class="card-title">Students by branch</h3></div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="branchChart" role="img" aria-label="Students by branch"></canvas></div></div>
+  </div>
+  <div class="card fade-in-up">
+    <div class="card-header"><h3 class="card-title">Attendance snapshot</h3></div>
+    <div class="card-body">
+      <p class="text-muted" style="margin:0 0 6px;font-size:12.5px;">Average present rate across all marked classes</p>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">
+        <span style="font-size:32px;font-weight:700;">{{ attendance_average }}%</span>
+        {% if low_attendance_students %}<span class="badge badge-red">{{ low_attendance_students|length }} below 75%</span>{% endif %}
+      </div>
+      <div class="progress" style="height:10px;">
+        <div class="progress-bar {% if attendance_average >= 75 %}ok{% elif attendance_average >= 50 %}warn{% else %}danger{% endif %}" style="width: {{ attendance_average }}%"></div>
+      </div>
+      <div class="stats-grid" style="margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">
+        <div><div class="stat-label">Notices</div><div class="stat-value" style="font-size:20px;">{{ total_notices }}</div></div>
+        <div><div class="stat-label">Subjects</div><div class="stat-value" style="font-size:20px;">{{ total_subjects }}</div></div>
+        <div><div class="stat-label">Teachers</div><div class="stat-value" style="font-size:20px;">{{ total_teachers }}</div></div>
+        <div><div class="stat-label">Visits today</div><div class="stat-value" style="font-size:20px;">{{ today_visits }}</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ branch_stats|json_script:"branch-data" }}
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+<script>
+(function () {
+  var el = document.getElementById('branchChart');
+  var raw = document.getElementById('branch-data');
+  if (!el || !raw || typeof Chart === 'undefined') return;
+  var data = JSON.parse(raw.textContent);
+  var labels = Object.keys(data);
+  var values = labels.map(function (k) { return data[k]; });
+  var styles = getComputedStyle(document.documentElement);
+  var primary = styles.getPropertyValue('--primary').trim() || '#1d4ed8';
+  var muted = styles.getPropertyValue('--muted').trim() || '#64748b';
+  new Chart(el, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: [primary, '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#eab308'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, color: muted, font: { size: 12 } } }
+      }
+    }
+  });
+})();
+</script>
 {% endblock %}

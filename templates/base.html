@@ -1,181 +1,145 @@
-{% load static %}
+{% load static ui %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ COLLEGE_NAME }} UMS{% endblock %}</title>
-  <meta name="description" content="{{ COLLEGE_NAME }} University Management System — Admin Control Panel.">
+  <meta name="description" content="{{ COLLEGE_NAME }} — University Management System">
+  <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#1d4ed8' }}">
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   {% include 'partials/college_colors.html' %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+{% include 'partials/icons.html' %}
+<a class="skip-link" href="#main-content">Skip to content</a>
+
 <div class="app-layout">
-  <!-- SIDEBAR (Tree-View) -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">
+      <span class="sidebar-brand-icon">
         {% include 'partials/college_logo.html' %}
-      </div>
-      <h2>UMS Control Panel</h2>
+      </span>
+      <h2>{{ COLLEGE_NAME|default:'College UMS' }}</h2>
     </div>
 
     <nav class="sidebar-nav">
       {% if request.user.facultyprofile and not request.user.is_superuser %}
-      <div class="nav-section-title">&#9654; Teacher Panel</div>
-      <a href="{% url 'teacher_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Dashboard
-      </a>
-      <a href="{% url 'teacher_students' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_students' %}active{% endif %}">
-        <span class="icon">&#9632;</span> My Students
-      </a>
-      <a href="{% url 'teacher_take_attendance' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_take_attendance' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Attendance
-      </a>
-      <a href="{% url 'teacher_marks' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_marks' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Marks Entry
-      </a>
-      <a href="{% url 'teacher_assignments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_assignments' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Assignments
-      </a>
-      <a href="{% url 'teacher_materials' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_materials' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Notes / PDF
-      </a>
-      <a href="{% url 'teacher_schedule' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_schedule' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Schedule
-      </a>
-      <a href="{% url 'teacher_notices' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_notices' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Notices
-      </a>
-      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Banners
-      </a>
-      <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Doubt Forum
-      </a>
+        <div class="nav-section-title">Teaching</div>
+        {% url 'teacher_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
+        {% url 'teacher_students' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_students' %}" {% if request.resolver_match.url_name == 'teacher_students' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> My Students</a>
+        {% url 'teacher_take_attendance' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_take_attendance' %}" {% if request.resolver_match.url_name == 'teacher_take_attendance' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Attendance</a>
+        {% url 'teacher_marks' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_marks' %}" {% if request.resolver_match.url_name == 'teacher_marks' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Marks Entry</a>
+        {% url 'teacher_assignments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_assignments' %}" {% if request.resolver_match.url_name == 'teacher_assignments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-folder"/></svg></span> Assignments</a>
+        {% url 'teacher_materials' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_materials' %}" {% if request.resolver_match.url_name == 'teacher_materials' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> Notes / PDF</a>
+        {% url 'teacher_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_schedule' %}" {% if request.resolver_match.url_name == 'teacher_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Schedule</a>
+        {% url 'teacher_notices' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_notices' 'teacher_notice_edit' %}" {% if request.resolver_match.url_name == 'teacher_notices' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> Notices</a>
+
+        <div class="nav-section-title">Shared</div>
+        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> Banners</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
       {% else %}
-      <div class="nav-section-title">&#9654; Overview</div>
-      <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Dashboard
-      </a>
-      <a href="{% url 'teacher_list' %}" class="sidebar-link {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Teachers
-      </a>
+        <div class="nav-section-title">Overview</div>
+        {% url 'admin_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
+        {% url 'teacher_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_list' 'teacher_create' 'teacher_edit' 'teacher_delete' %}" {% if request.resolver_match.url_name == 'teacher_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-user-check"/></svg></span> Teachers</a>
 
-      <div class="nav-section-title">&#9654; Students</div>
-      <a href="{% url 'csv_upload' %}" class="sidebar-link {% if 'upload' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> CSV Upload
-      </a>
-      <a href="{% url 'student_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
-        <span class="icon">&#9632;</span> All Students
-      </a>
-      <a href="{% url 'export_students_csv' %}" class="sidebar-link">
-        <span class="icon">&#9632;</span> Export CSV
-      </a>
+        <div class="nav-section-title">Students</div>
+        {% url 'csv_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'csv_upload' %}" {% if request.resolver_match.url_name == 'csv_upload' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-upload"/></svg></span> CSV Upload</a>
+        {% url 'student_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_list' 'student_edit' 'student_delete' %}" {% if request.resolver_match.url_name == 'student_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> All Students</a>
+        {% url 'export_students_csv' as u %}<a href="{{ u }}" class="sidebar-link"><span class="icon"><svg><use href="#i-download"/></svg></span> Export CSV</a>
 
-      <div class="nav-section-title">&#9654; Academics</div>
-      <a href="{% url 'subject_list' %}" class="sidebar-link {% if 'subject' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Subjects
-      </a>
-      <a href="{% url 'marks_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'marks_entry' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Internal Marks
-      </a>
-      <a href="{% url 'results_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'results_view' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Results
-      </a>
-      <a href="{% url 'attendance_entry' %}" class="sidebar-link {% if request.resolver_match.url_name == 'attendance_entry' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Manual Attendance
-      </a>
-      <a href="{% url 'take_attendance_bulk' %}" class="sidebar-link {% if request.resolver_match.url_name == 'take_attendance_bulk' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Take Attendance
-      </a>
-      <a href="{% url 'exam_schedule_list' %}" class="sidebar-link {% if 'exam_schedule' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Exam Timetable
-      </a>
+        <div class="nav-section-title">Academics</div>
+        {% url 'subject_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'subject_list' 'subject_create' 'subject_edit' 'subject_delete' %}" {% if request.resolver_match.url_name == 'subject_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> Subjects</a>
+        {% url 'marks_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'marks_entry' %}" {% if request.resolver_match.url_name == 'marks_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Internal Marks</a>
+        {% url 'results_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'results_view' %}" {% if request.resolver_match.url_name == 'results_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> Results</a>
+        {% url 'attendance_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'attendance_entry' %}" {% if request.resolver_match.url_name == 'attendance_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Manual Attendance</a>
+        {% url 'take_attendance_bulk' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'take_attendance_bulk' %}" {% if request.resolver_match.url_name == 'take_attendance_bulk' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Take Attendance</a>
+        {% url 'exam_schedule_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'exam_schedule_list' 'exam_schedule_create' 'exam_schedule_edit' 'exam_schedule_delete' %}" {% if request.resolver_match.url_name == 'exam_schedule_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Exam Timetable</a>
 
-      <div class="nav-section-title">&#9654; Finance</div>
-      <a href="{% url 'fee_structure_list' %}" class="sidebar-link {% if 'fee_structure' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Fee Structure
-      </a>
-      <a href="{% url 'fee_payments' %}" class="sidebar-link {% if 'fee_payment' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Fee Payments
-      </a>
+        <div class="nav-section-title">Finance</div>
+        {% url 'fee_structure_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_structure_list' 'fee_structure_create' 'fee_structure_edit' 'fee_structure_delete' %}" {% if request.resolver_match.url_name == 'fee_structure_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> Fee Structure</a>
+        {% url 'fee_payments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_payments' 'fee_payment_create' %}" {% if request.resolver_match.url_name == 'fee_payments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> Fee Payments</a>
 
-      <div class="nav-section-title">&#9654; Communication</div>
-      <a href="{% url 'notice_list' %}" class="sidebar-link {% if 'notice' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Notices
-      </a>
-      <a href="{% url 'doubt_list' %}" class="sidebar-link {% if 'forum' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Doubt Forum
-      </a>
-      <a href="{% url 'event_list' %}" class="sidebar-link {% if 'event' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Events
-      </a>
+        <div class="nav-section-title">Communication</div>
+        {% url 'notice_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'notice_list' 'notice_create' 'notice_edit' 'notice_delete' %}" {% if request.resolver_match.url_name == 'notice_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> Notices</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
+        {% url 'event_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'event_list' 'event_create' 'event_edit' 'event_delete' %}" {% if request.resolver_match.url_name == 'event_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Events</a>
 
-      <div class="nav-section-title">&#9654; Management</div>
-      <a href="{% url 'leave_applications' %}" class="sidebar-link {% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Leave Requests
-      </a>
-      <a href="{% url 'feedback_report' %}" class="sidebar-link {% if 'feedback' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Feedback
-      </a>
-      <a href="{% url 'reports_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'reports_view' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Reports
-      </a>
+        <div class="nav-section-title">Management</div>
+        {% url 'leave_applications' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='leave' %}" {% if request.resolver_match.url_name == 'leave_applications' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Leave Requests</a>
+        {% url 'feedback_report' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'feedback_report' %}" {% if request.resolver_match.url_name == 'feedback_report' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> Feedback</a>
+        {% url 'reports_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'reports_view' %}" {% if request.resolver_match.url_name == 'reports_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> Reports</a>
 
-      <div class="nav-section-title">&#9654; System</div>
-      <a href="{% url 'banner_upload' %}" class="sidebar-link {% if request.resolver_match.url_name == 'banner_upload' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Banners
-      </a>
-      <a href="{% url 'admin_list' %}" class="sidebar-link {% if 'admin_list' in request.resolver_match.url_name or 'admin_create' in request.resolver_match.url_name or 'admin_edit' in request.resolver_match.url_name %}active{% endif %}">
-        <span class="icon">&#9632;</span> Manage Admins
-      </a>
-      <a href="{% url 'upload_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'upload_history' %}active{% endif %}">
-        <span class="icon">&#9632;</span> Upload History
-      </a>
-      <a href="/admin/" class="sidebar-link" target="_blank">
-        <span class="icon">&#9632;</span> Django Admin
-      </a>
+        <div class="nav-section-title">System</div>
+        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> Banners</a>
+        {% url 'admin_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_list' 'admin_create' 'admin_edit' 'admin_delete' %}"><span class="icon"><svg><use href="#i-shield"/></svg></span> Manage Admins</a>
+        {% url 'upload_history' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'upload_history' %}"><span class="icon"><svg><use href="#i-history"/></svg></span> Upload History</a>
+        <a href="/admin/" class="sidebar-link" target="_blank" rel="noopener"><span class="icon"><svg><use href="#i-external"/></svg></span> Django Admin</a>
       {% endif %}
     </nav>
 
     <div class="sidebar-footer">
-      <a href="{% url 'student_logout' %}" class="sidebar-link" style="color: var(--error);">
-        <span class="icon">&#9744;</span> Logout ({{ request.user.username }})
-      </a>
+      <a href="{% url 'student_logout' %}" class="sidebar-link"><span class="icon"><svg><use href="#i-logout"/></svg></span> Logout</a>
     </div>
   </aside>
 
-  <!-- MAIN -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
   <div class="main-content">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
         <span class="topbar-title">{% block page_title %}Control Panel{% endblock %}</span>
       </div>
-      <div style="font-size:12px;">
-        {% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Admin{% endif %}: <b>{{ request.user.username }}</b>
-      </div>
-    </div>
 
-    <div class="page-content">
-      {% if messages %}
+      <div class="topbar-right">
+        {% if not request.user.facultyprofile or request.user.is_superuser %}
+        <form action="{% url 'student_list' %}" method="get" role="search" class="topbar-search">
+          <label class="visually-hidden" for="global-search">Search students</label>
+          <input id="global-search" type="search" name="q" placeholder="Search students…" value="{{ request.GET.q|default:'' }}">
+        </form>
+        {% endif %}
+        <button class="sidebar-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Dark mode" style="display:inline-grid;place-items:center;">
+          <svg width="18" height="18" style="pointer-events:none"><use href="#i-moon"/></svg>
+        </button>
+        <div class="topbar-user">
+          <span class="avatar" aria-hidden="true">{{ request.user.username|slice:":2" }}</span>
+          <span class="user-name">
+            <b>{{ request.user.get_full_name|default:request.user.username }}</b><br>
+            {% if request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Administrator{% endif %}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content" id="main-content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="sep">/</span>
+        <span>{% block breadcrumb %}Dashboard{% endblock %}</span>
+      </nav>
+
+      <div class="toast-stack" id="toast-stack" role="status" aria-live="polite">
         {% for msg in messages %}
-          <div class="alert alert-{{ msg.tags|default:'info' }}">{{ msg }}</div>
+          <div class="alert alert-{{ msg.tags|default:'info'|cut:' ' }}" role="alert">
+            <span>{{ msg }}</span>
+            <button type="button" class="alert-close" aria-label="Dismiss">&times;</button>
+          </div>
         {% endfor %}
-      {% endif %}
+      </div>
 
       {% block content %}{% endblock %}
-    </div>
+    </main>
   </div>
 </div>
 
-<script>
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-</script>
+<script src="{% static 'js/ui.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

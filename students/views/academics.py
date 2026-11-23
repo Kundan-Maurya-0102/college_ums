@@ -139,7 +139,7 @@ def results_view(request):
 def attendance_entry(request):
     form = None
     if request.method == 'POST':
-        from .forms import AttendanceForm
+        from ..forms import AttendanceForm
         form = AttendanceForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -156,7 +156,7 @@ def attendance_entry(request):
             messages.success(request, "✅ Attendance saved.")
             return redirect('attendance_entry')
     else:
-        from .forms import AttendanceForm
+        from ..forms import AttendanceForm
         form = AttendanceForm()
 
     recent = Attendance.objects.select_related('student', 'subject').order_by('-date', '-id')[:20]
