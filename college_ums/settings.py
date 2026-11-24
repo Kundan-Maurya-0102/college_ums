@@ -23,6 +23,27 @@ except ImproperlyConfigured as exc:
 
 DEBUG = env.bool('DEBUG', default=False)
 
+# A copied .env.example (or a short/known key) is not a secret. In production this is
+# fatal instead of a silent weakness; in DEBUG a warning is enough to keep dev easy.
+_INSECURE_SECRET_KEYS = {
+    "replace-with-a-random-50-plus-character-key",
+    "replace-with-a-random-key",
+    "changeme",
+    "secret",
+}
+if not DEBUG:
+    if len(SECRET_KEY) < 40:
+        raise ImproperlyConfigured(
+            "SECRET_KEY is too short (%d chars). Use 50+ random characters: "
+            'python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"'
+            % len(SECRET_KEY)
+        )
+    if SECRET_KEY.startswith("django-insecure") or SECRET_KEY in _INSECURE_SECRET_KEYS:
+        raise ImproperlyConfigured(
+            "SECRET_KEY is a placeholder/django-generated dev key. Generate a real one "
+            "before running with DEBUG=False."
+        )
+
 # ── Environment profile ───────────────────────────────────────────────
 # development | staging | production. Everything else stays env-driven; the
 # profile only picks safe *defaults* that differ per environment, so a staging
