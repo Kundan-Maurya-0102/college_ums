@@ -202,6 +202,16 @@ STORAGES = {
     }
 }
 
+# `manage.py test` on a fresh clone has no staticfiles/ manifest yet; the manifest
+# storage would then raise "Missing staticfiles manifest entry" for every page render.
+# Tests use the plain storage; production/CI still build and serve the manifest.
+# (CI runs collectstatic before the suite, so anything manifest-specific is caught there.)
+RUNNING_TESTS = 'test' in sys.argv or env.bool('DJANGO_TESTING', default=False)
+if RUNNING_TESTS:
+    STORAGES['staticfiles'] = {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    }
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

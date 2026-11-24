@@ -50,6 +50,9 @@ echo "==> plans (Basic / Pro / Enterprise)"
 echo "==> translations"
 .venv/bin/python manage.py compile_translations
 
+echo "==> static files (production uses the hashed manifest)"
+.venv/bin/python manage.py collectstatic --noinput >/dev/null
+
 if [ "$ADMIN" = "1" ]; then
     echo "==> first admin"
     .venv/bin/python manage.py create_college \

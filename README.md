@@ -38,9 +38,11 @@ cp .env.example .env                                   # 1. config
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # 2. deps
 .venv/bin/python manage.py migrate                     # 3. database
 .venv/bin/python manage.py seed_plans                  # 4. Basic/Pro/Enterprise
+.venv/bin/python manage.py compile_translations         # 5. Hindi .mo files
+.venv/bin/python manage.py collectstatic --noinput      # 6. static manifest
 .venv/bin/python manage.py create_college --name "Demo College" \
-    --slug demo-college --admin-username admin         # 5. first college + admin
-.venv/bin/python manage.py runserver                   # 6. serve
+    --slug demo-college --admin-username admin          # 7. first college + admin
+.venv/bin/python manage.py runserver                    # 8. serve
 ```
 
 Notes that save time:
@@ -187,7 +189,7 @@ and Postgres `DB_*` values. Branding: `COLLEGE_NAME`, `COLLEGE_LOGO`,
 | Every page 301s to `https://` locally | `DEBUG=False`; set `DEBUG=True` for local work |
 | `SECRET_KEY is a placeholder/django-generated dev key` | generate a real key (see §1) |
 | `ImproperlyConfigured: app_dirs must not be set when loaders is defined` | old code; upgrade — the cached-loader path is covered by CI |
-| `Missing staticfiles manifest entry` | `.venv/bin/python manage.py collectstatic --noinput` |
+| `Missing staticfiles manifest entry` | `.venv/bin/python manage.py collectstatic --noinput` (production needs the hashed manifest; `manage.py test` does not) |
 | Login says "Account locked … minute(s)" | 5 wrong passwords → 15-minute lockout (restart clears it in dev) |
 | Hindi text shows as English | run `manage.py compile_translations` (the `.mo` was not built) |
 | Media 404 for a student | file is in `csv_uploads/` (staff-only) or the link is invalid |
