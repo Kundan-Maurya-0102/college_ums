@@ -22,6 +22,7 @@ from .common import (
                        manifest,
                        offline,
                        privacy_policy,  # noqa: F401
+                       readyz,
                        service_worker,
                        teacher_required,
                        terms_of_use,

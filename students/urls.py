@@ -21,6 +21,7 @@ from .views_student import (
 urlpatterns = [
     # ── Ops ───────────────────────────────────────
     path('healthz/', views.healthz, name='healthz'),
+    path('readyz/', views.readyz, name='readyz'),
     path('sw.js', views.service_worker, name='service_worker'),
     path('manifest.webmanifest', views.manifest, name='manifest'),
     path('offline/', views.offline, name='offline'),

@@ -7,7 +7,9 @@ class HealthzTests(TestCase):
     def test_healthz_returns_ok_json(self):
         response = self.client.get("/healthz/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "ok"})
+        payload = response.json()
+        self.assertEqual(payload["status"], "ok")
+        self.assertIn("environment", payload)
 
     def test_healthz_is_not_logged_as_a_visit(self):
         before = WebsiteVisit.objects.count()

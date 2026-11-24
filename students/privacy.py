@@ -68,8 +68,23 @@ def redact_mapping(data, depth=0):
 
 
 def scrub_sentry_event(event, hint=None):
-    """Sentry ``before_send`` hook: strip request bodies, cookies and PII."""
+    """Sentry ``before_send`` hook: strip request bodies, cookies and PII.
+
+    Everything a student's phone/e-mail could hide in is scrubbed: the event
+    message, the log entry, the transaction name, request data/query/headers,
+    ``extra``, exception values and breadcrumbs.
+    """
     event.pop("user", None)
+
+    for key in ("message", "transaction", "culprit"):
+        if isinstance(event.get(key), str):
+            event[key] = redact_text(event[key])
+
+    logentry = event.get("logentry")
+    if isinstance(logentry, dict):
+        for key in ("message", "formatted"):
+            if isinstance(logentry.get(key), str):
+                logentry[key] = redact_text(logentry[key])
 
     request = event.get("request") or {}
     if request.get("cookies"):
@@ -90,6 +105,13 @@ def scrub_sentry_event(event, hint=None):
     for exception in (event.get("exception") or {}).get("values", []) or []:
         if exception.get("value"):
             exception["value"] = redact_text(exception["value"])
+
+    breadcrumbs = (event.get("breadcrumbs") or {}).get("values") or []
+    for crumb in breadcrumbs:
+        if isinstance(crumb.get("message"), str):
+            crumb["message"] = redact_text(crumb["message"])
+        if isinstance(crumb.get("data"), dict):
+            crumb["data"] = redact_mapping(crumb["data"])
 
     return event
 

@@ -1,6 +1,7 @@
 """Helpers shared by every view module: role checks, decorators, health probe."""
 import datetime
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -61,7 +62,40 @@ def _subject_class_students(subject):
 
 def healthz(request):
     """Liveness probe for Docker/Caddy. No DB access, no auth, not visit-logged."""
-    return JsonResponse({"status": "ok"})
+    return JsonResponse({"status": "ok", "environment": settings.ENVIRONMENT})
+
+
+def readyz(request):
+    """Readiness probe: is this instance able to serve real requests?
+
+    Checks the database (a trivial SELECT) and the cache backend. Returns 503
+    when either is unusable so a load balancer takes the instance out instead of
+    serving 500s. Never touches student data and never writes anything.
+    """
+    from django.core.cache import cache
+    from django.db import connection
+
+    checks = {"db": False, "cache": False}
+    detail = {}
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            checks["db"] = cursor.fetchone()[0] == 1
+    except Exception as exc:
+        detail["db_error"] = str(exc)[:200]
+
+    try:
+        cache.set("readyz:ping", "1", 5)
+        checks["cache"] = cache.get("readyz:ping") == "1"
+    except Exception as exc:
+        detail["cache_error"] = str(exc)[:200]
+
+    healthy = all(checks.values())
+    payload = {"status": "ready" if healthy else "degraded", **checks,
+               "environment": settings.ENVIRONMENT}
+    if detail:
+        payload["errors"] = detail
+    return JsonResponse(payload, status=200 if healthy else 503)
 
 
 
