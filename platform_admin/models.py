@@ -77,6 +77,10 @@ class College(models.Model):
     metrics_reported_at = models.DateTimeField(null=True, blank=True)
     backup_path = models.CharField(max_length=300, blank=True,
                                    help_text="Latest backup file on the deploy host")
+    metrics_token = models.CharField(
+        max_length=64, blank=True,
+        help_text="Per-college token for /platform/metrics/<slug>/. Blank = the shared "
+                  "PLATFORM_METRICS_TOKEN is accepted for this college only during setup.")
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

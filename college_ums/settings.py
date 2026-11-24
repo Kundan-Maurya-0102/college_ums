@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -151,6 +152,20 @@ DATABASES = {
 if DATABASES['default']['ENGINE'].endswith('sqlite3'):
     # SQLite needs a write timeout; WAL mode is enabled in students/apps.py.
     DATABASES['default']['OPTIONS'] = {'timeout': env.int('SQLITE_TIMEOUT', default=20)}
+
+# One deployment = one database. `manage.py test` gets a *second* throwaway database
+# so the isolation suite can prove that College A's deployment never reads College B's
+# rows (no code path opens the other alias; requests only ever use 'default').
+if os.environ.get('DJANGO_TESTING') == '1' or 'test' in sys.argv:
+    import tempfile
+
+    _tmp = Path(tempfile.gettempdir())
+    DATABASES['college_b'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': str(_tmp / 'ums_college_b.sqlite3'),
+        'TEST': {'NAME': str(_tmp / 'test_ums_college_b.sqlite3')},
+        'OPTIONS': {'timeout': 20},
+    }
 
 # bcrypt is ~4x cheaper than PBKDF2-SHA256 at Django's default iteration count,
 # which matters when 100+ users log in at once. Fallback keeps PBKDF2 if the

@@ -6,6 +6,7 @@ Access is limited to superusers and members of the "Platform Admin" group via
 import csv
 import io
 import json
+import secrets
 from functools import wraps
 
 from django.contrib import messages
@@ -337,22 +338,37 @@ def ticket_detail(request, pk):
 
 # ── machine-readable metrics (college deployments push here) ──────────
 
+def _metrics_token_ok(request, college):
+    """One token per college, so college A can never write college B's numbers.
+
+    `College.metrics_token` wins when set. The old shared PLATFORM_METRICS_TOKEN is
+    only accepted for a college that has no token yet (first report / setup).
+    """
+    from django.conf import settings
+
+    presented = request.headers.get("X-Platform-Token", "")
+    if not presented:
+        return False
+    if college.metrics_token:
+        return secrets.compare_digest(presented, college.metrics_token)
+    shared = getattr(settings, "PLATFORM_METRICS_TOKEN", "")
+    return bool(shared) and secrets.compare_digest(presented, shared)
+
+
 def metrics_endpoint(request, slug):
     """POST {"student_count":…, "active_users_30d":…, "storage_bytes":…} with the
     shared token from PLATFORM_METRICS_TOKEN. Kept token-only (no session) so a
     college deployment can report without a human login."""
-    from django.conf import settings
 
-    expected = getattr(settings, "PLATFORM_METRICS_TOKEN", "")
-    if not expected or request.headers.get("X-Platform-Token") != expected:
-        return JsonResponse({"detail": "forbidden"}, status=403)
     if request.method != "POST":
         return JsonResponse({"detail": "POST required"}, status=405)
+    college = get_object_or_404(College, slug=slug)
+    if not _metrics_token_ok(request, college):
+        return JsonResponse({"detail": "forbidden"}, status=403)
     try:
         payload = json.loads(request.body or "{}")
     except ValueError:
         return JsonResponse({"detail": "invalid json"}, status=400)
-    college = get_object_or_404(College, slug=slug)
     for field in ("student_count", "active_users_30d", "storage_bytes", "last_login_at"):
         if field in payload and payload[field] is not None:
             setattr(college, field, payload[field])

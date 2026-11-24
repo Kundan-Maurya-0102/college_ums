@@ -90,6 +90,10 @@ class Command(BaseCommand):
             self.stdout.write(f"  admin   : {admin_username} (superuser={options['superuser']})")
             return
 
+        metrics_token = None
+        existing = College.objects.filter(slug=slug).first()
+        if existing is None or not existing.metrics_token:
+            metrics_token = secrets.token_urlsafe(32)
         college, created = College.objects.update_or_create(
             slug=slug,
             defaults={
@@ -105,6 +109,7 @@ class Command(BaseCommand):
                     timezone.localdate() + timezone.timedelta(days=options["trial_days"])
                     if options["trial_days"] else None
                 ),
+                **({"metrics_token": metrics_token} if metrics_token else {}),
             },
         )
 
