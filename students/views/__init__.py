@@ -17,6 +17,7 @@ from .academics import (  # noqa: F401
 from .common import (
                        admin_required,
                        healthz,
+                       help_center,
                        is_admin,
                        is_teacher,
                        manifest,

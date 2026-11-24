@@ -25,6 +25,7 @@ urlpatterns = [
     path('sw.js', views.service_worker, name='service_worker'),
     path('manifest.webmanifest', views.manifest, name='manifest'),
     path('offline/', views.offline, name='offline'),
+    path('help/', views.help_center, name='help_center'),
 
     # ── Legal (public) ────────────────────────────
     path('privacy/', views.privacy_policy, name='privacy_policy'),

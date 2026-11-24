@@ -94,6 +94,9 @@ class FeedbackTests(TestCase):
                 continue
             if ("form_errors.html" not in src and "form_fields.html" not in src
                     and "errorlist" not in src):
+                # partials that are not standalone forms (csrf belongs to the caller)
+                if path.name in {"language_switch.html"}:
+                    continue
                 missing.append(path.name)
         self.assertEqual(missing, [], f"forms without error feedback: {missing}")
 

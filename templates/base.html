@@ -1,6 +1,6 @@
-{% load static ui %}
+{% load static i18n ui %}{% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ CURRENT_LANG|default:'en' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
 </head>
 <body>
 {% include 'partials/icons.html' %}
-<a class="skip-link" href="#main-content">Skip to content</a>
+<a class="skip-link" href="#main-content">{% translate "Skip to content" %}</a>
 
 <div class="app-layout">
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
@@ -35,77 +35,77 @@
 
     <nav class="sidebar-nav">
       {% if request.user.studentprofile %}
-        <div class="nav-section-title">My College</div>
-        {% url 'student_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
-        {% url 'student_fees' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_fees' %}" {% if request.resolver_match.url_name == 'student_fees' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> My Fees</a>
-        {% url 'student_exam_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_exam_schedule' %}" {% if request.resolver_match.url_name == 'student_exam_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Exam Schedule</a>
-        {% url 'student_certificates' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_certificates' %}" {% if request.resolver_match.url_name == 'student_certificates' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> Certificates</a>
-        {% url 'student_events' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_events' %}" {% if request.resolver_match.url_name == 'student_events' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Events</a>
+        <div class="nav-section-title">{% translate "My College" %}</div>
+        {% url 'student_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> {% translate "Dashboard" %}</a>
+        {% url 'student_fees' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_fees' %}" {% if request.resolver_match.url_name == 'student_fees' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> {% translate "My Fees" %}</a>
+        {% url 'student_exam_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_exam_schedule' %}" {% if request.resolver_match.url_name == 'student_exam_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> {% translate "Exam Schedule" %}</a>
+        {% url 'student_certificates' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_certificates' %}" {% if request.resolver_match.url_name == 'student_certificates' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "Certificates" %}</a>
+        {% url 'student_events' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_events' %}" {% if request.resolver_match.url_name == 'student_events' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> {% translate "Events" %}</a>
 
-        <div class="nav-section-title">Requests</div>
-        {% url 'student_leave_apply' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_leave_apply' %}" {% if request.resolver_match.url_name == 'student_leave_apply' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Leave Application</a>
-        {% url 'student_feedback' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_feedback' %}" {% if request.resolver_match.url_name == 'student_feedback' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> Feedback</a>
-        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
+        <div class="nav-section-title">{% translate "Requests" %}</div>
+        {% url 'student_leave_apply' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_leave_apply' %}" {% if request.resolver_match.url_name == 'student_leave_apply' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> {% translate "Leave Application" %}</a>
+        {% url 'student_feedback' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_feedback' %}" {% if request.resolver_match.url_name == 'student_feedback' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Feedback" %}</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Doubt Forum" %}</a>
 
-        <div class="nav-section-title">Account</div>
-        {% url 'student_profile_edit' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_profile_edit' %}" {% if request.resolver_match.url_name == 'student_profile_edit' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-edit"/></svg></span> Edit Profile</a>
-        {% url 'change_password' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'change_password' %}" {% if request.resolver_match.url_name == 'change_password' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> Change Password</a>
+        <div class="nav-section-title">{% translate "Account" %}</div>
+        {% url 'student_profile_edit' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_profile_edit' %}" {% if request.resolver_match.url_name == 'student_profile_edit' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-edit"/></svg></span> {% translate "Edit Profile" %}</a>
+        {% url 'change_password' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'change_password' %}" {% if request.resolver_match.url_name == 'change_password' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "Change Password" %}</a>
       {% elif request.user.facultyprofile and not request.user.is_superuser %}
-        <div class="nav-section-title">Teaching</div>
-        {% url 'teacher_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
-        {% url 'teacher_students' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_students' %}" {% if request.resolver_match.url_name == 'teacher_students' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> My Students</a>
-        {% url 'teacher_take_attendance' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_take_attendance' %}" {% if request.resolver_match.url_name == 'teacher_take_attendance' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Attendance</a>
-        {% url 'teacher_marks' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_marks' %}" {% if request.resolver_match.url_name == 'teacher_marks' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Marks Entry</a>
-        {% url 'teacher_assignments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_assignments' %}" {% if request.resolver_match.url_name == 'teacher_assignments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-folder"/></svg></span> Assignments</a>
-        {% url 'teacher_materials' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_materials' %}" {% if request.resolver_match.url_name == 'teacher_materials' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> Notes / PDF</a>
-        {% url 'teacher_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_schedule' %}" {% if request.resolver_match.url_name == 'teacher_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Schedule</a>
-        {% url 'teacher_notices' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_notices' 'teacher_notice_edit' %}" {% if request.resolver_match.url_name == 'teacher_notices' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> Notices</a>
+        <div class="nav-section-title">{% translate "Teaching" %}</div>
+        {% url 'teacher_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> {% translate "Dashboard" %}</a>
+        {% url 'teacher_students' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_students' %}" {% if request.resolver_match.url_name == 'teacher_students' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> {% translate "My Students" %}</a>
+        {% url 'teacher_take_attendance' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_take_attendance' %}" {% if request.resolver_match.url_name == 'teacher_take_attendance' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> {% translate "Attendance" %}</a>
+        {% url 'teacher_marks' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_marks' %}" {% if request.resolver_match.url_name == 'teacher_marks' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> {% translate "Marks Entry" %}</a>
+        {% url 'teacher_assignments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_assignments' %}" {% if request.resolver_match.url_name == 'teacher_assignments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-folder"/></svg></span> {% translate "Assignments" %}</a>
+        {% url 'teacher_materials' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_materials' %}" {% if request.resolver_match.url_name == 'teacher_materials' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> {% translate "Notes / PDF" %}</a>
+        {% url 'teacher_schedule' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_schedule' %}" {% if request.resolver_match.url_name == 'teacher_schedule' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> {% translate "Schedule" %}</a>
+        {% url 'teacher_notices' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_notices' 'teacher_notice_edit' %}" {% if request.resolver_match.url_name == 'teacher_notices' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> {% translate "Notices" %}</a>
 
-        <div class="nav-section-title">Shared</div>
-        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> Banners</a>
-        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
+        <div class="nav-section-title">{% translate "Shared" %}</div>
+        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> {% translate "Banners" %}</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Doubt Forum" %}</a>
       {% else %}
-        <div class="nav-section-title">Overview</div>
-        {% url 'admin_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> Dashboard</a>
-        {% url 'teacher_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_list' 'teacher_create' 'teacher_edit' 'teacher_delete' %}" {% if request.resolver_match.url_name == 'teacher_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-user-check"/></svg></span> Teachers</a>
+        <div class="nav-section-title">{% translate "Overview" %}</div>
+        {% url 'admin_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> {% translate "Dashboard" %}</a>
+        {% url 'teacher_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_list' 'teacher_create' 'teacher_edit' 'teacher_delete' %}" {% if request.resolver_match.url_name == 'teacher_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-user-check"/></svg></span> {% translate "Teachers" %}</a>
 
-        <div class="nav-section-title">Students</div>
-        {% url 'csv_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'csv_upload' %}" {% if request.resolver_match.url_name == 'csv_upload' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-upload"/></svg></span> CSV Upload</a>
-        {% url 'student_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_list' 'student_edit' 'student_delete' %}" {% if request.resolver_match.url_name == 'student_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> All Students</a>
-        {% url 'export_students_csv' as u %}<a href="{{ u }}" class="sidebar-link"><span class="icon"><svg><use href="#i-download"/></svg></span> Export CSV</a>
+        <div class="nav-section-title">{% translate "Students" %}</div>
+        {% url 'csv_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'csv_upload' %}" {% if request.resolver_match.url_name == 'csv_upload' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-upload"/></svg></span> {% translate "CSV Upload" %}</a>
+        {% url 'student_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_list' 'student_edit' 'student_delete' %}" {% if request.resolver_match.url_name == 'student_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> {% translate "All Students" %}</a>
+        {% url 'export_students_csv' as u %}<a href="{{ u }}" class="sidebar-link"><span class="icon"><svg><use href="#i-download"/></svg></span> {% translate "Export CSV" %}</a>
 
-        <div class="nav-section-title">Academics</div>
-        {% url 'subject_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'subject_list' 'subject_create' 'subject_edit' 'subject_delete' %}" {% if request.resolver_match.url_name == 'subject_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> Subjects</a>
-        {% url 'marks_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'marks_entry' %}" {% if request.resolver_match.url_name == 'marks_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Internal Marks</a>
-        {% url 'results_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'results_view' %}" {% if request.resolver_match.url_name == 'results_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> Results</a>
-        {% url 'attendance_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'attendance_entry' %}" {% if request.resolver_match.url_name == 'attendance_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Manual Attendance</a>
-        {% url 'take_attendance_bulk' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'take_attendance_bulk' %}" {% if request.resolver_match.url_name == 'take_attendance_bulk' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> Take Attendance</a>
-        {% url 'exam_schedule_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'exam_schedule_list' 'exam_schedule_create' 'exam_schedule_edit' 'exam_schedule_delete' %}" {% if request.resolver_match.url_name == 'exam_schedule_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Exam Timetable</a>
+        <div class="nav-section-title">{% translate "Academics" %}</div>
+        {% url 'subject_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'subject_list' 'subject_create' 'subject_edit' 'subject_delete' %}" {% if request.resolver_match.url_name == 'subject_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-book"/></svg></span> {% translate "Subjects" %}</a>
+        {% url 'marks_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'marks_entry' %}" {% if request.resolver_match.url_name == 'marks_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> {% translate "Internal Marks" %}</a>
+        {% url 'results_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'results_view' %}" {% if request.resolver_match.url_name == 'results_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> {% translate "Results" %}</a>
+        {% url 'attendance_entry' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'attendance_entry' %}" {% if request.resolver_match.url_name == 'attendance_entry' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> {% translate "Manual Attendance" %}</a>
+        {% url 'take_attendance_bulk' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'take_attendance_bulk' %}" {% if request.resolver_match.url_name == 'take_attendance_bulk' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-check-square"/></svg></span> {% translate "Take Attendance" %}</a>
+        {% url 'exam_schedule_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'exam_schedule_list' 'exam_schedule_create' 'exam_schedule_edit' 'exam_schedule_delete' %}" {% if request.resolver_match.url_name == 'exam_schedule_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> {% translate "Exam Timetable" %}</a>
 
-        <div class="nav-section-title">Finance</div>
-        {% url 'fee_structure_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_structure_list' 'fee_structure_create' 'fee_structure_edit' 'fee_structure_delete' %}" {% if request.resolver_match.url_name == 'fee_structure_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> Fee Structure</a>
-        {% url 'fee_payments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_payments' 'fee_payment_create' %}" {% if request.resolver_match.url_name == 'fee_payments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> Fee Payments</a>
+        <div class="nav-section-title">{% translate "Finance" %}</div>
+        {% url 'fee_structure_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_structure_list' 'fee_structure_create' 'fee_structure_edit' 'fee_structure_delete' %}" {% if request.resolver_match.url_name == 'fee_structure_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> {% translate "Fee Structure" %}</a>
+        {% url 'fee_payments' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'fee_payments' 'fee_payment_create' %}" {% if request.resolver_match.url_name == 'fee_payments' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-rupee"/></svg></span> {% translate "Fee Payments" %}</a>
 
-        <div class="nav-section-title">Communication</div>
-        {% url 'notice_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'notice_list' 'notice_create' 'notice_edit' 'notice_delete' %}" {% if request.resolver_match.url_name == 'notice_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> Notices</a>
-        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> Doubt Forum</a>
-        {% url 'event_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'event_list' 'event_create' 'event_edit' 'event_delete' %}" {% if request.resolver_match.url_name == 'event_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> Events</a>
+        <div class="nav-section-title">{% translate "Communication" %}</div>
+        {% url 'notice_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'notice_list' 'notice_create' 'notice_edit' 'notice_delete' %}" {% if request.resolver_match.url_name == 'notice_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-bell"/></svg></span> {% translate "Notices" %}</a>
+        {% url 'doubt_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='doubt' %}{% nav_active prefix='reply' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Doubt Forum" %}</a>
+        {% url 'event_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'event_list' 'event_create' 'event_edit' 'event_delete' %}" {% if request.resolver_match.url_name == 'event_list' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-calendar"/></svg></span> {% translate "Events" %}</a>
 
-        <div class="nav-section-title">Management</div>
-        {% url 'leave_applications' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='leave' %}" {% if request.resolver_match.url_name == 'leave_applications' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> Leave Requests</a>
-        {% url 'feedback_report' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'feedback_report' %}" {% if request.resolver_match.url_name == 'feedback_report' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> Feedback</a>
-        {% url 'reports_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'reports_view' %}" {% if request.resolver_match.url_name == 'reports_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> Reports</a>
+        <div class="nav-section-title">{% translate "Management" %}</div>
+        {% url 'leave_applications' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active prefix='leave' %}" {% if request.resolver_match.url_name == 'leave_applications' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-clipboard"/></svg></span> {% translate "Leave Requests" %}</a>
+        {% url 'feedback_report' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'feedback_report' %}" {% if request.resolver_match.url_name == 'feedback_report' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Feedback" %}</a>
+        {% url 'reports_view' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'reports_view' %}" {% if request.resolver_match.url_name == 'reports_view' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-chart"/></svg></span> {% translate "Reports" %}</a>
 
-        <div class="nav-section-title">System</div>
-        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> Banners</a>
-        {% url 'admin_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_list' 'admin_create' 'admin_edit' 'admin_delete' %}"><span class="icon"><svg><use href="#i-shield"/></svg></span> Manage Admins</a>
-        {% url 'upload_history' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'upload_history' %}"><span class="icon"><svg><use href="#i-history"/></svg></span> Upload History</a>
+        <div class="nav-section-title">{% translate "System" %}</div>
+        {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> {% translate "Banners" %}</a>
+        {% url 'admin_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_list' 'admin_create' 'admin_edit' 'admin_delete' %}"><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "Manage Admins" %}</a>
+        {% url 'upload_history' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'upload_history' %}"><span class="icon"><svg><use href="#i-history"/></svg></span> {% translate "Upload History" %}</a>
         <a href="/admin/" class="sidebar-link" target="_blank" rel="noopener"><span class="icon"><svg><use href="#i-external"/></svg></span> Django Admin</a>
       {% endif %}
     </nav>
 
     <div class="sidebar-footer">
-      <a href="{% url 'student_logout' %}" class="sidebar-link"><span class="icon"><svg><use href="#i-logout"/></svg></span> Logout</a>
+      <a href="{% url 'student_logout' %}" class="sidebar-link"><span class="icon"><svg><use href="#i-logout"/></svg></span> {% translate "Logout" %}</a>
     </div>
   </aside>
 
@@ -122,9 +122,13 @@
         {% if not request.user.studentprofile and not request.user.facultyprofile or request.user.is_superuser and not request.user.studentprofile %}
         <form action="{% url 'student_list' %}" method="get" role="search" class="topbar-search">
           <label class="visually-hidden" for="global-search">Search students</label>
-          <input id="global-search" type="search" name="q" placeholder="Search students…" value="{{ request.GET.q|default:'' }}">
+          <input id="global-search" type="search" name="q" placeholder="{% translate 'Search students…' %}" value="{{ request.GET.q|default:'' }}">
         </form>
         {% endif %}
+        <a class="help-link" href="{% url 'help_center' %}" title="{% translate 'Help & guide' %}">
+          <svg width="15" height="15" aria-hidden="true"><use href="#i-message"/></svg> {% translate "Help" %}
+        </a>
+        {% include 'partials/language_switch.html' %}
         <button class="sidebar-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Dark mode" style="display:inline-grid;place-items:center;">
           <svg width="18" height="18" style="pointer-events:none"><use href="#i-moon"/></svg>
         </button>
@@ -159,6 +163,7 @@
   </div>
 </div>
 
+{% include 'partials/tour.html' %}
 <script src="{% static 'js/ui.js' %}"></script>
 <script src="{% static 'js/tables.js' %}" defer></script>
 <script>

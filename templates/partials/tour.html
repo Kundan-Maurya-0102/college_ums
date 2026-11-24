@@ -1,0 +1,23 @@
+{% load static i18n %}
+{% if request.user.is_authenticated %}
+  {% if request.user.studentprofile %}
+    {% translate "Your dashboard shows attendance, fee status and the latest notices at a glance." as t1 %}
+    {% translate "The sidebar is your menu: fees, exam schedule, certificates, leave and feedback live there." as b1 %}
+    {% translate "Notices and events appear here — check them before you plan anything." as t2 %}
+    {% translate "Anything unclear? The Help button in the top bar explains every task in a line or two." as b2 %}
+  {% elif request.user.facultyprofile and not request.user.is_superuser %}
+    {% translate "Start with My Students — attendance and marks are one click away from there." as t1 %}
+    {% translate "Pick a subject, mark the class and save: attendance is written for every student at once." as b1 %}
+    {% translate "Notes / PDF and Assignments publish straight to your students." as t2 %}
+    {% translate "Wrong marks? Re-open the same exam and correct them; nothing is lost." as b2 %}
+  {% else %}
+    {% translate "This dashboard shows today's numbers: students, fees collected and pending work." as t1 %}
+    {% translate "Every card links to the page where you can act on it." as b1 %}
+    {% translate "CSV Upload is the fastest way to add a whole class at once." as t2 %}
+    {% translate "Download the sample file first — the columns must match exactly." as b2 %}
+    {% translate "Help in the top bar answers the common questions; the language switch sits next to it." as t3 %}
+    {% translate "You can work in English or Hindi, and the choice is remembered." as b3 %}
+  {% endif %}
+  <script src="{% static 'js/tour.js' %}" defer></script>
+  <div hidden data-tour-steps='[{"title":"{{ t1|escapejs }}","body":"{{ b1|escapejs }}"}{% if t2 %},{"title":"{{ t2|escapejs }}","body":"{{ b2|escapejs }}"}{% endif %}{% if t3 %},{"title":"{{ t3|escapejs }}","body":"{{ b3|escapejs }}"}{% endif %}]'></div>
+{% endif %}

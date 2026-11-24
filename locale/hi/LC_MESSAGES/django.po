@@ -1,0 +1,168 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: College UMS 1.0\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: hand-maintained (add new msgids here, then run compile_translations)\n"
+
+msgid "Academics"
+msgstr "शैक्षणिक"
+
+msgid "Account"
+msgstr "खाता"
+
+msgid "All Students"
+msgstr "सभी विद्यार्थी"
+
+msgid "Assignments"
+msgstr "असाइनमेंट"
+
+msgid "Attendance"
+msgstr "उपस्थिति"
+
+msgid "Banners"
+msgstr "बैनर"
+
+msgid "CSV Upload"
+msgstr "CSV अपलोड"
+
+msgid "Certificates"
+msgstr "प्रमाण पत्र"
+
+msgid "Change Password"
+msgstr "पासवर्ड बदलें"
+
+msgid "Choose language"
+msgstr "भाषा चुनें"
+
+msgid "Communication"
+msgstr "संचार"
+
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+msgid "Doubt Forum"
+msgstr "प्रश्न मंच"
+
+msgid "Edit Profile"
+msgstr "प्रोफ़ाइल संपादित करें"
+
+msgid "Events"
+msgstr "कार्यक्रम"
+
+msgid "Exam Schedule"
+msgstr "परीक्षा कार्यक्रम"
+
+msgid "Exam Timetable"
+msgstr "परीक्षा समय-सारणी"
+
+msgid "Export CSV"
+msgstr "CSV निर्यात"
+
+msgid "Fee Payments"
+msgstr "शुल्क भुगतान"
+
+msgid "Fee Structure"
+msgstr "शुल्क संरचना"
+
+msgid "Feedback"
+msgstr "प्रतिक्रिया"
+
+msgid "Finance"
+msgstr "वित्त"
+
+msgid "Go"
+msgstr "जाएँ"
+
+msgid "Help"
+msgstr "सहायता"
+
+msgid "Internal Marks"
+msgstr "आंतरिक अंक"
+
+msgid "Language"
+msgstr "भाषा"
+
+msgid "Leave Application"
+msgstr "अवकाश आवेदन"
+
+msgid "Leave Requests"
+msgstr "अवकाश अनुरोध"
+
+msgid "Logout"
+msgstr "लॉग आउट"
+
+msgid "Manage Admins"
+msgstr "एडमिन प्रबंधन"
+
+msgid "Management"
+msgstr "प्रबंधन"
+
+msgid "Manual Attendance"
+msgstr "मैनुअल उपस्थिति"
+
+msgid "Marks Entry"
+msgstr "अंक प्रविष्टि"
+
+msgid "My College"
+msgstr "मेरा कॉलेज"
+
+msgid "My Fees"
+msgstr "मेरा शुल्क"
+
+msgid "My Students"
+msgstr "मेरे विद्यार्थी"
+
+msgid "Notes / PDF"
+msgstr "नोट्स / PDF"
+
+msgid "Notices"
+msgstr "सूचनाएँ"
+
+msgid "Overview"
+msgstr "सारांश"
+
+msgid "Reports"
+msgstr "रिपोर्ट"
+
+msgid "Requests"
+msgstr "अनुरोध"
+
+msgid "Results"
+msgstr "परिणाम"
+
+msgid "Schedule"
+msgstr "समय-सारणी"
+
+msgid "Search students…"
+msgstr "विद्यार्थी खोजें…"
+
+msgid "Shared"
+msgstr "साझा"
+
+msgid "Skip to content"
+msgstr "मुख्य सामग्री पर जाएँ"
+
+msgid "Students"
+msgstr "विद्यार्थी"
+
+msgid "Subjects"
+msgstr "विषय"
+
+msgid "System"
+msgstr "सिस्टम"
+
+msgid "Take Attendance"
+msgstr "उपस्थिति लें"
+
+msgid "Teachers"
+msgstr "शिक्षक"
+
+msgid "Teaching"
+msgstr "अध्यापन"
+
+msgid "Upload History"
+msgstr "अपलोड इतिहास"

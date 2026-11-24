@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,6 +125,7 @@
     <div class="login-card">
       <h2>Welcome back</h2>
       <p class="sub">Apna username aur password daalein.</p>
+      <div style="margin-bottom:16px;">{% include 'partials/language_switch.html' %}</div>
 
       {% if messages %}
         {% for msg in messages %}

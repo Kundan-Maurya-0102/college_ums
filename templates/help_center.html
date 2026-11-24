@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block page_title %}{% translate "Help & guide" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "Help & guide" %}</h1>
+
+<p class="text-muted" style="max-width:70ch;margin-bottom:20px;">
+  {% translate "Short answers to the questions people ask most. Still stuck? Use the feedback form below or contact your college office." %}
+</p>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">{% translate "Getting around" %}</span></div>
+    <div class="card-body">
+      <ul class="help-list">
+        <li><b>{% translate "Sidebar" %}</b> — {% translate "your menu changes with your role (student, teacher, admin)." %}</li>
+        <li><b>{% translate "Search box (top bar)" %}</b> — {% translate "finds a student by name, roll number or branch." %}</li>
+        <li><b>{% translate "Language" %}</b> — {% translate "switch between English and Hindi; your choice is remembered." %}</li>
+        <li><b>{% translate "Dark mode" %}</b> — {% translate "the moon button; it stays on for your next visit." %}</li>
+        <li><b>{% translate "Offline" %}</b> — {% translate "if the network drops you get an offline page, not a broken screen." %}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">{% translate "Common tasks" %}</span></div>
+    <div class="card-body">
+      <ul class="help-list">
+        {% if request.user.studentprofile %}
+          <li><b>{% translate "Check fees" %}</b> — {% translate "My Fees shows what is paid and what is pending." %}</li>
+          <li><b>{% translate "Apply for leave" %}</b> — {% translate "Leave Application → fill dates → submit; you get a status here." %}</li>
+          <li><b>{% translate "Download documents" %}</b> — {% translate "Certificates page, then print or save as PDF." %}</li>
+        {% elif request.user.facultyprofile and not request.user.is_superuser %}
+          <li><b>{% translate "Take attendance" %}</b> — {% translate "Attendance → pick subject and date → mark → save." %}</li>
+          <li><b>{% translate "Enter marks" %}</b> — {% translate "Marks Entry → choose exam → type marks → save once." %}</li>
+          <li><b>{% translate "Upload notes" %}</b> — {% translate "Notes / PDF → attach file → students see it instantly." %}</li>
+        {% else %}
+          <li><b>{% translate "Add students in bulk" %}</b> — {% translate "CSV Upload → download the sample → fill it → upload." %}</li>
+          <li><b>{% translate "Collect fees" %}</b> — {% translate "Fee Payments → Add payment → receipt is generated." %}</li>
+          <li><b>{% translate "Publish a notice" %}</b> — {% translate "Notices → Create → choose branches/semesters → active." %}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><span class="card-title">{% translate "Something looks wrong?" %}</span></div>
+  <div class="card-body">
+    <p style="margin:0 0 12px;">
+      {% translate "A red message at the top of a form means that field needs fixing — the message links to the exact box." %}
+      {% translate "For anything else, send a report and we will look at it." %}
+    </p>
+    {% if request.user.studentprofile %}
+      <a class="btn btn-primary" href="{% url 'student_feedback' %}" data-tour="help-feedback">
+    {% else %}
+      <a class="btn btn-primary" href="{% url 'feedback_report' %}" data-tour="help-feedback">
+    {% endif %}
+      <svg width="15" height="15" aria-hidden="true"><use href="#i-message"/></svg> {% translate "Report a problem" %}
+    </a>
+    <button class="btn btn-outline" type="button" data-tour-restart>{% translate "Replay the welcome tour" %}</button>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><span class="card-title">{% translate "Keyboard shortcuts" %}</span></div>
+  <div class="card-body">
+    <table class="table">
+      <thead><tr><th>{% translate "Key" %}</th><th>{% translate "Action" %}</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>/</kbd></td><td>{% translate "Jump to the search box" %}</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>{% translate "Close menus, dialogs and the tour" %}</td></tr>
+        <tr><td><kbd>Tab</kbd></td><td>{% translate "Move through links and fields (a visible outline shows focus)" %}</td></tr>
+        <tr><td>{% translate "Alt + S" %}</td><td>{% translate "Skip straight to the main content" %}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

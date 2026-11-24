@@ -118,6 +118,28 @@
     }
   });
 
+  /* ── keyboard shortcuts (documented on the Help page) ───────────── */
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target.tagName || "").toLowerCase();
+    var typing = tag === "input" || tag === "textarea" || tag === "select" || e.target.isContentEditable;
+
+    // "/" jumps to the search box
+    if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      var search = document.getElementById("global-search");
+      if (search) { e.preventDefault(); search.focus(); search.select(); }
+      return;
+    }
+    // Alt+S jumps to the main content (same target as the skip link)
+    if (e.altKey && (e.key === "s" || e.key === "S")) {
+      var main = document.getElementById("main-content");
+      if (main) {
+        e.preventDefault();
+        main.setAttribute("tabindex", "-1");
+        main.focus();
+      }
+    }
+  });
+
   /* ── toasts ─────────────────────────────────────────────────────── */
   var stack = document.getElementById("toast-stack");
   if (stack) {

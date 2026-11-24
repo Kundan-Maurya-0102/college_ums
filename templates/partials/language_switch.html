@@ -1,0 +1,16 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% get_available_languages as AVAILABLE_LANGUAGES %}
+<form action="{% url 'set_language' %}" method="post" class="lang-switch" role="group"
+      aria-label="{% translate 'Choose language' %}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <label class="visually-hidden" for="language-select">{% translate "Language" %}</label>
+  <select name="language" id="language-select" class="lang-select"
+          onchange="this.form.submit()">
+    {% for code, name in AVAILABLE_LANGUAGES %}
+      <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit" class="btn btn-outline btn-sm">{% translate "Go" %}</button></noscript>
+</form>

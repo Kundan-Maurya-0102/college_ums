@@ -5,6 +5,8 @@ from django.shortcuts import redirect
 from django.urls import include, path
 
 urlpatterns = [
+    # Language switch (Django's built-in set_language view)
+    path('i18n/', include('django.conf.urls.i18n')),
     path('platform/', include('platform_admin.urls')),
     path('platform/metrics/<slug:slug>/',
          __import__('platform_admin.views', fromlist=['metrics_endpoint']).metrics_endpoint,

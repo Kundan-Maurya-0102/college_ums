@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'students.middleware.SecurityHeadersMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'students.middleware.WebsiteVisitMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -150,9 +151,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE', default='en')
 TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
+# Hindi + English in-app switch. Add more locales by dropping a .po into locale/.
+LANGUAGES = [
+    ('en', 'English'),
+    ('hi', 'हिन्दी'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
+LANGUAGE_COOKIE_NAME = 'ums_language'
 USE_TZ = True
 
 STATIC_URL = '/static/'

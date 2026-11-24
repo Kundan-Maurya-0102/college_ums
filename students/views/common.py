@@ -159,3 +159,9 @@ def privacy_policy(request):
 def terms_of_use(request):
     """Public terms of use."""
     return render(request, 'terms.html')
+
+
+@login_required
+def help_center(request):
+    """In-app help: short task-oriented answers for every role."""
+    return render(request, 'help_center.html')
