@@ -26,6 +26,9 @@ urlpatterns = [
     path('manifest.webmanifest', views.manifest, name='manifest'),
     path('offline/', views.offline, name='offline'),
     path('help/', views.help_center, name='help_center'),
+    path('report-problem/', views.report_problem, name='report_problem'),
+    path('admin-panel/bug-reports/', views.bug_report_list, name='bug_report_list'),
+    path('admin-panel/bug-reports/<int:pk>/', views.bug_report_update, name='bug_report_update'),
 
     # ── Legal (public) ────────────────────────────
     path('privacy/', views.privacy_policy, name='privacy_policy'),

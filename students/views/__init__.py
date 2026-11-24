@@ -64,6 +64,7 @@ from .imports import (  # noqa: F401
                        csv_upload,
                        upload_history,
 )
+from .landing import landing_page  # noqa: F401
 from .leave_feedback import (  # noqa: F401
                        feedback_report,
                        leave_applications,
@@ -85,6 +86,11 @@ from .people import (  # noqa: F401
                        teacher_delete,
                        teacher_edit,
                        teacher_list,
+)
+from .reports_feedback import (  # noqa: F401
+                       bug_report_list,
+                       bug_report_update,
+                       report_problem,
 )
 from .teacher import (  # noqa: F401
                        teacher_assignments,

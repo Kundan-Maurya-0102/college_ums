@@ -629,3 +629,41 @@ class AuditLog(models.Model):
     def __str__(self):
         who = self.user.username if self.user else "system"
         return f"{who} {self.action} {self.model_name}:{self.object_id}".strip()
+
+
+# ─────────────────── BUG / FEEDBACK REPORTS ───────────────────
+
+class BugReport(models.Model):
+    """In-app "report a problem" message from any signed-in user."""
+
+    CATEGORIES = [
+        ('BUG', 'Something is broken'),
+        ('SLOW', 'Too slow / hangs'),
+        ('CONFUSING', 'Hard to understand'),
+        ('IDEA', 'Feature idea'),
+        ('OTHER', 'Other'),
+    ]
+    STATUS = [
+        ('OPEN', 'Open'),
+        ('TRIAGED', 'Triaged'),
+        ('FIXED', 'Fixed'),
+        ('WONTFIX', "Won't fix"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    role = models.CharField(max_length=20, blank=True,
+                            help_text="student / teacher / admin at the time of reporting")
+    category = models.CharField(max_length=12, choices=CATEGORIES, default='BUG')
+    message = models.TextField()
+    page_url = models.CharField(max_length=300, blank=True)
+    user_agent = models.CharField(max_length=300, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, default='OPEN')
+    admin_note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['status', '-created_at'], name='bugreport_status_created_idx')]
+
+    def __str__(self):
+        return f"{self.get_category_display()} — {self.message[:40]}"

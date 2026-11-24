@@ -1,0 +1,42 @@
+{% load i18n %}
+{% if request.user.is_authenticated %}
+<div class="report-fab-wrap">
+  <button type="button" class="report-fab" data-report-open
+          aria-haspopup="dialog" aria-controls="report-dialog"
+          title="{% translate 'Report a problem' %}">
+    <svg width="16" height="16" aria-hidden="true"><use href="#i-message"/></svg>
+    <span class="report-fab-text">{% translate "Report a problem" %}</span>
+  </button>
+</div>
+
+<dialog id="report-dialog" class="report-dialog" aria-labelledby="report-title">
+  <form method="post" action="{% url 'report_problem' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <input type="hidden" name="page_url" value="{{ request.get_full_path }}" data-report-page>
+    <h2 id="report-title" style="margin:0 0 6px;font-size:17px;">{% translate "Report a problem" %}</h2>
+    <p style="margin:0 0 14px;font-size:13px;color:var(--text-muted);">
+      {% translate "Tell us what went wrong. The page address is attached automatically." %}
+    </p>
+    <div class="field" style="margin-bottom:12px;">
+      <label class="form-label" for="report-category">{% translate "Type" %}</label>
+      <select name="category" id="report-category" class="form-control">
+        <option value="BUG">{% translate "Something is broken" %}</option>
+        <option value="SLOW">{% translate "Too slow / hangs" %}</option>
+        <option value="CONFUSING">{% translate "Hard to understand" %}</option>
+        <option value="IDEA">{% translate "Feature idea" %}</option>
+        <option value="OTHER">{% translate "Other" %}</option>
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="form-label" for="report-message">{% translate "What happened?" %} *</label>
+      <textarea name="message" id="report-message" class="form-control" rows="4" required
+                placeholder="{% translate 'e.g. I clicked Save on the fees form and the page went blank.' %}"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button type="button" class="btn btn-outline" data-report-close>{% translate "Cancel" %}</button>
+      <button type="submit" class="btn btn-primary">{% translate "Send report" %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}

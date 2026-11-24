@@ -28,6 +28,7 @@ DEBUG = env.bool('DEBUG', default=False)
 # profile only picks safe *defaults* that differ per environment, so a staging
 # box can look like production without copying production's risk (HSTS preload,
 # long-lived secure cookies, noindex, error tracking tag, tighter backups).
+LANDING_PAGE_ENABLED = env.bool('LANDING_PAGE_ENABLED', default=True)
 ENVIRONMENT = env('ENVIRONMENT', default='development' if DEBUG else 'production').lower()
 if ENVIRONMENT not in ('development', 'staging', 'production'):
     raise ImproperlyConfigured(
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'students',
     'django_q',
     'platform_admin',

@@ -196,3 +196,31 @@ def platform_admin_required(user):
     if user.is_superuser:
         return True
     return user.groups.filter(name=getattr(settings, "PLATFORM_ADMIN_GROUP", "Platform Admin")).exists()
+
+
+class DemoRequest(models.Model):
+    """A college asking for a demo from the public landing page."""
+
+    STATUS_CHOICES = [
+        ("NEW", "New"),
+        ("CONTACTED", "Contacted"),
+        ("CONVERTED", "Converted"),
+        ("CLOSED", "Closed"),
+    ]
+
+    college_name = models.CharField(max_length=150)
+    contact_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    students = models.PositiveIntegerField(null=True, blank=True,
+                                           help_text="Approximate student count")
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="NEW")
+    source = models.CharField(max_length=40, blank=True, default="landing")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.college_name} — {self.contact_name}"

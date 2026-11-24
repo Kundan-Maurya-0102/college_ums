@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.shortcuts import redirect
 from django.urls import include, path
 
 urlpatterns = [
@@ -12,7 +11,8 @@ urlpatterns = [
          __import__('platform_admin.views', fromlist=['metrics_endpoint']).metrics_endpoint,
          name='platform_metrics'),
     path('admin/', admin.site.urls),
-    path('', lambda request: redirect('student_login'), name='home'),
+    # Public landing page for visitors; signed-in users are redirected to their panel.
+    path('', __import__('students.views', fromlist=['landing_page']).landing_page, name='home'),
     path('', include('students.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

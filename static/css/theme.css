@@ -964,3 +964,23 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* ── Report-a-problem button + dialog ───────────────────────────────── */
+.report-fab-wrap { position: fixed; right: 18px; bottom: 18px; z-index: 1500; }
+.report-fab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 999px; border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #fff); color: var(--text-primary, #0f172a);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .16);
+}
+.report-fab:hover, .report-fab:focus-visible { border-color: var(--highlight, #2563eb); }
+.report-dialog {
+  border: none; border-radius: 14px; padding: 20px; max-width: 460px; width: calc(100% - 32px);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, .35);
+}
+.report-dialog::backdrop { background: rgba(15, 23, 42, .5); }
+@media (max-width: 640px) {
+  .report-fab-text { display: none; }
+  .report-fab { padding: 12px; border-radius: 50%; }
+}

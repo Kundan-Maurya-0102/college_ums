@@ -1,0 +1,306 @@
+{% load static i18n humanize %}<!DOCTYPE html>
+<html lang="{{ CURRENT_LANG|default:'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ COLLEGE_NAME|default:'College UMS' }} — College Management System for Indian colleges</title>
+  <meta name="description" content="Students, attendance, internal marks, fees, notices and reports in one secure portal. Ready for polytechnic and degree colleges.">
+  <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#000080' }}">
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <style>
+    :root {
+      --primary: {{ PRIMARY_COLOR|default:'#000080' }};
+      --ink: #0f172a; --muted: #475569; --line: #e2e8f0; --canvas: #f8fafc; --surface: #fff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink); background: var(--surface); line-height: 1.6;
+    }
+    a { color: var(--primary); }
+    .wrap { width: min(1120px, 100% - 40px); margin: 0 auto; }
+    header.site {
+      position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+    }
+    .site-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; color: var(--ink); }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center;
+      background: var(--primary); color: #fff; font-size: 18px;
+    }
+    .site-nav { display: flex; align-items: center; gap: 20px; font-size: 14px; }
+    .site-nav a { text-decoration: none; color: var(--muted); }
+    .site-nav a:hover { color: var(--primary); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      text-decoration: none; border: 1px solid transparent; cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; color: var(--ink); border-color: var(--line); }
+
+    .hero { padding: 64px 0 48px; background: linear-gradient(180deg, var(--canvas), #fff); }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+    .eyebrow {
+      display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--primary); background: rgba(0,0,128,.08); padding: 5px 12px; border-radius: 999px;
+      font-weight: 700; margin-bottom: 16px;
+    }
+    h1.hero-title { font-size: clamp(30px, 4vw, 46px); line-height: 1.15; margin: 0 0 16px; letter-spacing: -.02em; }
+    .hero-sub { font-size: 17px; color: var(--muted); margin: 0 0 26px; max-width: 48ch; }
+    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-facts { display: flex; gap: 28px; margin-top: 32px; flex-wrap: wrap; }
+    .hero-facts b { display: block; font-size: 22px; }
+    .hero-facts span { font-size: 12.5px; color: var(--muted); }
+
+    /* Screenshot placeholders: pure CSS so the page stays fast on a college wifi */
+    .shot {
+      border: 1px solid var(--line); border-radius: 14px; background: #fff;
+      box-shadow: 0 24px 60px rgba(15,23,42,.12); overflow: hidden;
+    }
+    .shot-bar { display: flex; gap: 6px; padding: 10px 12px; background: var(--canvas); border-bottom: 1px solid var(--line); }
+    .shot-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; }
+    .shot-body { display: grid; grid-template-columns: 132px 1fr; min-height: 268px; }
+    .shot-side { background: var(--primary); padding: 14px 10px; display: grid; gap: 8px; align-content: start; }
+    .shot-line { height: 8px; border-radius: 4px; background: rgba(255,255,255,.32); }
+    .shot-line.short { width: 60%; }
+    .shot-main { padding: 14px; display: grid; gap: 10px; align-content: start; }
+    .shot-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .shot-card { height: 46px; border-radius: 8px; background: var(--canvas); border: 1px solid var(--line); }
+    .shot-row { height: 26px; border-radius: 6px; background: var(--canvas); border: 1px solid var(--line); }
+
+    section { padding: 56px 0; }
+    .section-title { font-size: clamp(22px, 3vw, 30px); margin: 0 0 8px; letter-spacing: -.01em; }
+    .section-sub { color: var(--muted); margin: 0 0 32px; max-width: 62ch; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card {
+      border: 1px solid var(--line); border-radius: 14px; padding: 20px; background: #fff;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .card .ico {
+      width: 34px; height: 34px; border-radius: 9px; background: rgba(0,0,128,.09);
+      color: var(--primary); display: grid; place-items: center; margin-bottom: 12px; font-weight: 700;
+    }
+
+    .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .plan { border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: #fff; }
+    .plan.is-featured { border-color: var(--primary); box-shadow: 0 16px 40px rgba(0,0,128,.10); }
+    .plan h3 { margin: 0 0 4px; font-size: 17px; }
+    .plan .price { font-size: 26px; font-weight: 800; margin: 6px 0 2px; }
+    .plan .price small { font-size: 13px; font-weight: 500; color: var(--muted); }
+    .plan ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
+
+    .demo-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: start; }
+    form.demo { border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: #fff; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .form-control {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px;
+      font: inherit; background: #fff; color: var(--ink);
+    }
+    .form-control:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .errorlist { color: #b91c1c; font-size: 12.5px; margin: 6px 0 0; padding-left: 16px; }
+    .alert-danger { border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; }
+    .alert-success { border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534; border-radius: 10px; padding: 14px; font-size: 14px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    footer.site { border-top: 1px solid var(--line); padding: 26px 0; color: var(--muted); font-size: 13px; }
+    .foot-inner { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .demo-grid { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .site-nav { display: none; }
+      .hero { padding: 40px 0 32px; }
+      section { padding: 40px 0; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap site-inner">
+    <a class="brand" href="/"><span class="brand-mark">🎓</span> {{ COLLEGE_NAME|default:'College UMS' }}</a>
+    <nav class="site-nav" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#demo">Book a demo</a>
+      <a class="btn btn-outline" href="{% url 'student_login' %}">Sign in</a>
+    </nav>
+    <a class="btn btn-primary" href="#demo">Book a demo</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Built for Indian colleges</span>
+        <h1 class="hero-title">Poora college, ek portal mein — attendance se fees tak.</h1>
+        <p class="hero-sub">
+          Students, teachers and office staff work from the same system. Bulk import from CSV,
+          internal marks, fee receipts, notices and reports — on mobile too.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#demo">Book a free demo</a>
+          <a class="btn btn-outline" href="{% url 'student_login' %}">Sign in</a>
+        </div>
+        <div class="hero-facts">
+          <div><b>6</b><span>roles supported</span></div>
+          <div><b>1 day</b><span>typical rollout</span></div>
+          <div><b>हिन्दी / English</b><span>in-app switch</span></div>
+        </div>
+      </div>
+      <div class="shot" role="img" aria-label="Preview of the admin dashboard: sidebar menu, summary cards and a student list">
+        <div class="shot-bar"><span class="shot-dot"></span><span class="shot-dot"></span><span class="shot-dot"></span></div>
+        <div class="shot-body">
+          <div class="shot-side">
+            <div class="shot-line"></div><div class="shot-line short"></div>
+            <div class="shot-line"></div><div class="shot-line short"></div>
+            <div class="shot-line"></div><div class="shot-line"></div>
+          </div>
+          <div class="shot-main">
+            <div class="shot-cards"><div class="shot-card"></div><div class="shot-card"></div><div class="shot-card"></div></div>
+            <div class="shot-row"></div><div class="shot-row"></div><div class="shot-row"></div><div class="shot-row"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2 class="section-title">Jo rozana chahiye, wahi pehle</h2>
+      <p class="section-sub">No add-ons to buy later: the modules a college actually runs on are included.</p>
+      <div class="cards">
+        <div class="card"><div class="ico">👥</div><h3>Students &amp; bulk import</h3>
+          <p>Upload a CSV once and the whole class is created with logins. Wrong rows are rejected with a clear reason, not a crash.</p></div>
+        <div class="card"><div class="ico">✅</div><h3>Attendance</h3>
+          <p>Mark a full class in one screen, per subject and date. Students see their own percentage.</p></div>
+        <div class="card"><div class="ico">📊</div><h3>Internal marks &amp; results</h3>
+          <p>Mid-term and quiz marks, semester results with grade and pass/fail, exportable for the exam cell.</p></div>
+        <div class="card"><div class="ico">₹</div><h3>Fees &amp; receipts</h3>
+          <p>Fee structure per branch and semester, payments with receipt numbers, pending list for the office.</p></div>
+        <div class="card"><div class="ico">📢</div><h3>Notices &amp; events</h3>
+          <p>Target a branch or semester, not the whole college. Students see it on the dashboard instantly.</p></div>
+        <div class="card"><div class="ico">🔒</div><h3>Privacy &amp; security</h3>
+          <p>Role-based access, audit log of sensitive actions, encrypted backups, data export and one-click anonymise.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" style="background:var(--canvas);">
+    <div class="wrap">
+      <h2 class="section-title">Simple pricing, per college</h2>
+      <p class="section-sub">One deployment per college — your data stays in your own database. Prices are monthly, billed annually.</p>
+      <div class="plans">
+        {% for plan in plans %}
+          <div class="plan {% if forloop.counter == 2 %}is-featured{% endif %}">
+            <h3>{{ plan.name }}</h3>
+            <div class="price">₹{{ plan.price_monthly|floatformat:0|intcomma }}<small> / month</small></div>
+            <div style="font-size:13px;color:var(--muted);">up to {{ plan.student_limit }} students</div>
+            <ul>
+              {% for feature in plan.features|slice:":5" %}<li>{{ feature }}</li>{% endfor %}
+              {% if not plan.features %}<li>All core modules</li>{% endif %}
+            </ul>
+          </div>
+        {% empty %}
+          <div class="plan"><h3>Basic</h3><div class="price">₹5,000<small> / month</small></div>
+            <div style="font-size:13px;color:var(--muted);">up to 500 students</div>
+            <ul><li>Students &amp; bulk import</li><li>Attendance &amp; marks</li><li>Fees &amp; notices</li></ul></div>
+          <div class="plan is-featured"><h3>Pro</h3><div class="price">₹9,000<small> / month</small></div>
+            <div style="font-size:13px;color:var(--muted);">up to 2000 students</div>
+            <ul><li>Everything in Basic</li><li>Reports &amp; parent portal</li><li>WhatsApp notifications</li></ul></div>
+          <div class="plan"><h3>Enterprise</h3><div class="price">Custom</div>
+            <div style="font-size:13px;color:var(--muted);">unlimited students</div>
+            <ul><li>Everything in Pro</li><li>Dedicated deployment</li><li>On-site training</li></ul></div>
+        {% endfor %}
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:18px;">
+        Setup, data import and staff training are included. Hosting can run on your own server if required.
+      </p>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap demo-grid">
+      <div>
+        <h2 class="section-title">Book a 20-minute demo</h2>
+        <p class="section-sub">
+          We will show your own course structure in the system and answer questions about data
+          migration, hosting and training. No payment needed to see it.
+        </p>
+        <ul style="color:var(--muted);font-size:14px;padding-left:18px;">
+          <li>Works on a phone, tablet and desktop</li>
+          <li>Hindi and English interface</li>
+          <li>Your existing student data can be imported from CSV or Excel</li>
+        </ul>
+        <p style="font-size:13px;color:var(--muted);margin-top:18px;">
+          Prefer to call? {{ COLLEGE_PHONE|default:'' }} {{ COLLEGE_EMAIL|default:'' }}
+        </p>
+      </div>
+      <div>
+        {% if submitted %}
+          <div class="alert-success" role="status">
+            <b>Thank you, {{ college_name }}!</b><br>
+            Your demo request is with us. We usually reply within one working day on the email you gave.
+          </div>
+        {% else %}
+          <form class="demo" method="post" novalidate>
+            {% csrf_token %}
+            {% include 'partials/form_errors.html' %}
+            <div class="field">
+              <label for="{{ form.college_name.id_for_label }}">College name *</label>
+              {{ form.college_name }}
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="{{ form.contact_name.id_for_label }}">Your name *</label>
+                {{ form.contact_name }}
+              </div>
+              <div class="field">
+                <label for="{{ form.phone.id_for_label }}">Mobile</label>
+                {{ form.phone }}
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="{{ form.email.id_for_label }}">Email *</label>
+                {{ form.email }}
+              </div>
+              <div class="field">
+                <label for="{{ form.students.id_for_label }}">Students (approx.)</label>
+                {{ form.students }}
+              </div>
+            </div>
+            <div class="field">
+              <label for="{{ form.message.id_for_label }}">Anything specific?</label>
+              {{ form.message }}
+            </div>
+            <button class="btn btn-primary" type="submit" style="width:100%;">Request demo</button>
+            <p style="font-size:12px;color:var(--muted);margin:10px 0 0;">
+              We use this only to contact you about the demo. See the
+              <a href="{% url 'privacy_policy' %}">privacy policy</a>.
+            </p>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap foot-inner">
+    <div>{{ COLLEGE_NAME|default:'College UMS' }} · {% now "Y" %}</div>
+    <div>
+      <a href="{% url 'privacy_policy' %}">Privacy</a> ·
+      <a href="{% url 'terms_of_use' %}">Terms</a> ·
+      <a href="{% url 'student_login' %}">Sign in</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

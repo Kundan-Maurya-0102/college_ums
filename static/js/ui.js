@@ -140,6 +140,25 @@
     }
   });
 
+  /* ── report-a-problem dialog ────────────────────────────────────── */
+  var reportDialog = document.getElementById("report-dialog");
+  if (reportDialog && typeof reportDialog.showModal === "function") {
+    document.querySelectorAll("[data-report-open]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var page = reportDialog.querySelector("[data-report-page]");
+        if (page) page.value = window.location.pathname + window.location.search;
+        reportDialog.showModal();
+        var message = document.getElementById("report-message");
+        if (message) message.focus();
+      });
+    });
+    var closeBtn = reportDialog.querySelector("[data-report-close]");
+    if (closeBtn) closeBtn.addEventListener("click", function () { reportDialog.close(); });
+    reportDialog.addEventListener("click", function (event) {
+      if (event.target === reportDialog) reportDialog.close();  // backdrop click
+    });
+  }
+
   /* ── toasts ─────────────────────────────────────────────────────── */
   var stack = document.getElementById("toast-stack");
   if (stack) {
