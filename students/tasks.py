@@ -135,13 +135,49 @@ def send_whatsapp_task(to_number, body, timeout=10):
     return f"sent ({message.sid})"
 
 
+def send_sms_task(to_number, body, timeout=10):
+    """Send one plain SMS through Twilio (needs TWILIO_SMS_FROM).
+
+    Kept separate from WhatsApp: an SMS goes to a phone number from a phone number,
+    no `whatsapp:` prefix. Without a sender this is skipped, never silently
+    downgraded to another channel.
+    """
+    sid = getattr(settings, "TWILIO_ACCOUNT_SID", "")
+    token = getattr(settings, "TWILIO_AUTH_TOKEN", "")
+    sender = getattr(settings, "TWILIO_SMS_FROM", "")
+    if not sid or not token:
+        logger.info("SMS skipped: Twilio credentials not configured")
+        return "skipped (no credentials)"
+    if not sender:
+        logger.info("SMS skipped: TWILIO_SMS_FROM not set")
+        return "skipped (no SMS sender)"
+    if not to_number:
+        return "skipped (no number)"
+
+    number = to_number.strip()
+    if not number.startswith("+"):
+        number = f"+91{number}"
+
+    def _deliver():
+        client = _make_twilio_client(sid, token, timeout)
+        return client.messages.create(body=body, from_=sender, to=number)
+
+    try:
+        message = with_retries(_deliver)
+    except Exception as exc:
+        logger.error("SMS delivery failed: %s", exc)
+        return f"failed: {str(exc)[:80]}"
+    return f"sent ({message.sid})"
+
+
 def notify(channel, to, subject="", body=""):
     """Queue a notification on the right channel (email|whatsapp|sms)."""
     if channel == "email":
         return enqueue(send_email_task, to, subject, body)
-    if channel in ("whatsapp", "sms"):
-        text = body or subject
-        return enqueue(send_whatsapp_task, to, text)
+    if channel == "whatsapp":
+        return enqueue(send_whatsapp_task, to, body or subject)
+    if channel == "sms":
+        return enqueue(send_sms_task, to, body or subject)
     return ("failed", f"unknown channel {channel!r}")
 
 

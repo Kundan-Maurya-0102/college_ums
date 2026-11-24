@@ -225,6 +225,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='')
 TWILIO_WHATSAPP_FROM = env('TWILIO_WHATSAPP_FROM', default='whatsapp:+14155238886')
+TWILIO_SMS_FROM = env('TWILIO_SMS_FROM', default='')   # e.g. +919876543210; empty = SMS disabled
 
 # ── College branding (per-deployment, never hardcode in templates) ──
 PORTAL_URL = env('PORTAL_URL', default='http://127.0.0.1:8000')
@@ -280,6 +281,34 @@ SECURITY_PERMISSIONS_POLICY = env('SECURITY_PERMISSIONS_POLICY', default=(
 # ── Outbound services must time out, not hang ─────────────────────────
 EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=10)          # seconds
 HTTP_TIMEOUT = env.int('HTTP_TIMEOUT', default=10)            # gateway/API calls
+
+# ── Outbound e-mail (student credential mails, subscription reminders) ─
+# Without these, Django falls back to SMTP localhost:25, which silently fails in a
+# container — notifications looked implemented but could never leave the box.
+if DEBUG:
+    _default_email_backend = 'django.core.mail.backends.console.EmailBackend'
+else:
+    _default_email_backend = 'django.core.mail.backends.smtp.EmailBackend'
+# An empty value in .env ('EMAIL_BACKEND=') must mean "use the default", not "no backend".
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='') or _default_email_backend
+EMAIL_HOST = env('EMAIL_HOST', default='') or 'localhost'
+EMAIL_PORT = env.int('EMAIL_PORT', default=587) or 587
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured('EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be True')
+_default_from = env('DEFAULT_FROM_EMAIL', default='')
+if not _default_from:
+    _host = (env('COLLEGE_DOMAIN', default='') or COLLEGE_WEBSITE
+             or 'localhost')
+    _host = _host.replace('https://', '').replace('http://', '').strip('/') or 'localhost'
+    if _host.startswith('www.'):
+        _host = _host[4:]
+    _default_from = f"{COLLEGE_NAME or 'College UMS'} <no-reply@{_host}>"
+DEFAULT_FROM_EMAIL = _default_from
+SERVER_EMAIL = env('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 # ── Background jobs (django-q2, ORM broker — no Redis required) ───────
 Q_CLUSTER = {
