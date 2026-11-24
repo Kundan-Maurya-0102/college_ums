@@ -142,6 +142,18 @@
   Pending as-is: Razorpay payment, parent portal, exam PDFs, clash detection,
   admission module, notification bell, global search.
 
+- **Isolation round (College A vs B)**: `students/tests/test_isolation.py` (21 tests) —
+  College B ka asli doosra DB (`college_b`, sirf tests), B ki rows ko A ke hi primary
+  keys, phir A ke 20 pages + search + CSV export + media download + notifications +
+  ID swap + domain boundary scan. **Asli leak fix:** platform metrics endpoint ek shared
+  token se kisi bhi college ki row likh sakta tha → `College.metrics_token`
+  (migration `platform_admin/0003`), constant-time compare. Docs:
+  `docs/MULTI_COLLEGE_ISOLATION.md`. Total suite **304 tests**.
+- **Clean start (fresh clone)**: `CLEAN_START_REPORT.md` — 8 gaps (`.env` inline comment,
+  `DEBUG=False` default, missing `create_college`, weak `SECRET_KEY` guard, non-executable
+  scripts, manifest-dependent tests, `.dockerignore` `*.png`, entrypoint order) sab fix +
+  tests. Clean clone me: 304 tests OK, `check --deploy` 0 issues, `makemigrations` clean.
+
 ## In progress
 - Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
 
