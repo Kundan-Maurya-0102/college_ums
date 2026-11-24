@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 # Add the directory to path
 sys.path.append(os.getcwd())

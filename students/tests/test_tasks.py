@@ -118,7 +118,6 @@ class GracefulImportTests(TestCase):
         cls.admin = User.objects.create_user("imp_admin", password="TestPass!2345", is_staff=True)
 
     def test_broken_importer_shows_message_instead_of_500(self):
-        import io
 
         from django.core.files.uploadedfile import SimpleUploadedFile
 

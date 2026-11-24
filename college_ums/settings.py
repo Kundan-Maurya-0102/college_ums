@@ -1,9 +1,8 @@
-import environ
 import logging
-import os
 import sys
 from pathlib import Path
 
+import environ
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,7 +81,12 @@ TEMPLATES = [
 # Cached template loader for production: parsing templates on every request is
 # pure overhead. Tests and DEBUG runs keep the reloading loaders.
 if not DEBUG:
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
+    # Django refuses `APP_DIRS` together with an explicit `loaders` list, so
+    # APP_DIRS must be switched off here (otherwise every prod page 500s with
+    # "app_dirs must not be set when loaders is defined").
+    template_config = TEMPLATES[0]
+    template_config['APP_DIRS'] = False
+    template_config['OPTIONS']['loaders'] = [
         ('django.template.loaders.cached.Loader', [
             'django.template.loaders.filesystem.Loader',
             'django.template.loaders.app_directories.Loader',
@@ -255,6 +259,8 @@ VISIT_TRACK_STAFF = env.bool('VISIT_TRACK_STAFF', default=False)
 # Extra redaction patterns for logs/error reports (comma separated regexes).
 LOG_REDACT_EXTRA_PATTERNS = env.list('LOG_REDACT_EXTRA_PATTERNS', default=[])
 
+logger = logging.getLogger(__name__)
+
 SENTRY_DSN = env('SENTRY_DSN', default='')
 if SENTRY_DSN:
     try:
@@ -294,8 +300,6 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
-
-logger = logging.getLogger(__name__)
 
 LOGGING = {
     "version": 1,

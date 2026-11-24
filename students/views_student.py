@@ -1,27 +1,42 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
-from django.contrib import messages
-from django.db.models import Avg, Count, Q, Sum
-from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
 
 from .forms import CustomPasswordChangeForm, FeedbackForm, LeaveApplicationForm, StudentSelfProfileForm
-from .models import (Assignment, Attendance, BannerImage, ClassSchedule, Event,
-                     ExamSchedule, FacultyProfile, Feedback, FeePayment,
-                     FeeStructure, InternalExam, LeaveApplication, Notice,
-                     SemesterResult, StudentProfile, StudyMaterial, Subject)
-from .security import (login_lockout_remaining, register_login_failure,
-                       reset_login_failures)
+from .models import (
+    Assignment,
+    Attendance,
+    BannerImage,
+    ClassSchedule,
+    Event,
+    ExamSchedule,
+    FacultyProfile,
+    Feedback,
+    FeePayment,
+    FeeStructure,
+    InternalExam,
+    LeaveApplication,
+    Notice,
+    SemesterResult,
+    StudentProfile,
+    StudyMaterial,
+    Subject,
+)
 from .password_links import token_generator
+from .security import login_lockout_remaining, register_login_failure, reset_login_failures
+
 
 def plane(request):
     return render(request, 'student/plane.html')
 
-    
+
 
 def student_login(request):
     if request.user.is_authenticated:

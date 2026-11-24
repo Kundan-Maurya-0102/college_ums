@@ -1,0 +1,41 @@
+[project]
+name = "college-ums"
+version = "1.0.0"
+description = "Multi-college College Management System (Django 4.2)"
+requires-python = ">=3.12"
+dynamic = []
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+extend-exclude = [
+    ".venv",
+    "staticfiles",
+    "media",
+    "migrations",
+    "students/tests/__init__.py",
+]
+
+[tool.ruff.lint]
+# Pragmatic rule set: real bugs first (pyflakes), pycodestyle, imports, bugbear.
+select = ["E", "F", "W", "I", "B"]
+ignore = [
+    "E501",   # long lines are handled by the formatter/editor
+    "E402",   # module-level import not at top (settings/entry-point style)
+    "B904",   # raise ... from inside except (we log instead)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Package re-exports: `students/views/__init__.py` intentionally imports names
+# so the URL conf and legacy imports keep working.
+"students/views/__init__.py" = ["F401", "F403", "F405"]
+"*/migrations/*" = ["E", "F", "W", "I"]
+"phonenew.py" = ["E722", "F401", "E401"]
+"scripts/*" = ["E402"]
+"conftest.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["college_ums", "students", "platform_admin"]
+
+[tool.ruff.format]
+quote-style = "preserve"

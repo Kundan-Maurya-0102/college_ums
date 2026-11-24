@@ -75,10 +75,10 @@ class StudentProfile(models.Model):
         # Clean phone number: remove non-digits
         import re
         clean_phone = re.sub(r'\D', '', phone)
-        
+
         if len(clean_phone) == 10:
             clean_phone = f"91{clean_phone}"
-        
+
         if not message:
             # Default message with set-password link
             from django.conf import settings
@@ -92,7 +92,7 @@ class StudentProfile(models.Model):
                 f"🔑 *Set Password:* {link}\n\n"
                 f"Please set your password and log in."
             )
-            
+
         import urllib.parse
         encoded_msg = urllib.parse.quote(message)
         return f"https://wa.me/{clean_phone}?text={encoded_msg}"

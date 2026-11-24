@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # CI never has a .env; every required setting comes from here.
+  SECRET_KEY: "ci-only-secret-key-0123456789abcdefghijklmnopqrstuvwxyz"
+  DEBUG: "True"
+  ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
+  CSRF_TRUSTED_ORIGINS: "http://localhost,http://127.0.0.1"
+  COLLEGE_NAME: "CI College"
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Django checks
+        run: python manage.py check
+      - name: Collect static
+        run: python manage.py collectstatic --noinput
+      - name: Run test suite
+        run: python manage.py test --verbosity 2
+
+  migrations:
+    name: Migrations in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: No missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+  lint:
+    name: Lint (ruff) + bandit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: ruff
+        run: ruff check . --output-format=github
+      - name: bandit
+        run: bandit -r students college_ums platform_admin scripts -q -ll
+
+  audit:
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install pip-audit
+      # Django 4.2 is EOL for security fixes; these advisories only have 5.2/6.x
+      # fixes. They are accepted knowingly until the Django 5.2 LTS upgrade
+      # (tracked in BACKLOG.md). Any NEW advisory still fails the build.
+      - name: pip-audit
+        run: |
+          pip-audit -r requirements.txt --progress-spinner off \
+            --ignore-vuln PYSEC-2026-3717 --ignore-vuln PYSEC-2026-198 --ignore-vuln PYSEC-2026-199 --ignore-vuln PYSEC-2026-201 --ignore-vuln PYSEC-2026-2090 --ignore-vuln PYSEC-2026-2091 --ignore-vuln PYSEC-2026-2092 --ignore-vuln PYSEC-2026-4035
+
+  prod-settings:
+    name: Production settings smoke
+    runs-on: ubuntu-latest
+    env:
+      DEBUG: "False"
+      SECURE_SSL_REDIRECT: "False"   # tests speak plain HTTP
+      SECRET_KEY: "prod-smoke-secret-key-0123456789abcdefghijklmnop"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Deploy checklist
+        run: python manage.py check --deploy --fail-level WARNING
+        continue-on-error: true   # HSTS/preload warnings are environment specific
+      - name: Collect static (manifest storage needs it)
+        run: python manage.py collectstatic --noinput
+      - name: Smoke the real templates + health endpoints
+        run: python manage.py test students.tests.test_ops students.tests.test_smoke_pages students.tests.test_pwa
+      - name: Template engine must build without APP_DIRS conflict
+        run: |
+          python - <<'PY'
+          import django, os
+          os.environ.setdefault("DJANGO_SETTINGS_MODULE", "college_ums.settings")
+          django.setup()
+          from django.template import engines
+          engines["django"]  # raises if APP_DIRS + loaders collide
+          print("template engine ok in production settings")
+          PY

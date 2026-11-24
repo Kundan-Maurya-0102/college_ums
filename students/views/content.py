@@ -3,38 +3,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 """Notices, banners, events, doubt forum and the AI chat endpoint."""
-import csv
-import datetime
-import io
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
 from ..ai_helper import get_ai_response
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
-
+from ..forms import BannerImageForm, DoubtForm, DoubtReplyForm, EventForm, NoticeForm
+from ..models import BannerImage, Doubt, DoubtReply, Event, Notice
 from ..pagination import paginate
-from .common import *  # noqa: F401,F403
-from .common import (_int_or_none, _date_or_today, _faculty_subjects,
-                     _subject_class_students)
+from .common import admin_required, is_admin, is_teacher
 
 
 @admin_required
@@ -85,7 +64,7 @@ def banner_upload(request):
     if not (is_admin(request.user) or is_teacher(request.user)):
         messages.error(request, "You do not have permission to upload banners.")
         return redirect('student_dashboard')
-        
+
     form = BannerImageForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         banner = form.save(commit=False)
@@ -93,7 +72,7 @@ def banner_upload(request):
         banner.save()
         messages.success(request, "Banner image uploaded successfully.")
         return redirect('banner_upload')
-        
+
     banners = BannerImage.objects.all().order_by('-created_at')
     return render(request, 'admin_dashboard/banner_upload.html', {'form': form, 'banners': banners})
 
@@ -115,12 +94,12 @@ def banner_delete(request, pk):
 def doubt_list(request):
     doubts = paginate(request, Doubt.objects.select_related('student').prefetch_related('replies'))
     form = DoubtForm()
-    
+
     if request.method == "POST":
         if not hasattr(request.user, 'studentprofile'):
             messages.error(request, "Only students can post doubts.")
             return redirect('doubt_list')
-            
+
         form = DoubtForm(request.POST)
         if form.is_valid():
             doubt = form.save(commit=False)
@@ -128,7 +107,7 @@ def doubt_list(request):
             doubt.save()
             messages.success(request, "Your doubt has been posted to the community!")
             return redirect('doubt_list')
-            
+
     return render(request, 'forum/doubt_list.html', {'doubts': doubts, 'form': form})
 
 
@@ -137,7 +116,7 @@ def doubt_detail(request, pk):
     doubt = get_object_or_404(Doubt, pk=pk)
     replies = doubt.replies.select_related('user').all()
     form = DoubtReplyForm()
-    
+
     if request.method == "POST":
         form = DoubtReplyForm(request.POST)
         if form.is_valid():
@@ -147,7 +126,7 @@ def doubt_detail(request, pk):
             reply.save()
             messages.success(request, "Reply posted!")
             return redirect('doubt_detail', pk=pk)
-            
+
     return render(request, 'forum/doubt_detail.html', {'doubt': doubt, 'replies': replies, 'form': form})
 
 
@@ -159,13 +138,13 @@ def doubt_edit(request, pk):
     if not (is_owner or request.user.is_staff):
         messages.error(request, "You don't have permission to edit this doubt.")
         return redirect('doubt_detail', pk=pk)
-    
+
     form = DoubtForm(request.POST or None, instance=doubt)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Doubt updated successfully.")
         return redirect('doubt_detail', pk=pk)
-        
+
     return render(request, 'forum/doubt_form.html', {'form': form, 'doubt': doubt, 'action': 'Edit'})
 
 
@@ -177,12 +156,12 @@ def doubt_delete(request, pk):
     if not (is_owner or request.user.is_staff):
         messages.error(request, "You don't have permission to delete this doubt.")
         return redirect('doubt_detail', pk=pk)
-    
+
     if request.method == "POST":
         doubt.delete()
         messages.success(request, "Doubt deleted.")
         return redirect('doubt_list')
-        
+
     return render(request, 'forum/doubt_confirm_delete.html', {'doubt': doubt})
 
 
@@ -193,13 +172,13 @@ def reply_edit(request, pk):
     if not (reply.user == request.user or request.user.is_staff):
         messages.error(request, "You don't have permission to edit this reply.")
         return redirect('doubt_detail', pk=reply.doubt.pk)
-    
+
     form = DoubtReplyForm(request.POST or None, instance=reply)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Reply updated.")
         return redirect('doubt_detail', pk=reply.doubt.pk)
-        
+
     return render(request, 'forum/reply_form.html', {'form': form, 'reply': reply})
 
 
@@ -211,12 +190,12 @@ def reply_delete(request, pk):
     if not (reply.user == request.user or request.user.is_staff):
         messages.error(request, "You don't have permission to delete this reply.")
         return redirect('doubt_detail', pk=doubt_pk)
-    
+
     if request.method == "POST":
         reply.delete()
         messages.success(request, "Reply deleted.")
         return redirect('doubt_detail', pk=doubt_pk)
-        
+
     return render(request, 'forum/reply_confirm_delete.html', {'reply': reply})
 
 
@@ -238,7 +217,7 @@ def ai_chatbot_api(request):
         if not prompt:
             return JsonResponse({"error": "Please type a question."}, status=400)
         try:
-            
+
             user_context = f"User: {request.user.username}, Role: "
             if request.user.is_superuser:
                 user_context += "Admin"
@@ -248,7 +227,7 @@ def ai_chatbot_api(request):
                 user_context += "Student"
             else:
                 user_context += "Guest"
-                
+
             response = get_ai_response(prompt, user_context)
             return JsonResponse({"response": response})
         except Exception:

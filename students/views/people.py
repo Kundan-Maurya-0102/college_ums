@@ -1,40 +1,34 @@
 """Teacher, admin and student account management + CSV exports."""
 import csv
-import datetime
 import json
-import io
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from ..ai_helper import get_ai_response
-from ..privacy import anonymize_student
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
-
 from ..audit import log_action
+from ..forms import (
+    AdminUserForm,
+    FacultyProfileForm,
+    StudentProfileForm,
+)
+from ..models import (
+    Assignment,
+    ClassSchedule,
+    FacultyProfile,
+    InternalExam,
+    StudentProfile,
+    StudyMaterial,
+)
 from ..pagination import paginate
-from .common import *  # noqa: F401,F403
-from .common import (_int_or_none, _date_or_today, _faculty_subjects,
-                     _subject_class_students)
+from ..password_links import build_set_password_link
+from ..privacy import anonymize_student
+from .common import _int_or_none, admin_required
 
 
 @admin_required
@@ -126,13 +120,13 @@ def admin_delete(request, pk):
     if admin_user == request.user:
         messages.error(request, "You cannot delete your own logged-in admin account.")
         return redirect("admin_list")
-    
+
     if request.method == "POST":
         username = admin_user.username
         admin_user.delete()
         messages.success(request, f"Admin account '{username}' deleted.")
         return redirect("admin_list")
-        
+
     return render(request, "admin_dashboard/admin_delete_confirm.html", {"admin_user": admin_user})
 
 

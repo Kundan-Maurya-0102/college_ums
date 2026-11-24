@@ -1,38 +1,26 @@
 """Admin, teacher and reports dashboards."""
-import hashlib
-import csv
 import datetime
-import io
+import hashlib
 
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.db.models import Count, Q, Sum
+from django.shortcuts import render
 
-from ..ai_helper import get_ai_response
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
-
-from .common import *  # noqa: F401,F403
-from .common import (_int_or_none, _date_or_today, _faculty_subjects,
-                     _subject_class_students)
+from ..models import (
+    Attendance,
+    ClassSchedule,
+    CSVUpload,
+    FacultyProfile,
+    FeePayment,
+    InternalExam,
+    LeaveApplication,
+    Notice,
+    StudentProfile,
+    Subject,
+    WebsiteVisit,
+)
+from .common import _faculty_subjects, admin_required, teacher_required
 
 
 @admin_required
@@ -174,7 +162,7 @@ def reports_view(request):
         FacultyProfile.objects.count(),
         Subject.objects.count(),
     )
-    cache_key = "reports:v1:" + hashlib.md5(str(signature).encode()).hexdigest()
+    cache_key = "reports:v1:" + hashlib.md5(str(signature).encode(), usedforsecurity=False).hexdigest()
 
     if cache_seconds:
         cached = cache.get(cache_key)

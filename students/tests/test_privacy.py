@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from students.models import AuditLog, Doubt, FeeStructure, FeePayment, StudentProfile
+from students.models import AuditLog, Doubt, FeePayment, FeeStructure, StudentProfile
 from students.privacy import anonymize_student, redact_mapping, redact_text, scrub_sentry_event
 
 

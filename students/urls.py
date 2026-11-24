@@ -1,10 +1,22 @@
 from django.urls import path
+
 from . import views
-from .views_student import (student_login, student_logout, change_password,
-                            student_dashboard, plane, college_website,
-                            set_password, student_profile_edit, student_fees,
-                            student_exam_schedule, student_leave_apply,
-                            student_feedback, student_events, student_certificates)
+from .views_student import (
+                            change_password,
+                            college_website,
+                            plane,
+                            set_password,
+                            student_certificates,
+                            student_dashboard,
+                            student_events,
+                            student_exam_schedule,
+                            student_feedback,
+                            student_fees,
+                            student_leave_apply,
+                            student_login,
+                            student_logout,
+                            student_profile_edit,
+)
 
 urlpatterns = [
     # ── Ops ───────────────────────────────────────
@@ -120,7 +132,7 @@ urlpatterns = [
     path('teacher/notices/', views.teacher_notices, name='teacher_notices'),
     path('teacher/notices/<int:pk>/edit/', views.teacher_notice_edit, name='teacher_notice_edit'),
     path('teacher/notices/<int:pk>/delete/', views.teacher_notice_delete, name='teacher_notice_delete'),
-    
+
     # Banners (Accessible by Admin and Teachers)
     path('banners/', views.banner_upload, name='banner_upload'),
     path('banners/<int:pk>/delete/', views.banner_delete, name='banner_delete'),

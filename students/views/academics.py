@@ -1,37 +1,29 @@
 """Subjects, internal marks, results, attendance and exam timetable."""
-import csv
-import datetime
-import io
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
-
-from ..ai_helper import get_ai_response
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
 
 from ..audit import log_action
+from ..forms import (
+    ExamScheduleForm,
+    InternalExamForm,
+    SubjectForm,
+)
+from ..models import (
+    Assignment,
+    Attendance,
+    ClassSchedule,
+    ExamSchedule,
+    InternalExam,
+    SemesterResult,
+    StudentProfile,
+    StudyMaterial,
+    Subject,
+)
 from ..pagination import paginate
-from .common import *  # noqa: F401,F403
-from .common import (_int_or_none, _date_or_today, _faculty_subjects,
-                     _subject_class_students)
+from .common import _date_or_today, _int_or_none, admin_required, is_admin, is_teacher
+from .teacher import teacher_take_attendance
 
 
 @admin_required
@@ -170,40 +162,39 @@ def attendance_entry(request):
 
 @login_required(login_url='/login/')
 def take_attendance_bulk(request):
-    import datetime
 
     if is_teacher(request.user):
         return teacher_take_attendance(request)
     if not is_admin(request.user):
         messages.error(request, "Attendance panel access is not available for this account.")
         return redirect('student_dashboard')
-    
+
     subjects = Subject.objects.filter(is_active=True).order_by('branch', 'semester', 'subject_code')
     selected_subject_id = _int_or_none(request.GET.get('subject') or request.POST.get('subject'))
     selected_date = _date_or_today(request.GET.get('date') or request.POST.get('date'))
-    
+
     subject = None
     students = []
     attendance_records = {}
-    
+
     if selected_subject_id:
         subject = get_object_or_404(Subject, pk=selected_subject_id)
         students = StudentProfile.objects.filter(branch=subject.branch, semester=subject.semester).order_by('registration_number')
-        
+
         # Pre-fetch existing attendance for this date
         existing_att = Attendance.objects.filter(subject=subject, date=selected_date)
         attendance_records = {att.student_id: att for att in existing_att}
-        
+
         present_ids = [att.student_id for att in existing_att if att.is_present]
         has_attendance = existing_att.exists()
-        
+
     if request.method == 'POST' and subject:
         marked_by = request.user.get_full_name() or request.user.username
-        
+
         for student in students:
             # Checkbox returns the student ID if checked
             is_present = str(student.id) in request.POST.getlist('present_student_ids')
-            
+
             att = attendance_records.get(student.id)
             if att:
                 if att.is_present != is_present:
@@ -218,7 +209,7 @@ def take_attendance_bulk(request):
                     is_present=is_present,
                     marked_by=marked_by
                 )
-                
+
         log_action(request, "attendance.bulk", subject,
                    detail=f"{selected_date} present={len(request.POST.getlist('present_student_ids'))}/{len(students)}")
         messages.success(request, f"✅ Attendance saved for {len(students)} students in {subject.subject_code}.")

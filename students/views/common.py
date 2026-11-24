@@ -1,31 +1,11 @@
 """Helpers shared by every view module: role checks, decorators, health probe."""
-import csv
 import datetime
-import io
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.http import JsonResponse
+from django.shortcuts import render
 
-from ..ai_helper import get_ai_response
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
+from ..models import StudentProfile
 
 
 def is_admin(user):

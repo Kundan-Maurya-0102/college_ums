@@ -9,8 +9,16 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from students.forms import AssignmentForm, BannerImageForm
-from students.models import (Assignment, AuditLog, Doubt, DoubtReply, FacultyProfile,
-                             FeePayment, FeeStructure, StudentProfile, Subject)
+from students.models import (
+    AuditLog,
+    Doubt,
+    DoubtReply,
+    FacultyProfile,
+    FeePayment,
+    FeeStructure,
+    StudentProfile,
+    Subject,
+)
 from students.security import safe_upload_name, validate_upload
 
 ADMIN_ONLY = [

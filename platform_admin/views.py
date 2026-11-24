@@ -18,8 +18,7 @@ from students.audit import log_action
 from students.pagination import paginate
 
 from .forms import CollegeForm, PlanForm, TicketForm, TicketReplyForm
-from .models import (College, Plan, SupportTicket, TicketReply, UsageSnapshot,
-                     platform_admin_required)
+from .models import College, Plan, SupportTicket, UsageSnapshot, platform_admin_required
 
 
 def platform_admin_required_view(view):

@@ -1,21 +1,35 @@
 import csv
-
-from django import forms
 import logging
 
+from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
-from .security import (DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS,
-                       validate_upload)
-from .models import (Assignment, Attendance, BannerImage, ClassSchedule, CSVUpload,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult,
-                     StudentProfile, StudyMaterial, Subject)
+from .models import (
+    Assignment,
+    Attendance,
+    BannerImage,
+    ClassSchedule,
+    CSVUpload,
+    Doubt,
+    DoubtReply,
+    Event,
+    ExamSchedule,
+    FacultyProfile,
+    Feedback,
+    FeePayment,
+    FeeStructure,
+    InternalExam,
+    LeaveApplication,
+    Notice,
+    StudentProfile,
+    StudyMaterial,
+    Subject,
+)
+from .security import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS, validate_upload
 
 
 class CSVUploadForm(forms.ModelForm):

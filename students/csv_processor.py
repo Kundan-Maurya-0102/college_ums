@@ -1,6 +1,5 @@
 import logging
-import random
-import string
+
 import pandas as pd
 from django.contrib.auth.models import User
 from django.db import transaction

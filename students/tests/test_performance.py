@@ -58,8 +58,9 @@ class QueryBudgetTests(TestCase):
 
     def test_dashboard_visit_stats_use_one_aggregate(self):
         """The dashboard must not run one query per visit metric."""
-        from students.models import WebsiteVisit
         from django.utils import timezone
+
+        from students.models import WebsiteVisit
 
         for _ in range(5):
             WebsiteVisit.objects.create(path="/", visited_at=timezone.now())

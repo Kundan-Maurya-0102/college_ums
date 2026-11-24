@@ -1,6 +1,4 @@
-import datetime
 import pandas as pd
-
 from django.db import transaction
 
 from .csv_processor import normalize_columns, safe_date, safe_int, safe_str

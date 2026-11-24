@@ -1,14 +1,20 @@
 """Super-admin (platform owner) panel: permissions, lifecycle, tickets, metrics."""
 import json
-from unittest.mock import patch
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
-from platform_admin.models import (College, Plan, SupportTicket, TicketReply, UsageSnapshot,
-                                   platform_admin_required)
+from platform_admin.models import (
+    College,
+    Plan,
+    SupportTicket,
+    TicketReply,
+    UsageSnapshot,
+    platform_admin_required,
+)
 
 PASSWORD = "TestPass!2345"
 
@@ -162,7 +168,7 @@ class SubscriptionTests(PlatformFixtures):
 
 
 class BackupDownloadTests(PlatformFixtures):
-    @override_settings(PLATFORM_BACKUP_DIR="/tmp/nonexistent-backups")
+    @override_settings(PLATFORM_BACKUP_DIR="/var/backups/ums-nonexistent")
     def test_snapshot_download_is_json_and_audited(self):
         from students.models import AuditLog
 
@@ -311,8 +317,8 @@ class CommandTests(PlatformFixtures):
     def test_reminders_dry_run_then_apply(self):
         from io import StringIO
 
-        from django.core.management import call_command
         from django.core import mail
+        from django.core.management import call_command
 
         self.college.subscription_expires_on = date.today() + timedelta(days=3)
         self.college.save()

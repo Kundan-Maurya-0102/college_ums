@@ -1,35 +1,26 @@
 """Teacher panel: own students, attendance, marks, notices, materials, schedule."""
-import csv
-import datetime
-import io
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
-from ..ai_helper import get_ai_response
-from ..upload_router import process_any_csv_upload
-from ..password_links import build_set_password_link
-from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
-                    DoubtForm, DoubtReplyForm, EventForm, ExamScheduleForm,
-                    FacultyProfileForm, FeedbackForm, FeePaymentForm,
-                    FeeStructureForm, InternalExamForm, LeaveApplicationForm,
-                    NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
-                    AdminUserForm)
-from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
-                     Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
-                     Feedback, FeePayment, FeeStructure, InternalExam,
-                     LeaveApplication, Notice, SemesterResult, StudentProfile,
-                     StudyMaterial, Subject, WebsiteVisit)
-
-from .common import *  # noqa: F401,F403
-from .common import (_int_or_none, _date_or_today, _faculty_subjects,
-                     _subject_class_students)
+from ..forms import (
+    AssignmentForm,
+    ClassScheduleForm,
+    InternalExamForm,
+    NoticeForm,
+    StudyMaterialForm,
+)
+from ..models import (
+    Assignment,
+    Attendance,
+    ClassSchedule,
+    InternalExam,
+    Notice,
+    StudentProfile,
+    StudyMaterial,
+)
+from .common import _date_or_today, _faculty_subjects, _int_or_none, _subject_class_students, teacher_required
 
 
 @teacher_required
@@ -47,7 +38,6 @@ def teacher_students(request):
 
 @teacher_required
 def teacher_take_attendance(request):
-    import datetime
 
     subjects = _faculty_subjects(request.user)
     selected_subject_id = _int_or_none(request.GET.get("subject") or request.POST.get("subject"))

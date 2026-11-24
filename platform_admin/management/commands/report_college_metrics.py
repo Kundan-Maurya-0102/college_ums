@@ -60,14 +60,18 @@ class Command(BaseCommand):
             raise CommandError("PLATFORM_METRICS_TOKEN is not set")
         base = base or "http://localhost:8000"
 
+        if not base.startswith(("http://", "https://")):
+            raise CommandError("PLATFORM_URL must start with http:// or https://")
         request = urllib.request.Request(
             f"{base.rstrip('/')}/platform/metrics/{slug}/",
             data=json.dumps(payload).encode(),
             headers={"Content-Type": "application/json", "X-Platform-Token": token},
             method="POST",
         )
+        # Bandit B310: the URL scheme is validated above, so only http(s) is passed.
         try:
-            with urllib.request.urlopen(request, timeout=getattr(settings, "HTTP_TIMEOUT", 10)) as resp:
+            with urllib.request.urlopen(  # nosec B310
+                    request, timeout=getattr(settings, "HTTP_TIMEOUT", 10)) as resp:
                 self.stdout.write(self.style.SUCCESS(f"reported: {resp.read().decode()[:200]}"))
         except urllib.error.URLError as exc:
             raise CommandError(f"report failed: {exc}") from exc

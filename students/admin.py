@@ -1,11 +1,26 @@
 from django.contrib import admin
-from django.utils.html import format_html
 
-from .models import (AuditLog, Assignment, Attendance, CSVUpload, ClassSchedule, Event,
-                     ExamSchedule, FacultyProfile, Feedback, FeePayment,
-                     FeeStructure, InternalExam, LeaveApplication, Notice,
-                     SemesterResult, StudentProfile, StudyMaterial, Subject,
-                     WebsiteVisit)
+from .models import (
+    Assignment,
+    Attendance,
+    AuditLog,
+    ClassSchedule,
+    CSVUpload,
+    Event,
+    ExamSchedule,
+    FacultyProfile,
+    Feedback,
+    FeePayment,
+    FeeStructure,
+    InternalExam,
+    LeaveApplication,
+    Notice,
+    SemesterResult,
+    StudentProfile,
+    StudyMaterial,
+    Subject,
+    WebsiteVisit,
+)
 
 
 @admin.register(StudentProfile)

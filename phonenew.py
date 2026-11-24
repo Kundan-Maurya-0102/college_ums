@@ -1,10 +1,12 @@
-import requests
 import json
 import re
 import sys
-import phonenumbers
-from phonenumbers import geocoder, carrier, timezone
 from urllib.parse import quote
+
+import phonenumbers
+import requests
+from phonenumbers import carrier, geocoder, timezone
+
 
 class PhoneNumberTracker:
     def __init__(self):
@@ -13,7 +15,7 @@ class PhoneNumberTracker:
         self.opencage_api_key = "YOUR_OPENCAGE_API_KEY"
         self.abstract_api_key = "YOUR_ABSTRACT_API_KEY"
         self.session = requests.Session()
-        
+
     def validate_phone_number(self, phone_number):
         """Phone number ko validate karta hai using phonenumbers library"""
         try:
@@ -23,25 +25,25 @@ class PhoneNumberTracker:
                     cleaned = '+91' + cleaned
                 else:
                     cleaned = '+' + cleaned
-            
+
             parsed_number = phonenumbers.parse(cleaned)
             if not phonenumbers.is_valid_number(parsed_number):
                 return False, "Invalid phone number format."
             return True, cleaned
         except Exception as e:
             return False, f"Parsing error: {str(e)}"
-    
+
     def get_carrier_info(self, phone_number):
         """Phonenumbers library se actual carrier aur location info nikalta hai"""
         print("\n[!] Fetching information...")
-        
+
         try:
             parsed_number = phonenumbers.parse(phone_number)
             carrier_name = carrier.name_for_number(parsed_number, "en")
             location_name = geocoder.description_for_number(parsed_number, "en")
             time_zones = timezone.time_zones_for_number(parsed_number)
             country_code = phonenumbers.region_code_for_number(parsed_number)
-            
+
             from phonenumbers import PhoneNumberType
             number_type = phonenumbers.number_type(parsed_number)
             line_type = "mobile"
@@ -70,17 +72,17 @@ class PhoneNumberTracker:
             }
         except Exception as e:
             return {'valid': False, 'error': f"Library Error: {str(e)}"}
-    
+
     def get_geolocation(self, country_name, city_name):
         """OpenCage Geocoder se exact coordinates aur location details"""
         print("[*] Checking geolocation...")
-        
+
         if self.opencage_api_key == "YOUR_OPENCAGE_API_KEY":
             return self._get_mock_geolocation(city_name)
-        
+
         query = quote(f"{city_name}, {country_name}")
         url = f"https://api.opencagedata.com/geocode/v1/json?q={query}&key={self.opencage_api_key}&limit=1"
-        
+
         try:
             response = self.session.get(url, timeout=10)
             data = response.json()
@@ -103,7 +105,7 @@ class PhoneNumberTracker:
                 return {'error': 'Location not found'}
         except requests.exceptions.RequestException as e:
             return {'error': f"Geocoding Error: {str(e)}"}
-    
+
     def _get_mock_geolocation(self, city_name):
         return {
             'latitude': '28.6139',
@@ -116,7 +118,7 @@ class PhoneNumberTracker:
             'confidence': 'High',
             'error': None
         }
-    
+
     def get_ip_geolocation(self):
         """User ki current IP se location estimate karein"""
         print("[*] Checking IP-based location...")
@@ -127,58 +129,58 @@ class PhoneNumberTracker:
             return None
         except:
             return None
-    
+
     def generate_google_maps_link(self, lat, lng):
         return f"https://www.google.com/maps?q={lat},{lng}"
-    
+
     def display_results(self, phone_data, geo_data, ip_data=None):
         print("\n" + "="*60)
         print("         PHONE NUMBER INTELLIGENCE REPORT")
         print("="*60)
-        
+
         print("\n[+] BASIC INFORMATION")
         print("-" * 40)
         print(f"Number: {phone_data.get('international_format', 'N/A')}")
         print(f"Valid: {'Yes' if phone_data.get('valid') else 'No'}")
         print(f"Type: {phone_data.get('line_type', 'Unknown').upper()}")
-        
+
         print("\n[+] CARRIER INFORMATION")
         print("-" * 40)
         print(f"Carrier: {phone_data.get('carrier', 'Unknown')}")
         print(f"Location: {phone_data.get('location', 'Unknown')}")
         print(f"Timezone: {phone_data.get('timezone', 'Unknown')}")
-        
+
         if not geo_data.get('error'):
             print("\n[+] GEOLOCATION DETAILS")
             print("-" * 40)
             print(f"Address: {geo_data.get('formatted_address', 'N/A')}")
             print(f"Coordinates: {geo_data.get('latitude')}, {geo_data.get('longitude')}")
-            
+
             if geo_data.get('latitude') and geo_data.get('longitude'):
                 maps_link = self.generate_google_maps_link(geo_data['latitude'], geo_data['longitude'])
                 print(f"Google Maps: {maps_link}")
-        
+
         print("\n" + "="*60)
         print("Disclaimer: Information is based on public carrier databases.")
         print("="*60)
-    
+
     def track(self, phone_number):
         print(f"\n[*] Tracking Number: {phone_number}")
         is_valid, result = self.validate_phone_number(phone_number)
         if not is_valid:
             print(f"[-] Error: {result}")
             return
-        
+
         phone_data = self.get_carrier_info(result)
         if not phone_data.get('valid'):
             print(f"[-] Error: {phone_data.get('error', 'Unknown error')}")
             return
-        
+
         geo_data = self.get_geolocation(phone_data.get('country_name', ''), phone_data.get('location', ''))
         ip_data = self.get_ip_geolocation()
         self.display_results(phone_data, geo_data, ip_data)
         self.save_option(phone_data, geo_data)
-    
+
     def save_option(self, phone_data, geo_data):
         choice = input("\nSave report to JSON? (y/n): ").lower()
         if choice == 'y':
@@ -205,9 +207,9 @@ def main():
     - Geolocation Coordinates
     ============================================
     """)
-    
+
     tracker = PhoneNumberTracker()
-    
+
     if len(sys.argv) > 1:
         number = sys.argv[1]
         tracker.track(number)
@@ -215,8 +217,10 @@ def main():
         while True:
             print("\nEnter Phone Number (e.g., +91...):")
             number = input(">> ").strip()
-            if not number: continue
-            if number.lower() in ['exit', 'quit']: break
+            if not number:
+                continue
+            if number.lower() in ['exit', 'quit']:
+                break
             tracker.track(number)
 
 if __name__ == "__main__":

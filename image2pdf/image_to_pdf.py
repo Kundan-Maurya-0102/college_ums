@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+
 from PIL import Image, ImageChops
 
 
@@ -57,10 +58,10 @@ def start_conversion():
         print("Save location select nahi ki gayi.")
         return
 
-    print(f"\n======================================")
+    print("\n======================================")
     print(f"Total {len(file_paths)} images select ki gayi hain.")
-    print(f"Processing chalu hai... Please wait!")
-    print(f"======================================\n")
+    print("Processing chalu hai... Please wait!")
+    print("======================================\n")
 
     images_list = []
 
