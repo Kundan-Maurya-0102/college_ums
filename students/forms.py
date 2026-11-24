@@ -486,18 +486,30 @@ class AdminUserForm(forms.ModelForm):
         label="Password",
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "password"}),
     )
+    is_superuser = forms.BooleanField(
+        required=False,
+        label="Full superuser (Django admin access)",
+        help_text="Grants every permission in the system. Leave unchecked for office staff.",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
 
     class Meta:
         model = User
         fields = ["username", "email", "password"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, allow_superuser=False, **kwargs):
+        """`allow_superuser` must come from the request: only a superuser may grant it."""
         super().__init__(*args, **kwargs)
+        self.allow_superuser = allow_superuser
         if self.instance and self.instance.pk:
             self.fields["password"].required = False
             self.fields["password"].help_text = "Leave blank to keep current password."
+            self.fields["is_superuser"].initial = self.instance.is_superuser
         else:
             self.fields["password"].required = True
+        if not allow_superuser:
+            # remove, not just disable: a crafted POST must not be able to set it
+            self.fields.pop("is_superuser", None)
 
     def clean_username(self):
         username = self.cleaned_data["username"].strip()
@@ -511,7 +523,9 @@ class AdminUserForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_staff = True
-        user.is_superuser = True
+        if self.allow_superuser:
+            user.is_superuser = bool(self.cleaned_data.get("is_superuser"))
+        # without the flag the existing value is kept (never silently escalated)
         password = self.cleaned_data.get("password")
         if password:
             user.set_password(password)

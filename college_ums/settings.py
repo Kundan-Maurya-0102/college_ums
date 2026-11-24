@@ -29,6 +29,9 @@ DEBUG = env.bool('DEBUG', default=False)
 # box can look like production without copying production's risk (HSTS preload,
 # long-lived secure cookies, noindex, error tracking tag, tighter backups).
 LANDING_PAGE_ENABLED = env.bool('LANDING_PAGE_ENABLED', default=True)
+# Serve /media/ through Django with a login check (see students/views/media.py).
+# Set False only if an object-storage layer already enforces access.
+MEDIA_PROTECTED = env.bool('MEDIA_PROTECTED', default=True)
 ENVIRONMENT = env('ENVIRONMENT', default='development' if DEBUG else 'production').lower()
 if ENVIRONMENT not in ('development', 'staging', 'production'):
     raise ImproperlyConfigured(

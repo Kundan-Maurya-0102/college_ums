@@ -91,10 +91,13 @@ def admin_list(request):
 
 @admin_required
 def admin_create(request):
-    form = AdminUserForm(request.POST or None)
+    form = AdminUserForm(request.POST or None,
+                         allow_superuser=request.user.is_superuser)
     if request.method == "POST":
         if form.is_valid():
             admin_user = form.save()
+            log_action(request, "admin.create", admin_user,
+                       detail="superuser" if admin_user.is_superuser else "staff")
             messages.success(request, f"Admin account '{admin_user.username}' created successfully.")
             return redirect("admin_list")
         messages.error(request, "Please fix the errors below.")
@@ -104,10 +107,13 @@ def admin_create(request):
 @admin_required
 def admin_edit(request, pk):
     admin_user = get_object_or_404(User, pk=pk, is_staff=True)
-    form = AdminUserForm(request.POST or None, instance=admin_user)
+    form = AdminUserForm(request.POST or None, instance=admin_user,
+                         allow_superuser=request.user.is_superuser)
     if request.method == "POST":
         if form.is_valid():
             form.save()
+            log_action(request, "admin.update", admin_user,
+                       detail="superuser" if admin_user.is_superuser else "staff")
             messages.success(request, f"Admin account '{admin_user.username}' updated.")
             return redirect("admin_list")
         messages.error(request, "Please fix the errors below.")

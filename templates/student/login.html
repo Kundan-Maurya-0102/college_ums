@@ -137,6 +137,14 @@
         <div class="alert alert-error" role="alert" style="margin-bottom:14px;">{{ form.non_field_errors.0 }}</div>
       {% endif %}
 
+      {% if lockout_seconds %}
+        <p id="lockout-countdown" role="status" aria-live="polite"
+           style="margin:0 0 14px;font-size:13px;color:#92400e;background:#fffbeb;
+                  border:1px solid #fde68a;border-radius:8px;padding:10px 12px;">
+          Retry in <b data-lockout-remaining="{{ lockout_seconds }}">{{ lockout_seconds }}</b> second(s).
+        </p>
+      {% endif %}
+
       <form method="post" novalidate>
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
@@ -169,5 +177,24 @@
   <a href="{% url 'terms_of_use' %}" style="color:#4b5563;">Terms of Use</a>
   {% if COLLEGE_EMAIL %} · <a href="mailto:{{ COLLEGE_EMAIL }}" style="color:#4b5563;">Contact</a>{% endif %}
 </footer>
+<script>
+  // Countdown for a locked login. Falls back to static text without JS.
+  (function () {
+    var el = document.querySelector('[data-lockout-remaining]');
+    if (!el) return;
+    var left = parseInt(el.getAttribute('data-lockout-remaining'), 10) || 0;
+    var timer = setInterval(function () {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(timer);
+        el.textContent = '0';
+        var box = document.getElementById('lockout-countdown');
+        if (box) box.textContent = 'You can try again now.';
+        return;
+      }
+      el.textContent = left;
+    }, 1000);
+  })();
+</script>
 </body>
 </html>

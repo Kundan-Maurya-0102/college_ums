@@ -70,6 +70,7 @@ from .leave_feedback import (  # noqa: F401
                        leave_applications,
                        leave_review,
 )
+from .media import serve_media  # noqa: F401
 from .people import (  # noqa: F401
                        admin_create,
                        admin_delete,
@@ -78,10 +79,10 @@ from .people import (  # noqa: F401
                        export_set_password_links_csv,
                        export_students_csv,
                        student_anonymize,
+                       student_create,
                        student_data_export,
                        student_delete,
-                       student_create,
-    student_edit,
+                       student_edit,
                        student_list,
                        teacher_create,
                        teacher_delete,

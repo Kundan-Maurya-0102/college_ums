@@ -59,9 +59,14 @@ def student_login(request):
             wait_minutes = max(1, locked_for // 60)
             messages.error(
                 request,
-                f"Too many failed login attempts. Try again in {wait_minutes} minute(s).",
+                f"🔒 Account locked for {wait_minutes} minute(s) after too many wrong "
+                "passwords. Your password may still be correct — wait for the timer, or ask "
+                "the college office for a set-password link if you have forgotten it.",
             )
-            return render(request, 'student/login.html', {'form': form})
+            return render(request, 'student/login.html', {
+                'form': form,
+                'lockout_seconds': int(locked_for),
+            })
 
         if form.is_valid():
             user = form.get_user()
@@ -88,9 +93,20 @@ def student_login(request):
             remaining = register_login_failure(request, username)
             left = max(0, getattr(settings, "LOGIN_MAX_ATTEMPTS", 5) - remaining)
             if left:
-                messages.error(request, f"❌ Invalid username or password. {left} attempt(s) left.")
+                messages.error(
+                    request,
+                    f"❌ Username or password is incorrect. {left} attempt(s) left before a "
+                    f"{getattr(settings, 'LOGIN_LOCKOUT_MINUTES', 15)}-minute lock."
+                    + (" Forgotten password? Ask the office for a set-password link."
+                       if left <= 2 else ""),
+                )
             else:
-                messages.error(request, "❌ Bahut zyada galat attempts. Kuch der baad try karein.")
+                messages.error(
+                    request,
+                    "🔒 Too many wrong attempts — the login is locked for "
+                    f"{getattr(settings, 'LOGIN_LOCKOUT_MINUTES', 15)} minute(s). "
+                    "Wait, or ask the office for a set-password link.",
+                )
 
     return render(request, 'student/login.html', {'form': form})
 

@@ -160,7 +160,8 @@ class LoginThrottleTests(TestCase):
         response = self._post("TestPass!2345")
         self.assertEqual(response.status_code, 200)  # still on the login page
         self.assertNotIn("_auth_user_id", self.client.session)
-        self.assertContains(response, "Too many failed login attempts")
+        self.assertContains(response, "locked")           # message wording lives with the UI
+        self.assertContains(response, "minute(s)")
 
     @override_settings(LOGIN_MAX_ATTEMPTS=3, LOGIN_LOCKOUT_SECONDS=900)
     def test_successful_login_resets_counter(self):

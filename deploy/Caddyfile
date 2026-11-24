@@ -2,13 +2,10 @@
 {$DOMAIN:localhost} {
 	encode zstd gzip
 
-	# Uploaded files (assignments, materials, banners, CSV history).
-	# Served by Caddy because Django only serves /media/ when DEBUG=True.
-	handle_path /media/* {
-		root * /srv/media
-		file_server
-		header Cache-Control "public, max-age=86400"
-	}
+	# /media/* is intentionally NOT served from disk: student CSV imports and other
+	# uploads contain personal data. Django serves it after a login check
+	# (students/views/media.py). If you move to object storage with signed URLs,
+	# set MEDIA_PROTECTED=False and you may re-add a file_server block here.
 
 	header {
 		X-Content-Type-Options nosniff

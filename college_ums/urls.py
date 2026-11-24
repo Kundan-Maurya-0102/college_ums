@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 urlpatterns = [
     # Language switch (Django's built-in set_language view)
@@ -14,5 +14,13 @@ urlpatterns = [
     # Public landing page for visitors; signed-in users are redirected to their panel.
     path('', __import__('students.views', fromlist=['landing_page']).landing_page, name='home'),
     path('', include('students.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
-  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
+
+if settings.MEDIA_PROTECTED:
+    # Uploaded files (CSV imports, assignments, banners) go through an auth check.
+    urlpatterns += [re_path(r'^media/(?P<path>.*)$',
+                            __import__('students.views', fromlist=['serve_media']).serve_media)]
+else:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
