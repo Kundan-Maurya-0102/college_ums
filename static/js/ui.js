@@ -59,6 +59,8 @@
     var btn = form.querySelector('button[type="submit"], input[type="submit"]');
     if (!btn || btn.disabled) return;
     btn.disabled = true;
+    btn.classList.add("is-loading");
+    btn.setAttribute("aria-busy", "true");
     btn.dataset.originalText = btn.value || btn.textContent;
     var label = "Please wait…";
     if (btn.tagName === "INPUT") btn.value = label; else btn.textContent = label;
@@ -66,9 +68,44 @@
     setTimeout(function () {
       if (!btn.dataset.originalText) return;
       btn.disabled = false;
+      btn.classList.remove("is-loading");
+      btn.removeAttribute("aria-busy");
       if (btn.tagName === "INPUT") btn.value = btn.dataset.originalText;
       else btn.textContent = btn.dataset.originalText;
     }, 8000);
+  });
+
+
+  /* ── form validation feedback ───────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll("form"), function (form) {
+    if (form.dataset.noValidateUi === "true") return;
+    Array.prototype.forEach.call(form.querySelectorAll("input, select, textarea"), function (field) {
+      if (field.type === "hidden") return;
+      function validate() {
+        if (!field.willValidate) return;
+        var valid = field.checkValidity();
+        field.classList.toggle("is-invalid", !valid);
+        if (valid) field.removeAttribute("aria-invalid");
+        else field.setAttribute("aria-invalid", "true");
+      }
+      field.addEventListener("blur", function () {
+        if (!field.value) return;
+        validate();
+      });
+      field.addEventListener("input", function () {
+        if (field.classList.contains("is-invalid")) validate();
+      });
+    });
+    // Focus the first field Django flagged, so the error is visible.
+    var firstError = form.querySelector(".errorlist");
+    if (firstError) {
+      var group = firstError.closest(".form-group, .field, .mb-3, div");
+      var field = group && group.querySelector("input:not([type=hidden]), select, textarea");
+      if (field) {
+        field.classList.add("is-invalid");
+        field.setAttribute("aria-invalid", "true");
+      }
+    }
   });
 
   /* ── confirms ───────────────────────────────────────────────────── */

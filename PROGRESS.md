@@ -47,8 +47,19 @@
   `SENTRY_DSN`. Docs: `SECURITY.md`, `VERIFICATION.md`, `docs/PERMISSIONS.md`.
   Tests: `students/tests/test_security.py` (31 new) → **78 total, OK**.
 
+- **Phase 6.3 (tables, forms, teacher polish, PWA)**: `static/js/tables.js` (client-side
+  search, click-to-sort with `aria-sort`, CSV export of the current view, "x of y rows"
+  counter, auto `data-label` for mobile cards) + toolbar/mobile-card CSS in
+  `theme.css`; `data-table`/`data-nosort` markup on all admin list tables. Form UX:
+  live `aria-invalid`/`.is-invalid` on blur, `.errorlist` styling, spinner + `aria-busy`
+  submit lock. Teacher panel: quick-action tiles on dashboard, proper `.empty-state`
+  blocks in students/marks/take-attendance/dashboard. PWA: `/sw.js` (root scope
+  service worker: network-first navigations with `/offline/` fallback, cache-first
+  `/static/`), `/manifest.webmanifest` (per-college name/theme color from env),
+  generated PNG icons (192/512/maskable/apple-touch), installable on Android/iOS.
+  Tests: `students/tests/test_pwa.py` (7) → **85 total, OK**.
+
 ## In progress
-- Phase 6.3 (tables/forms/teacher polish/PWA) — baaki UI kaam.
 
 ## Verification (is session)
 - Har Done phase code + tests se verify kiya: `VERIFICATION.md` (20 rows).
@@ -74,13 +85,11 @@
 - All 37 existing tests pass with enhanced templates
 
 ## Next (is order mein karna ye hai)
-1. Phase 6.3: tables (search/filter/sort/export/mobile card view), forms
-   validation states, teacher panel polish, empty states, PWA (manifest + SW)
-2. Phase 7: notifications, Razorpay, parent portal, roles/groups, reports,
+1. Phase 7: notifications, Razorpay, parent portal, roles/groups, reports,
    exam PDFs, timetable clash detection, admission, notification bell, global
    search + bulk actions, AI chatbot scoped to college data
-3. Phase 8: `create_college` management command
-4. Phase 9: final checks, README + docs/USER_GUIDE.md
+2. Phase 8: `create_college` management command
+3. Phase 9: final checks, README + docs/USER_GUIDE.md
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →

@@ -16,6 +16,14 @@
   </div>
 </div>
 
+
+<div class="quick-actions">
+  <a class="quick-action" href="{% url 'teacher_take_attendance' %}"><span class="qa-icon" aria-hidden="true">✅</span><span>Take Attendance</span></a>
+  <a class="quick-action" href="{% url 'teacher_marks' %}"><span class="qa-icon" aria-hidden="true">📝</span><span>Enter Marks</span></a>
+  <a class="quick-action" href="{% url 'teacher_materials' %}"><span class="qa-icon" aria-hidden="true">📚</span><span>Upload Material</span></a>
+  <a class="quick-action" href="{% url 'teacher_notices' %}"><span class="qa-icon" aria-hidden="true">📢</span><span>Send Notice</span></a>
+</div>
+
 <div class="stats-grid">
   <div class="stat-card"><div class="stat-label">Assigned Subjects</div><div class="stat-value">{{ subjects|length }}</div></div>
   <div class="stat-card"><div class="stat-label">Students Under You</div><div class="stat-value">{{ student_count }}</div></div>
@@ -33,7 +41,7 @@
           <div class="notice-date">Sem {{ subject.semester }} · {{ subject.get_branch_display }} · {{ subject.credits }} credits</div>
         </div>
       {% empty %}
-        <p class="text-muted">No subject assigned yet. HOD can assign subjects from Teacher Management.</p>
+        <div class="empty-state"><span class="empty-icon" aria-hidden="true">📚</span><p>No subject assigned yet. HOD can assign subjects from Teacher Management.</p></div>
       {% endfor %}
     </div>
   </div>
@@ -47,7 +55,7 @@
           <div class="notice-date">{{ schedule.start_time }} - {{ schedule.end_time }}{% if schedule.room %} · Room {{ schedule.room }}{% endif %}</div>
         </div>
       {% empty %}
-        <p class="text-muted">No class schedule added yet.</p>
+        <div class="empty-state"><span class="empty-icon" aria-hidden="true">🗓️</span><p>No class schedule added yet.</p></div>
       {% endfor %}
     </div>
   </div>
@@ -63,7 +71,7 @@
           {% for row in low_attendance %}
           <tr><td>{{ row.student.name }}</td><td>{{ row.subject.subject_code }}</td><td><span class="badge badge-red">{{ row.percentage }}%</span></td></tr>
           {% empty %}
-          <tr><td colspan="3" class="text-muted">No low attendance cases found.</td></tr>
+          <tr><td colspan="3"><div class="empty-state"><span class="empty-icon" aria-hidden="true">👍</span><p>No low attendance cases found.</p></div></td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -79,7 +87,7 @@
           {% for mark in high_marks %}
           <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject.subject_code }}</td><td><span class="badge badge-green">{{ mark.marks_obtained }}/{{ mark.max_marks }}</span></td></tr>
           {% empty %}
-          <tr><td colspan="3" class="text-muted">No marks entered yet.</td></tr>
+          <tr><td colspan="3"><div class="empty-state"><span class="empty-icon" aria-hidden="true">📝</span><p>No marks entered yet.</p></div></td></tr>
           {% endfor %}
         </tbody>
       </table>

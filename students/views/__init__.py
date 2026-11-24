@@ -1,6 +1,6 @@
 """View package: every module re-exported so `from . import views` keeps working."""
 
-from .common import (  # noqa: F401
+from .common import (service_worker, offline, manifest,   # noqa: F401
     admin_required, healthz, is_admin, is_teacher, teacher_required,
 )
 

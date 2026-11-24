@@ -9,6 +9,9 @@ from .views_student import (student_login, student_logout, change_password,
 urlpatterns = [
     # ── Ops ───────────────────────────────────────
     path('healthz/', views.healthz, name='healthz'),
+    path('sw.js', views.service_worker, name='service_worker'),
+    path('manifest.webmanifest', views.manifest, name='manifest'),
+    path('offline/', views.offline, name='offline'),
 
     # ── Auth ──────────────────────────────────────
     path('login/', student_login, name='student_login'),

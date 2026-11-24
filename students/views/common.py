@@ -83,3 +83,55 @@ def healthz(request):
     """Liveness probe for Docker/Caddy. No DB access, no auth, not visit-logged."""
     return JsonResponse({"status": "ok"})
 
+
+
+def service_worker(request):
+    """Serve the PWA service worker from the site root so its scope is "/".
+
+    Rendered through a template because static file names are hashed by
+    ManifestStaticFilesStorage in production.
+    """
+    response = render(request, 'sw.js', content_type='application/javascript')
+    response['Service-Worker-Allowed'] = '/'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+
+def offline(request):
+    """Static fallback page shown by the service worker when the network is down."""
+    return render(request, 'offline.html')
+
+
+def manifest(request):
+    """Per-college web app manifest (name/colors come from env branding)."""
+    from django.conf import settings
+
+    name = getattr(settings, 'COLLEGE_NAME', '') or 'College UMS'
+    short_name = (name.split('(')[0].strip() or 'UMS')[:12]
+    # Unhashed static URLs: WhiteNoise serves the originals too, and manifest
+    # icon URLs must stay stable for installed apps.
+    static_url = settings.STATIC_URL or '/static/'
+    if not static_url.endswith('/'):
+        static_url += '/'
+
+    def icon(path):
+        return f"{static_url}{path}"
+    data = {
+        "name": f"{name} UMS",
+        "short_name": short_name,
+        "description": f"{name} — attendance, marks, fees and notices.",
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",
+        "orientation": "portrait-primary",
+        "background_color": "#f6f8fb",
+        "theme_color": getattr(settings, 'PRIMARY_COLOR', '#1d4ed8') or '#1d4ed8',
+        "icons": [
+            {"src": icon('images/icon-192.png'), "sizes": "192x192", "type": "image/png", "purpose": "any"},
+            {"src": icon('images/icon-512.png'), "sizes": "512x512", "type": "image/png", "purpose": "any"},
+            {"src": icon('images/icon-maskable-512.png'), "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+        ],
+    }
+    response = JsonResponse(data, json_dumps_params={'indent': 2})
+    response['Content-Type'] = 'application/manifest+json'
+    return response

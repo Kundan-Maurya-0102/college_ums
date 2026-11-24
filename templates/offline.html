@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — College UMS</title>
+  <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#1d4ed8' }}">
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <style>
+    body { display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 24px; }
+    .offline-card { text-align: center; max-width: 420px; }
+    .offline-card h1 { margin: 0 0 8px; font-size: 1.4rem; }
+    .offline-card p { margin: 0 0 20px; color: var(--muted); }
+    .offline-icon { font-size: 44px; display: block; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <main class="offline-card">
+    <span class="offline-icon" aria-hidden="true">📶</span>
+    <h1>You are offline</h1>
+    <p>{{ COLLEGE_NAME|default:"College UMS" }} needs a network connection for this page. Check your connection and try again.</p>
+    <button class="btn btn-primary" type="button" onclick="location.reload()">Retry</button>
+  </main>
+</body>
+</html>

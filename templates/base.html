@@ -8,6 +8,10 @@
   <meta name="description" content="{{ COLLEGE_NAME }} — University Management System">
   <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#1d4ed8' }}">
   <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -156,6 +160,15 @@
 </div>
 
 <script src="{% static 'js/ui.js' %}"></script>
+<script src="{% static 'js/tables.js' %}" defer></script>
+<script>
+  // PWA: register the service worker served from /sw.js (scope "/").
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>
