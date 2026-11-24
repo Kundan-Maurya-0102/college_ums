@@ -11,8 +11,9 @@
             <!-- CERTIFICATE TYPE SELECTOR -->
             {% if not cert_type %}
             <fieldset class="fieldset-student mb-10">
-              <legend>&#9632; Download Certificates</legend>
-              <p>Select a certificate type to generate:</p>
+              <legend>&#9632; Certificates</legend>
+              <p>Select a document. It opens ready to print &mdash; use your browser's
+                 print dialog to save it as a PDF.</p>
               <div class="btn-group mt-3">
                 <a href="?type=bonafide" class="btn btn-primary">Bonafide Certificate</a>
                 <a href="?type=character" class="btn btn-primary">Character Certificate</a>
@@ -43,7 +44,7 @@
               </div>
             </div>
             <div class="no-print" style="text-align:center;margin:20px 0;">
-              <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+              <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>
             {% endif %}
@@ -69,7 +70,7 @@
               </div>
             </div>
             <div class="no-print" style="text-align:center;margin:20px 0;">
-              <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+              <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>
             {% endif %}
@@ -94,7 +95,7 @@
               <p style="font-size:10px;margin-top:10px;">Valid for the academic session only.</p>
             </div>
             <div class="no-print" style="text-align:center;margin:20px 0;">
-              <button onclick="window.print()" class="btn btn-primary">&#128424; Print</button>
+              <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>
             {% endif %}

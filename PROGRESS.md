@@ -124,6 +124,24 @@
   (3) lockout message explains minutes left + set-password path with a live countdown.
   Tests: 244 total, all OK; ruff clean; `makemigrations --check` clean.
 
+- **Clean-start round (fresh clone)**: naye folder me clone karke sirf README follow kiya.
+  Gaps fix: `.env.example` inline comment (`LOG_FORMAT`) se startup crash, `DEBUG=False`
+  default se local par har page `https://` redirect, `create_college` command missing
+  (naya, 14 tests), weak `SECRET_KEY` prod me reject, shell scripts `100644` →
+  `100755`, `scripts/dev_setup.sh` naya, README poora rewrite. Clean clone me:
+  `manage.py test` **283 OK**, `check --deploy` 0 issues, `makemigrations --check`
+  clean, ruff clean. **Docker build/compose verify nahi hua** (docker installed nahi) —
+  iske liye `students/tests/test_docker_context.py` + entrypoint pipeline ka local
+  simulate (gunicorn, `/healthz/`, `/readyz/`, static 200).
+- **Claim audit (`CLAIM_AUDIT.md`)**: PROGRESS/VERIFICATION ki 28 claims code se
+  match ki. 3 "sirf dikhta hai" mile aur fix hue: (a) **email delivery config hi nahi
+  thi** → env-driven SMTP + `manage.py check_email` + 16 tests, (b) **`sms` channel
+  WhatsApp se jaata tha** → alag `send_sms_task` (`TWILIO_SMS_FROM`), (c) certificate
+  page "Download" kehta tha jabki print hota hai → wording fix + landing page ka CSS
+  mockup ab "illustrative layout, not a screenshot" label karta hai.
+  Pending as-is: Razorpay payment, parent portal, exam PDFs, clash detection,
+  admission module, notification bell, global search.
+
 ## In progress
 - Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
 
@@ -152,15 +170,16 @@
 - All 37 existing tests pass with enhanced templates
 
 ## Next (is order mein karna ye hai)
-1. Phase 7 remaining: roles/groups (Principal/HOD/Accountant/Exam Cell/Parent),
-   Razorpay test-mode fee payment, parent portal, exam PDFs (hall ticket/marksheet),
-   timetable clash detection, admission module, notification bell, global search +
-   bulk actions. **Blocked:** Razorpay/WhatsApp/Gemini live keys — `.env` me
-   `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `TWILIO_*`, `GEMINI_API_KEY` chahiye.
-2. Phase 8: `create_college` management command (admin user, default plan/settings,
-   sample data, Platform Admin group) — `platform_admin` ab maujood hai, usi par banana hai.
-3. Phase 9: final checks, README + docs/USER_GUIDE.md, feature-flag menu hiding
-   (`College.has_feature()` ko base.html nav me use karna).
+1. **Pending features — code hi nahi hai** (claim audit: `CLAIM_AUDIT.md`, rows 12/25):
+   online fee payment (Razorpay/UPI gateway), parent portal, exam PDFs
+   (hall ticket / marksheet), timetable clash detection, admission workflow,
+   notification bell, global search, roles/groups (Principal/HOD/Accountant/Exam Cell).
+   Ye "Done" nahi hain aur aage bhi tab tak nahi honge jab tak keys + scope na aaye.
+   **Blocked:** `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` (payment), `TWILIO_*`
+   (WhatsApp/SMS live send), `GEMINI_API_KEY` (AI answers).
+2. Phase 9: feature-flag menu hiding (`College.has_feature()` ko base.html nav me),
+   Django 4.2 → 5.2 LTS, Docker/Caddy runtime verification (docker installed nahi).
+3. Load-test numbers (`PERFORMANCE.md`) dobara measure karna — abhi purane numbers hain.
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →

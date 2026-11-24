@@ -54,7 +54,8 @@
     .hero-facts b { display: block; font-size: 22px; }
     .hero-facts span { font-size: 12.5px; color: var(--muted); }
 
-    /* Screenshot placeholders: pure CSS so the page stays fast on a college wifi */
+    /* Layout sketch (pure CSS, no photo): honest block diagram of the admin panel,
+       not a screenshot — keeps the page fast on a college wifi */
     .shot {
       border: 1px solid var(--line); border-radius: 14px; background: #fff;
       box-shadow: 0 24px 60px rgba(15,23,42,.12); overflow: hidden;
@@ -63,6 +64,8 @@
     .shot-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; }
     .shot-body { display: grid; grid-template-columns: 132px 1fr; min-height: 268px; }
     .shot-side { background: var(--primary); padding: 14px 10px; display: grid; gap: 8px; align-content: start; }
+    .shot-figure { margin: 0; display: grid; gap: 8px; }
+    .shot-caption { font-size: 12.5px; color: var(--muted); text-align: center; }
     .shot-line { height: 8px; border-radius: 4px; background: rgba(255,255,255,.32); }
     .shot-line.short { width: 60%; }
     .shot-main { padding: 14px; display: grid; gap: 10px; align-content: start; }
@@ -154,7 +157,8 @@
           <div><b>हिन्दी / English</b><span>in-app switch</span></div>
         </div>
       </div>
-      <div class="shot" role="img" aria-label="Preview of the admin dashboard: sidebar menu, summary cards and a student list">
+      <figure class="shot-figure">
+      <div class="shot" role="img" aria-label="Layout sketch of the admin dashboard: sidebar menu, summary cards and a student list">
         <div class="shot-bar"><span class="shot-dot"></span><span class="shot-dot"></span><span class="shot-dot"></span></div>
         <div class="shot-body">
           <div class="shot-side">
@@ -168,6 +172,8 @@
           </div>
         </div>
       </div>
+      <figcaption class="shot-caption">Illustrative layout, not a screenshot — open the live demo for the real screens.</figcaption>
+      </figure>
     </div>
   </div>
 

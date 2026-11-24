@@ -19,16 +19,16 @@ Status meaning:
 | 8 | DB indexes + custom 403/404/500 | **Sach mein done** | `students/migrations/0013_attendance_attendance_date_idx_and_more.py`; `templates/403.html`, `404.html`, `500.html` |
 | 9 | Phase 6.1 design system + shell | **Sach mein done** | `static/css/theme.css`, `templates/base.html`, `templates/partials/icons.html`, `static/js/ui.js`, vendored `static/js/vendor/chart.umd.min.js`; page renders 200 and security headers are present |
 | 10 | Phase 6.2 student panel shell | **Sach mein done** | 9 `templates/student/*.html` extend `base.html` (`grep -l` count = 9) |
-| 11 | Phase 6.3 tables / forms / teacher polish / PWA | **Missing** | Kahin bhi table toolbar (search/sort/export), loading states, `manifest.json`/service worker nahi mila |
-| 12 | Phase 7 features (notifications, Razorpay, parent portal, roles, reports, exam PDFs, timetable, admission, AI chat) | **Missing (partial)** | Abhi sirf ek basic AI chat endpoint hai (`students/views/content.py:ai_chatbot_api`, ab rate-limited). Baaki features code mein nahi |
-| 13 | Phase 8 multi-college onboarding | **Adhura** | `scripts/new_college.sh` (bash, env + compose project per college) hai; `manage.py create_college` management command **nahi** hai (`students/management/` absent) |
-| 14 | Phase 9 docs | **Adhura** | `README.md`, `docs/PROJECT_REPORT.md`, `docs/PERMISSIONS.md`, `SECURITY.md` hain; `docs/USER_GUIDE.md` **missing** |
+| 11 | Phase 6.3 tables / forms / teacher polish / PWA | **Sach mein (baad me pura hua)** | `static/js/tables.js` (search/sort/CSV of current view), `theme.css` toolbar, `/manifest.webmanifest` + `/sw.js` + `/offline/`; `students/tests/test_pwa.py`, `test_ux.py`. Verify: live icons 200 (is session) |
+| 12 | Phase 7 features (notifications, Razorpay, parent portal, roles, reports, exam PDFs, timetable, admission, AI chat) | **Adhura** | Email/WhatsApp/SMS notifications ab sach mein deliver hote hain (`students/tasks.py`, `check_email`, 16 tests). AI chat real (`google-genai`) with labelled offline fallback. **Pending (code nahi hai):** Razorpay/UPI collection, parent portal, exam PDFs, timetable clash detection, admission workflow, notification bell, global search — `CLAIM_AUDIT.md` |
+| 13 | Phase 8 multi-college onboarding | **Sach mein (baad me pura hua)** | `manage.py create_college` (plans, College row, admin user, Platform Admin group, `--dry-run`, `--update`) + `platform_admin/tests_create_college.py` (14); `scripts/new_college.sh`, `scripts/dev_setup.sh` |
+| 14 | Phase 9 docs | **Sach mein** | `README.md` (rewritten, accurate), `docs/USER_GUIDE.md`, `docs/RUNBOOK.md`, `docs/DEPLOYMENT.md`, `ONBOARDING_CHECKLIST.md`, `docs/TERMS_SLA_TEMPLATE.md`, `BACKLOG.md`, `CHANGELOG.md`, `CLAIM_AUDIT.md` |
 | 15 | Backup strategy | **Sach mein done (naya)** | `scripts/backup_db.sh` (pg_dump/gzip, retention, empty-dump fail, restore notes) + cron line; `bash -n` OK |
 | 16 | Monitoring / error tracking | **Sach mein done (naya)** | `SENTRY_DSN` optional init in `settings.py` (disabled by default), console `LOGGING`, `/healthz/` |
 | 17 | Permission matrix doc + tests | **Sach mein done (naya)** | `docs/PERMISSIONS.md`; `students/tests/test_security.py::PermissionMatrixTests` (admin/teacher/student/anonymous × 40+ URLs) |
 | 18 | OWASP audit + fixes | **Sach mein done (naya)** | `SECURITY.md`; login lockout, CSP middleware, upload hardening, audit log, chat API hardening; `bandit` 0 issues; `pip-audit` Django 4.2.29 → 4.2.30 |
 | 19 | Secrets in git history | **Sach mein done** | Full-history regex scan: sirf test passwords + `openssl rand` line; `.env`, `deployments/` gitignored; no key file tracked |
-| 20 | Multi-college data isolation | **Adhura (design-level)** | Ek college = ek deployment (own `.env`, own DB, own compose project) — code mein cross-college query possible nahi kyunki dusra college DB mein hi nahi hai. Lekin tenant-column tests nahi hain, kyunki architecture single-tenant-per-DB hai. Documented in `README.md` |
+| 20 | Multi-college data isolation | **Sach mein (tested)** | Architecture: ek college = ek DB. Upar se automated isolation suite (`students/tests/test_isolation.py`) — Colleges A & B, alag DB rows, alag users: list/detail/search/export/file/notification har route par B ka data A ko nahi dikhta, ID badalne par bhi nahi. Phase C |
 
 ## Gaps that were found and fixed in this session
 
@@ -44,9 +44,12 @@ Status meaning:
 
 ## Still open (honest list)
 
-- Docker/Caddy runtime validation (needs install).
-- Phase 6.3 (tables, PWA, loading states).
-- Phase 7 features and Phase 8 `create_college` command, Phase 9 user guide.
+- Docker/Caddy runtime validation (docker installed nahi hai is machine par).
+- **Pending features (code hi nahi hai):** Razorpay/UPI fee collection, parent portal,
+  exam PDFs (hall ticket/marksheet), timetable clash detection, admission workflow,
+  notification bell, global search, extra roles (Principal/HOD/Accountant/Exam Cell).
+  Detail: `CLAIM_AUDIT.md` rows 12 & 25.
 - Django 5.2 upgrade for the remaining 9 advisories.
-- Logout GET → POST, `AdminUserForm` superuser escalation, media auth for study material.
-- One passing gap: `take_attendance_bulk` uses `@login_required` + internal role branch (tested), fine today but role check lives inside the view.
+- Postgres backup/restore path is machine par verify nahi hua (pg_dump absent).
+- Load-test numbers dobara measure nahi hue (purane numbers `PERFORMANCE.md` me).
+- `take_attendance_bulk` role check view ke andar hai (tested, par middleware par nahi).
