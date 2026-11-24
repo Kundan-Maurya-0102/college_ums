@@ -98,7 +98,7 @@ class EmailTaskTests(TestCase):
     def test_email_failure_is_reported_not_swallowed_silently(self):
         with mock.patch('django.core.mail.backends.locmem.EmailBackend.send_messages',
                         side_effect=OSError('connection refused')):
-            with self.assertRaises(Exception):
+            with self.assertRaises(OSError):
                 tasks.send_email_task('student@example.com', 'S', 'B')
 
 
