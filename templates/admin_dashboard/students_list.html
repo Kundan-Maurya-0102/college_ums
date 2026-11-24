@@ -47,7 +47,8 @@
       <span class="badge badge-blue" style="margin-left:8px;">{{ page_obj.paginator.count }}</span>
     </span>
     <div style="display:flex;gap:8px;">
-      <a href="{% url 'csv_upload' %}" class="btn btn-primary btn-sm">📤 Upload CSV</a>
+      <a href="{% url 'student_create' %}" class="btn btn-primary btn-sm">➕ Add student</a>
+      <a href="{% url 'csv_upload' %}" class="btn btn-outline btn-sm">📤 Upload CSV</a>
       <a href="{% url 'export_students_csv' %}" class="btn btn-outline btn-sm">⬇️ Export</a>
     </div>
   </div>

@@ -311,3 +311,39 @@ def student_anonymize(request, pk):
         return redirect("student_list")
 
     return render(request, "admin_dashboard/student_privacy.html", {"profile": profile})
+
+
+@admin_required
+def student_create(request):
+    """Add one student by hand (the CSV upload is still the bulk path).
+
+    Creates the login too: username = registration number, unusable password until
+    the office sends a set-password link, exactly like an imported student.
+    """
+    form = StudentProfileForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        profile = form.save(commit=False)
+        user = User.objects.create_user(
+            username=profile.registration_number,
+            email=profile.email or '',
+            password=None,          # unusable until the set-password link is used
+        )
+        user.set_unusable_password()
+        user.save(update_fields=['password'])
+        profile.user = user
+        profile.is_password_changed = False
+        profile.save()
+        log_action(request, 'student.create', profile, detail=profile.registration_number)
+        messages.success(
+            request,
+            f"✅ {profile.name} added. Username: {profile.registration_number}. "
+            "Send the set-password link from All Students → Set-password links."
+        )
+        return redirect('student_list')
+    if request.method == 'POST':
+        messages.error(request, "❌ Please fix the errors below.")
+
+    return render(request, 'admin_dashboard/student_form.html', {
+        'form': form,
+        'page_title': 'Add student',
+    })

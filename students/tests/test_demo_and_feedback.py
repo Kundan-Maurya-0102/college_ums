@@ -185,3 +185,57 @@ class BugReportTests(TestCase):
         body = self.client.get('/dashboard/').content.decode()
         self.assertIn('data-report-open', body)
         self.assertIn('id="report-dialog"', body)
+
+
+class AddStudentTests(TestCase):
+    """The office can add one student without going through a CSV file."""
+
+    def setUp(self):
+        self.admin = User.objects.create_user('officeclerk', password='Xyz@12345',
+                                              is_staff=True, is_superuser=True)
+        self.client.force_login(self.admin)
+
+    def test_form_renders(self):
+        response = self.client.get('/admin-panel/students/add/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Registration number')
+
+    def test_student_and_login_are_created(self):
+        response = self.client.post('/admin-panel/students/add/', {
+            'name': 'Anita Kumari',
+            'registration_number': 'NEW2024001',
+            'branch': 'CS',
+            'semester': 1,
+            'year_of_admission': 2024,
+            'phone': '',
+            'email': 'anita@example.edu',
+            'father_name': 'Ram Kumar',
+            'mother_name': '',
+            'date_of_birth': '',
+            'address': '',
+        })
+        self.assertEqual(response.status_code, 302)
+        profile = StudentProfile.objects.get(registration_number='NEW2024001')
+        self.assertEqual(profile.name, 'Anita Kumari')
+        self.assertIsNotNone(profile.user)
+        self.assertEqual(profile.user.username, 'NEW2024001')
+        self.assertFalse(profile.user.has_usable_password())
+        self.assertFalse(profile.is_password_changed)
+
+    def test_duplicate_registration_number_is_rejected(self):
+        StudentProfile.objects.create(user=User.objects.create_user('existing', password='X'),
+                                      name='Existing', registration_number='DUP001')
+        response = self.client.post('/admin-panel/students/add/', {
+            'name': 'Copy Cat', 'registration_number': 'DUP001', 'semester': 1,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'errorlist')
+        self.assertEqual(StudentProfile.objects.filter(registration_number='DUP001').count(), 1)
+
+    def test_students_cannot_add_students(self):
+        student = User.objects.create_user('notanadmin', password='Xyz@12345')
+        StudentProfile.objects.create(user=student, name='S', registration_number='S1',
+                                      is_password_changed=True)
+        self.client.force_login(student)
+        response = self.client.get('/admin-panel/students/add/')
+        self.assertIn(response.status_code, (302, 403))

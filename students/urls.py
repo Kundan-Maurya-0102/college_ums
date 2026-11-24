@@ -71,6 +71,7 @@ urlpatterns = [
 
     # Students
     path('admin-panel/students/', views.student_list, name='student_list'),
+    path('admin-panel/students/add/', views.student_create, name='student_create'),
     path('admin-panel/students/<int:pk>/edit/', views.student_edit, name='student_edit'),
     path('admin-panel/students/<int:pk>/delete/', views.student_delete, name='student_delete'),
     path('admin-panel/students/<int:pk>/data-export/', views.student_data_export, name='student_data_export'),

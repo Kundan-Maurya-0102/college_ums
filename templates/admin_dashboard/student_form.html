@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Add student — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}➕ Add student{% endblock %}
+{% block content %}
+<h1 class="page-title">➕ Add student</h1>
+
+<div class="card" style="max-width:760px;">
+  <div class="card-header">
+    <span class="card-title">Student details</span>
+    <a href="{% url 'student_list' %}" class="btn btn-outline btn-sm">← Back to students</a>
+  </div>
+  <div class="card-body">
+    <p class="text-muted" style="margin:0 0 16px;font-size:13px;">
+      Adding one student? Use this form. Adding a whole class? Use
+      <a href="{% url 'csv_upload' %}">CSV Upload</a> — it is much faster.
+    </p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include 'partials/form_errors.html' %}
+
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label" for="{{ form.name.id_for_label }}">Full name *</label>
+          {{ form.name }}
+          {% for e in form.name.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+        </div>
+        <div>
+          <label class="form-label" for="{{ form.registration_number.id_for_label }}">Registration number *</label>
+          {{ form.registration_number }}
+          <small class="text-muted">This becomes the student's login username.</small>
+          {% for e in form.registration_number.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label" for="{{ form.branch.id_for_label }}">Branch</label>
+          {{ form.branch }}
+          {% for e in form.branch.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+        </div>
+        <div>
+          <label class="form-label" for="{{ form.semester.id_for_label }}">Semester</label>
+          {{ form.semester }}
+          {% for e in form.semester.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label" for="{{ form.year_of_admission.id_for_label }}">Year of admission</label>
+          {{ form.year_of_admission }}
+        </div>
+        <div>
+          <label class="form-label" for="{{ form.phone.id_for_label }}">Mobile (optional)</label>
+          {{ form.phone }}
+          <small class="text-muted">Leave blank if the student has not consented.</small>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label" for="{{ form.email.id_for_label }}">Email (optional)</label>
+          {{ form.email }}
+        </div>
+        <div>
+          <label class="form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth</label>
+          {{ form.date_of_birth }}
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label" for="{{ form.father_name.id_for_label }}">Father's name</label>
+          {{ form.father_name }}
+        </div>
+        <div>
+          <label class="form-label" for="{{ form.mother_name.id_for_label }}">Mother's name</label>
+          {{ form.mother_name }}
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
+        {{ form.address }}
+      </div>
+
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-primary">Save student</button>
+        <a href="{% url 'student_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
