@@ -1,11 +1,14 @@
 """Admin, teacher and reports dashboards."""
+import hashlib
 import csv
 import datetime
 import io
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count, Q, Sum
 from django.http import HttpResponse, JsonResponse
@@ -34,6 +37,12 @@ from .common import (_int_or_none, _date_or_today, _faculty_subjects,
 
 @admin_required
 def admin_dashboard(request):
+    cache_seconds = getattr(settings, "DASHBOARD_CACHE_SECONDS", 0)
+    if cache_seconds:
+        cached = cache.get("dashboard:admin:v1")
+        if cached is not None:
+            return render(request, 'admin_dashboard/index.html', cached)
+
     total_students = StudentProfile.objects.count()
     branch_names = dict(StudentProfile.BRANCH_CHOICES)
     branch_stats = {
@@ -52,10 +61,14 @@ def admin_dashboard(request):
     total_attendance = attendance_totals["total"] or 0
     present_attendance = attendance_totals["present"] or 0
     attendance_average = round((present_attendance / total_attendance) * 100, 1) if total_attendance else 0
-    total_visits = WebsiteVisit.objects.count()
-    today_visits = WebsiteVisit.objects.filter(visited_at__date=datetime.date.today()).count()
-    visit_seconds = WebsiteVisit.objects.aggregate(total=Sum("duration_seconds"))["total"] or 0
-    total_visit_minutes = round(visit_seconds / 60, 1)
+    visit_stats = WebsiteVisit.objects.aggregate(
+        total=Count("id"),
+        today=Count("id", filter=Q(visited_at__date=datetime.date.today())),
+        seconds=Sum("duration_seconds"),
+    )
+    total_visits = visit_stats["total"] or 0
+    today_visits = visit_stats["today"] or 0
+    total_visit_minutes = round((visit_stats["seconds"] or 0) / 60, 1)
 
     # One grouped query instead of two queries per student.
     attendance_stats = (Attendance.objects.values("student_id")
@@ -90,6 +103,8 @@ def admin_dashboard(request):
         'total_visit_minutes': total_visit_minutes,
         'low_attendance_students': low_attendance_students,
     }
+    if cache_seconds:
+        cache.set("dashboard:admin:v1", context, cache_seconds)
     return render(request, 'admin_dashboard/index.html', context)
 
 
@@ -150,6 +165,22 @@ def teacher_dashboard(request):
 
 @admin_required
 def reports_view(request):
+    cache_seconds = getattr(settings, "REPORTS_CACHE_SECONDS", 0)
+    signature = (
+        StudentProfile.objects.count(),
+        Attendance.objects.count(),
+        FeePayment.objects.count(),
+        LeaveApplication.objects.count(),
+        FacultyProfile.objects.count(),
+        Subject.objects.count(),
+    )
+    cache_key = "reports:v1:" + hashlib.md5(str(signature).encode()).hexdigest()
+
+    if cache_seconds:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return render(request, 'admin_dashboard/reports.html', cached)
+
     total_students = StudentProfile.objects.count()
     total_teachers = FacultyProfile.objects.filter(is_active=True).count()
     total_subjects = Subject.objects.filter(is_active=True).count()
@@ -185,12 +216,16 @@ def reports_view(request):
     total_fees_collected = FeePayment.objects.filter(status='PAID').aggregate(total=Sum('amount_paid'))['total'] or 0
     pending_leaves = LeaveApplication.objects.filter(status='PENDING').count()
 
-    return render(request, 'admin_dashboard/reports.html', {
+    context = {
         'total_students': total_students,
         'total_teachers': total_teachers,
         'total_subjects': total_subjects,
         'branch_data': branch_data,
-        'defaulters': defaulters[:20],        'total_fees_collected': total_fees_collected,
+        'defaulters': defaulters[:20],
+        'total_fees_collected': total_fees_collected,
         'pending_leaves': pending_leaves,
-    })
+    }
+    if cache_seconds:
+        cache.set(cache_key, context, cache_seconds)
+    return render(request, 'admin_dashboard/reports.html', context)
 

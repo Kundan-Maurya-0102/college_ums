@@ -28,7 +28,7 @@
         <tr><th>Student</th><th>Subject</th><th>Faculty</th><th>Rating</th><th>Comments</th><th>Date</th></tr>
       </thead>
       <tbody>
-        {% for f in feedbacks %}
+        {% for f in page_obj %}
         <tr>
           <td>{{ f.student.name }}</td>
           <td>{{ f.subject.subject_code }}</td>
@@ -44,6 +44,6 @@
     </table>
   </div>
 </fieldset>
-{% include 'partials/pagination.html' with page_obj=feedbacks %}
+{% include 'partials/pagination.html' %}
 
 {% endblock %}

@@ -92,7 +92,7 @@ def teacher_delete(request, pk):
 @admin_required
 def admin_list(request):
     admins = User.objects.filter(is_staff=True).exclude(facultyprofile__isnull=False).order_by("username")
-    return render(request, "admin_dashboard/admins.html", {"admins": admins})
+    return render(request, "admin_dashboard/admins.html", {"admins": paginate(request, admins)})
 
 
 @admin_required

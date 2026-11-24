@@ -70,9 +70,10 @@ def feedback_report(request):
     if semester:
         feedbacks = feedbacks.filter(semester=semester)
 
-    # Summary stats
+    # Summary stats (over the full filtered set, before pagination)
     avg_rating = feedbacks.aggregate(avg=Avg('rating'))['avg'] or 0
     total_count = feedbacks.count()
+    page_obj = paginate(request, feedbacks)
 
     return render(request, 'admin_dashboard/feedback_report.html', {
         'feedbacks': paginate(request, feedbacks),

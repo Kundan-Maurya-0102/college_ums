@@ -22,6 +22,7 @@ from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassSchedu
                     NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
                     AdminUserForm)
 from ..audit import log_action
+from ..pagination import paginate
 from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
                      Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
                      Feedback, FeePayment, FeeStructure, InternalExam,
@@ -36,7 +37,7 @@ from .common import (_int_or_none, _date_or_today, _faculty_subjects,
 @admin_required
 def fee_structure_list(request):
     structures = FeeStructure.objects.all().order_by('branch', 'semester', 'fee_type')
-    return render(request, 'admin_dashboard/fees.html', {'structures': structures})
+    return render(request, 'admin_dashboard/fees.html', {'structures': paginate(request, structures)})
 
 
 @admin_required

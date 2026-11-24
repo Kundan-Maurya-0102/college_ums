@@ -1,6 +1,7 @@
 import environ
 import logging
 import os
+import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -75,6 +76,16 @@ TEMPLATES = [
     },
 ]
 
+# Cached template loader for production: parsing templates on every request is
+# pure overhead. Tests and DEBUG runs keep the reloading loaders.
+if not DEBUG:
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
+
 WSGI_APPLICATION = 'college_ums.wsgi.application'
 
 DATABASES = {
@@ -85,8 +96,33 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD', default=''),
         'HOST': env('DB_HOST', default=''),
         'PORT': env('DB_PORT', default=''),
+        # Reuse connections between requests (default 0 opens one per request).
+        'CONN_MAX_AGE': env.int('DB_CONN_MAX_AGE', default=60),
+        'OPTIONS': {},
     }
 }
+
+if DATABASES['default']['ENGINE'].endswith('sqlite3'):
+    # SQLite needs a write timeout; WAL mode is enabled in students/apps.py.
+    DATABASES['default']['OPTIONS'] = {'timeout': env.int('SQLITE_TIMEOUT', default=20)}
+
+# bcrypt is ~4x cheaper than PBKDF2-SHA256 at Django's default iteration count,
+# which matters when 100+ users log in at once. Fallback keeps PBKDF2 if the
+# package is missing (hashes are verified with whatever algorithm wrote them).
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
+try:  # pragma: no cover - optional dependency
+    import bcrypt  # noqa: F401
+except ImportError:
+    pass
+else:
+    BCRYPT_ROUNDS = env.int('BCRYPT_ROUNDS', default=12)
+    PASSWORD_HASHERS = [
+        "students.hashers.TunableBCryptSHA256PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    ]
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -182,6 +218,10 @@ PRIVACY_LAST_UPDATED = env('PRIVACY_LAST_UPDATED', default='2026-01-01')
 DATA_RETENTION_YEARS = env.int('DATA_RETENTION_YEARS', default=7)
 AUDIT_LOG_RETENTION_DAYS = env.int('AUDIT_LOG_RETENTION_DAYS', default=365 * 7)
 VISIT_RETENTION_DAYS = env.int('VISIT_RETENTION_DAYS', default=180)
+# Heavy reports are cached for this long; 0 disables caching.
+REPORTS_CACHE_SECONDS = env.int('REPORTS_CACHE_SECONDS', default=120)
+DASHBOARD_CACHE_SECONDS = env.int('DASHBOARD_CACHE_SECONDS', default=30)
+VISIT_TRACK_STAFF = env.bool('VISIT_TRACK_STAFF', default=False)
 # Extra redaction patterns for logs/error reports (comma separated regexes).
 LOG_REDACT_EXTRA_PATTERNS = env.list('LOG_REDACT_EXTRA_PATTERNS', default=[])
 
@@ -244,3 +284,8 @@ LOGGING = {
         "level": env("LOG_LEVEL", default="INFO"),
     },
 }
+
+# Test runs must never read cached aggregates (locmem cache survives between tests).
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    DASHBOARD_CACHE_SECONDS = 0
+    REPORTS_CACHE_SECONDS = 0

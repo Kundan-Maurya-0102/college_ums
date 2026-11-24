@@ -132,6 +132,10 @@ class InternalExam(models.Model):
 
     class Meta:
         unique_together = ['student', 'subject', 'exam_type']
+        indexes = [
+            models.Index(fields=["student", "subject"], name="iexam_student_subject_idx"),
+            models.Index(fields=["exam_date"], name="iexam_date_idx"),
+        ]
 
     def __str__(self):
         return f"{self.student.name} | {self.subject.subject_code} | {self.exam_type}"
@@ -481,7 +485,8 @@ class FeePayment(models.Model):
     class Meta:
         ordering = ['-payment_date']
         indexes = [
-            models.Index(fields=["status"], name="feepayment_status_idx"),
+            models.Index(fields=["status", "-payment_date"], name="feepayment_status_date_idx"),
+            models.Index(fields=["payment_date"], name="feepayment_date_idx"),
             models.Index(fields=["student", "status"], name="feepayment_student_status_idx"),
         ]
 

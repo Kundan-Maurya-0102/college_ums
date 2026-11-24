@@ -22,6 +22,13 @@ class WebsiteVisitMiddleware:
         if response.status_code >= 400:
             return response
 
+        # Staff traffic is not usage-analytics material and skipping it removes
+        # two DB writes per admin request (matters a lot on SQLite).
+        user = getattr(request, "user", None)
+        if (user is not None and user.is_authenticated and user.is_staff
+                and not getattr(settings, "VISIT_TRACK_STAFF", False)):
+            return response
+
         now = timezone.now()
         last_visit_id = request.session.get("last_visit_id")
         last_seen = request.session.get("last_seen_at")
@@ -31,7 +38,9 @@ class WebsiteVisitMiddleware:
                 if timezone.is_naive(last_dt):
                     last_dt = timezone.make_aware(last_dt)
                 duration = min(max(int((now - last_dt).total_seconds()), 0), 1800)
-                WebsiteVisit.objects.filter(pk=last_visit_id).update(duration_seconds=duration)
+                # Only persist meaningful dwell time (avoids a write on every click).
+                if duration >= 2:
+                    WebsiteVisit.objects.filter(pk=last_visit_id).update(duration_seconds=duration)
             except Exception:  # pragma: no cover - metrics must never 500
                 logger.debug("Could not update visit duration", exc_info=True)
 
