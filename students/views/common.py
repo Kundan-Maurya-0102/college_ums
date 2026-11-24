@@ -135,3 +135,13 @@ def manifest(request):
     response = JsonResponse(data, json_dumps_params={'indent': 2})
     response['Content-Type'] = 'application/manifest+json'
     return response
+
+
+def privacy_policy(request):
+    """Public privacy policy (per-college branding from env)."""
+    return render(request, 'privacy.html')
+
+
+def terms_of_use(request):
+    """Public terms of use."""
+    return render(request, 'terms.html')

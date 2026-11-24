@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Tools — {{ profile.name }}{% endblock %}
+{% block breadcrumb %}Students / Privacy{% endblock %}
+
+{% block content %}
+<div class="card mb-24">
+  <div class="card-header">
+    <span class="card-title">Privacy actions — {{ profile.name }} ({{ profile.registration_number }})</span>
+  </div>
+  <div class="card-body">
+    <p class="text-muted" style="margin-top:0;">
+      Data-subject requests ke liye do actions: poora data export, aur personal identifiers erase
+      (academic + fee records college archive ke liye rakhe jaate hain). Dono audit log mein jaate hain.
+    </p>
+
+    <div class="card" style="border:1px solid var(--line);margin-bottom:16px;">
+      <div class="card-body">
+        <h3 style="margin:0 0 6px;font-size:15px;">1. Export this student's data</h3>
+        <p class="text-muted" style="font-size:13px;margin:0 0 12px;">
+          JSON file: profile, attendance, marks, fee payments, leave, feedback, doubts, certificates.
+        </p>
+        <a class="btn btn-primary" href="{% url 'student_data_export' profile.pk %}">
+          Download JSON export
+        </a>
+      </div>
+    </div>
+
+    <div class="card" style="border:1px solid var(--danger, #dc2626);">
+      <div class="card-body">
+        <h3 style="margin:0 0 6px;font-size:15px;color:var(--danger, #dc2626);">2. Erase personal data</h3>
+        <table style="width:100%;font-size:13.5px;margin:8px 0 14px;">
+          <tr><td style="padding:3px 0;width:50%;">Removed</td>
+              <td style="padding:3px 0;">Name, phone, email, address, parents' names, date of birth, login access</td></tr>
+          <tr><td style="padding:3px 0;">Kept (anonymised)</td>
+              <td style="padding:3px 0;">Registration number, attendance, marks, fee receipts, audit trail</td></tr>
+        </table>
+        <form method="post" action="{% url 'student_anonymize' profile.pk %}">
+          {% csrf_token %}
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin-bottom:12px;">
+            <input type="checkbox" name="confirm" value="yes" required>
+            <span>Main confirm karta hoon ki ye student ka personal data erase karna hai. Ye undo nahi hoga.</span>
+          </label>
+          <button type="submit" class="btn" style="background:var(--danger, #dc2626);color:#fff;"
+                  data-confirm="Anonymise {{ profile.name }}? Personal data permanently erase ho jayega.">
+            Anonymise this student
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

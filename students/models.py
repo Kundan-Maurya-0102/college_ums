@@ -17,7 +17,8 @@ class StudentProfile(models.Model):
 
     # CSV Import Fields (Required)
     name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=15)
+    # Optional: only collected when the student/office provides it (data minimisation).
+    phone = models.CharField(max_length=15, blank=True)
     registration_number = models.CharField(max_length=20, unique=True)
 
     # Admin Filled Fields (Optional initially)
@@ -32,6 +33,8 @@ class StudentProfile(models.Model):
 
     # System Fields
     is_password_changed = models.BooleanField(default=False)
+    # When the student accepted the privacy policy / terms (null = not recorded).
+    consent_given_at = models.DateTimeField(null=True, blank=True)
     credentials_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

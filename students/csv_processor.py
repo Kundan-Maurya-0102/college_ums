@@ -10,7 +10,8 @@ from .password_links import build_set_password_link
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = ['name', 'phone', 'registration_number']
+# phone is optional on purpose (data minimisation)
+REQUIRED_COLUMNS = ['name', 'registration_number']
 OPTIONAL_COLUMNS = ['email', 'branch', 'semester', 'year_of_admission',
                     'father_name', 'mother_name', 'address', 'date_of_birth']
 
@@ -172,7 +173,8 @@ def process_csv_upload(csv_upload: CSVUpload) -> dict:
 
             # Ensure unique username
             if User.objects.filter(username=username).exists():
-                username = f"{username}_{phone[-4:]}"
+                suffix = phone[-4:] if phone else str(StudentProfile.objects.count() + 1)
+                username = f"{username}_{suffix}"
 
             user = User.objects.create_user(
                 username=username,

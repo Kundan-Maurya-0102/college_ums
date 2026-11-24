@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ COLLEGE_NAME|default:"College UMS" }}{% endblock %}</title>
+  <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#1d4ed8' }}">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  {% include 'partials/college_colors.html' %}
+  <style>
+    .public-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 24px; border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .public-header .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+    .public-header img { max-height: 40px; max-width: 120px; object-fit: contain; }
+    .public-header strong { font-size: 15px; }
+    .public-header nav { margin-left: auto; display: flex; gap: 16px; flex-wrap: wrap; }
+    .public-header nav a { color: var(--ink-2); text-decoration: none; font-size: 14px; }
+    .public-header nav a:hover { color: var(--primary); }
+    .public-main { max-width: 820px; margin: 0 auto; padding: 32px 20px 56px; line-height: 1.65; }
+    .public-main h1 { margin: 0 0 6px; font-size: 1.9rem; }
+    .public-main h2 { margin: 32px 0 8px; font-size: 1.15rem; }
+    .public-main h3 { margin: 20px 0 6px; font-size: 1rem; }
+    .public-main p, .public-main li { color: var(--ink-2); font-size: 14.5px; }
+    .public-main ul, .public-main ol { padding-left: 22px; }
+    .public-main li { margin: 4px 0; }
+    .public-meta { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .public-footer { border-top: 1px solid var(--line); padding: 18px 24px; font-size: 13px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .public-footer a { color: var(--ink-2); }
+    .public-note { background: var(--surface-2); border-left: 3px solid var(--primary); padding: 12px 14px; border-radius: var(--r2); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header class="public-header">
+    <a class="brand" href="{% url 'student_login' %}">
+      {% include 'partials/college_logo.html' %}
+      <strong>{{ COLLEGE_NAME|default:"College UMS" }}</strong>
+    </a>
+    <nav aria-label="Legal">
+      <a href="{% url 'privacy_policy' %}">Privacy</a>
+      <a href="{% url 'terms_of_use' %}">Terms</a>
+      <a href="{% url 'student_login' %}">Sign in</a>
+    </nav>
+  </header>
+
+  <main class="public-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="public-footer">
+    <span>© {% now "Y" %} {{ COLLEGE_NAME|default:"College UMS" }}</span>
+    {% if COLLEGE_ADDRESS %}<span>{{ COLLEGE_ADDRESS }}</span>{% endif %}
+    {% if COLLEGE_EMAIL %}<a href="mailto:{{ COLLEGE_EMAIL }}">{{ COLLEGE_EMAIL }}</a>{% endif %}
+    {% if COLLEGE_PHONE %}<span>{{ COLLEGE_PHONE }}</span>{% endif %}
+    <a href="{% url 'privacy_policy' %}">Privacy</a>
+    <a href="{% url 'terms_of_use' %}">Terms</a>
+  </footer>
+</body>
+</html>

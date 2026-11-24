@@ -177,11 +177,21 @@ SECURITY_PERMISSIONS_POLICY = env('SECURITY_PERMISSIONS_POLICY', default=(
 ))
 
 # ── Error tracking (optional; no key = disabled) ──────────────────────
+# ── Privacy / data protection ─────────────────────────────────────────
+PRIVACY_LAST_UPDATED = env('PRIVACY_LAST_UPDATED', default='2026-01-01')
+DATA_RETENTION_YEARS = env.int('DATA_RETENTION_YEARS', default=7)
+AUDIT_LOG_RETENTION_DAYS = env.int('AUDIT_LOG_RETENTION_DAYS', default=365 * 7)
+VISIT_RETENTION_DAYS = env.int('VISIT_RETENTION_DAYS', default=180)
+# Extra redaction patterns for logs/error reports (comma separated regexes).
+LOG_REDACT_EXTRA_PATTERNS = env.list('LOG_REDACT_EXTRA_PATTERNS', default=[])
+
 SENTRY_DSN = env('SENTRY_DSN', default='')
 if SENTRY_DSN:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.django import DjangoIntegration
+
+        from students.privacy import scrub_breadcrumb, scrub_sentry_event
     except ImportError:  # optional dependency not installed
         logger.warning("SENTRY_DSN set but sentry-sdk is not installed.")
     else:
@@ -190,6 +200,10 @@ if SENTRY_DSN:
             integrations=[DjangoIntegration()],
             traces_sample_rate=env.float('SENTRY_TRACES_RATE', default=0.0),
             send_default_pii=False,
+            # Never ship request bodies/cookies or student PII to the error tracker.
+            before_send=scrub_sentry_event,
+            before_breadcrumb=scrub_breadcrumb,
+            max_request_body_size='never',
             environment=env('SENTRY_ENV', default='production'),
         )
 
@@ -216,8 +230,14 @@ logger = logging.getLogger(__name__)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "redact": {"()": "students.logging_filters.RedactSensitiveFilter"},
+    },
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
+        "console": {
+            "class": "logging.StreamHandler",
+            "filters": ["redact"],
+        },
     },
     "root": {
         "handlers": ["console"],

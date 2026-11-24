@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Edit Student — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block title %}Edit Student — {{ COLLEGE_NAME }} UMS
+<div class="card" style="margin-top:20px;">
+  <div class="card-body" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">
+    <span class="text-muted" style="font-size:13px;">Privacy: student ka data export karo ya personal identifiers erase karo (audit logged).</span>
+    <a class="btn btn-outline btn-sm" href="{% url 'student_anonymize' profile.pk %}">Privacy tools</a>
+  </div>
+</div>
+{% endblock %}
 {% block page_title %}✏️ Edit Student Profile{% endblock %}
 
 {% block content %}

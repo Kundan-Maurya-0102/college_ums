@@ -1,6 +1,7 @@
 """View package: every module re-exported so `from . import views` keeps working."""
 
-from .common import (service_worker, offline, manifest,   # noqa: F401
+from .common import (service_worker, offline, manifest,
+                       privacy_policy, terms_of_use,   # noqa: F401
     admin_required, healthz, is_admin, is_teacher, teacher_required,
 )
 
@@ -9,7 +10,7 @@ from .dashboard import (  # noqa: F401
 )
 
 from .people import (  # noqa: F401
-    admin_create, admin_delete, admin_edit, admin_list, export_set_password_links_csv, export_students_csv, student_delete, student_edit, student_list, teacher_create, teacher_delete, teacher_edit, teacher_list,
+    admin_create, admin_delete, admin_edit, admin_list, export_set_password_links_csv, export_students_csv, student_delete, student_edit, student_data_export, student_anonymize, student_list, teacher_create, teacher_delete, teacher_edit, teacher_list,
 )
 
 from .teacher import (  # noqa: F401

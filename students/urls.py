@@ -13,6 +13,10 @@ urlpatterns = [
     path('manifest.webmanifest', views.manifest, name='manifest'),
     path('offline/', views.offline, name='offline'),
 
+    # ── Legal (public) ────────────────────────────
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
+    path('terms/', views.terms_of_use, name='terms_of_use'),
+
     # ── Auth ──────────────────────────────────────
     path('login/', student_login, name='student_login'),
     path('logout/', student_logout, name='student_logout'),
@@ -52,6 +56,8 @@ urlpatterns = [
     path('admin-panel/students/', views.student_list, name='student_list'),
     path('admin-panel/students/<int:pk>/edit/', views.student_edit, name='student_edit'),
     path('admin-panel/students/<int:pk>/delete/', views.student_delete, name='student_delete'),
+    path('admin-panel/students/<int:pk>/data-export/', views.student_data_export, name='student_data_export'),
+    path('admin-panel/students/<int:pk>/anonymize/', views.student_anonymize, name='student_anonymize'),
     path('admin-panel/students/export/', views.export_students_csv, name='export_students_csv'),
 
     # Credentials

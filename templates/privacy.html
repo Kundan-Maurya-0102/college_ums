@@ -1,0 +1,74 @@
+{% extends 'public_page.html' %}
+{% block title %}Privacy Policy — {{ COLLEGE_NAME|default:"College UMS" }}{% endblock %}
+
+{% block content %}
+<h1>Privacy Policy</h1>
+<p class="public-meta">Last updated: {{ PRIVACY_LAST_UPDATED }} · Applies to the {{ COLLEGE_NAME|default:"College UMS" }} portal.</p>
+
+<p class="public-note">
+  {{ COLLEGE_NAME|default:"The college" }} is the data controller for this portal. We collect only the
+  student and staff information needed to run academic and administrative work, and we do not sell it.
+</p>
+
+<h2>1. What we collect</h2>
+<ul>
+  <li><strong>Identity and contact</strong>: name, registration/enrolment number, branch, semester, roll number, college email.</li>
+  <li><strong>Optional contact</strong>: personal phone number, postal address and parent/guardian names — only if you or the office provides them.</li>
+  <li><strong>Academic records</strong>: attendance, internal and exam marks, assignment and study-material activity, leave and feedback submissions.</li>
+  <li><strong>Financial records</strong>: fee structure, payments, receipts and dues.</li>
+  <li><strong>Technical data</strong>: login timestamps, pages visited on the portal, and IP address (used for security and for the admin usage dashboard).</li>
+</ul>
+
+<h2>2. Why we use it</h2>
+<ul>
+  <li>To deliver the portal: sign-in, attendance, results, fee receipts, notices and certificates.</li>
+  <li>To communicate college notices and (where enabled) fee reminders on WhatsApp/SMS/email.</li>
+  <li>To keep the campus and the portal secure, and to investigate misuse.</li>
+  <li>To meet legal, audit and accreditation requirements.</li>
+</ul>
+
+<h2>3. Who can see it</h2>
+<ul>
+  <li><strong>You</strong> see your own profile, marks, attendance and fee records.</li>
+  <li><strong>Teachers</strong> see the students of the classes assigned to them, plus marks and attendance they enter.</li>
+  <li><strong>College administrators</strong> (office/accounts/exam cell) see the records needed for their role.</li>
+  <li><strong>Platform operator</strong> may see aggregate health/usage data and support tickets; a named administrator's data export requires your college's approval and is audit-logged.</li>
+</ul>
+<p>Every admin action on personal data (edit, export, anonymise/delete, bulk import) is written to an audit log with user, time and IP.</p>
+
+<h2>4. Vendors we may use</h2>
+<ul>
+  <li><strong>Email/SMS/WhatsApp gateway</strong> — to deliver notices and reminders. Only the contact number/address and message text are shared.</li>
+  <li><strong>Online fee payment gateway</strong> — when enabled, the gateway processes the payment; we receive a transaction reference, never your card or UPI credentials.</li>
+  <li><strong>Hosting and error monitoring</strong> — server logs and crash reports. Personal data is redacted before logs leave the server.</li>
+</ul>
+
+<h2>5. How long we keep it</h2>
+<p>
+  Academic and fee records are retained for <strong>{{ DATA_RETENTION_YEARS }} years</strong> after a student's
+  last enrolment, or for the period required by the college and its regulator, whichever is longer. After that,
+  personal identifiers are anonymised and the remaining statistics are kept. Audit logs are kept for the same period.
+</p>
+
+<h2>6. Your choices</h2>
+<ul>
+  <li>You can edit your own contact details in <em>Profile</em>; fields marked optional can be left blank.</li>
+  <li>You can ask the college office for a copy of your data (JSON/CSV export) or for correction.</li>
+  <li>You can ask for your personal data to be deleted/anonymised after you leave the college; academic records needed for certification are kept but de-identified where possible.</li>
+</ul>
+
+<h2>7. Security</h2>
+<p>
+  Passwords are hashed, sessions expire, admin pages are role-restricted, uploads are type-checked,
+  database backups are encrypted, and access to production data is limited to named administrators.
+  Report a security issue to <a href="mailto:{{ COLLEGE_EMAIL|default:'admin@example.com' }}">{{ COLLEGE_EMAIL|default:"the college office" }}</a>.
+</p>
+
+<h2>8. Contact</h2>
+<p>
+  Data protection queries: <a href="mailto:{{ COLLEGE_EMAIL|default:'admin@example.com' }}">{{ COLLEGE_EMAIL|default:"college office" }}</a>
+  {% if COLLEGE_ADDRESS %}<br>{{ COLLEGE_ADDRESS }}{% endif %}
+  {% if COLLEGE_PHONE %}<br>{{ COLLEGE_PHONE }}{% endif %}
+</p>
+<p class="public-meta">A formal grievance officer and the exact retention schedule are maintained by the college office. This page is a template and should be reviewed by the college before publishing.</p>
+{% endblock %}

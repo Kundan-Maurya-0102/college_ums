@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.db.models import Avg, Count, Q, Sum
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
 
 from .forms import CustomPasswordChangeForm, FeedbackForm, LeaveApplicationForm, StudentSelfProfileForm
@@ -51,6 +52,10 @@ def student_login(request):
             user = form.get_user()
             reset_login_failures(request, username)
             login(request, user)
+            profile = getattr(user, 'studentprofile', None)
+            if profile is not None and profile.consent_given_at is None:
+                profile.consent_given_at = timezone.now()
+                profile.save(update_fields=['consent_given_at'])
             if user.is_staff:
                 if hasattr(user, "facultyprofile") and not user.is_superuser:
                     return redirect('teacher_dashboard')

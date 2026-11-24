@@ -1,8 +1,10 @@
 """Teacher, admin and student account management + CSV exports."""
 import csv
 import datetime
+import json
 import io
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -13,6 +15,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from ..ai_helper import get_ai_response
+from ..privacy import anonymize_student
 from ..upload_router import process_any_csv_upload
 from ..password_links import build_set_password_link
 from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassScheduleForm,
@@ -242,3 +245,75 @@ def export_set_password_links_csv(request):
 
     return response
 
+
+
+@admin_required
+def student_data_export(request, pk):
+    """Download one student's personal data as JSON (privacy/GDPR style access request)."""
+    profile = get_object_or_404(StudentProfile, pk=pk)
+    log_action(request, "student.data_export", profile,
+               detail="full personal data export requested")
+
+    def iso(value):
+        return value.isoformat() if value else None
+
+    data = {
+        "exported_at": timezone.now().isoformat(),
+        "college": getattr(settings, "COLLEGE_NAME", ""),
+        "profile": {
+            "name": profile.name,
+            "registration_number": profile.registration_number,
+            "branch": profile.get_branch_display_name(),
+            "semester": profile.semester,
+            "year_of_admission": profile.year_of_admission,
+            "phone": profile.phone,
+            "email": profile.email,
+            "address": profile.address,
+            "father_name": profile.father_name,
+            "mother_name": profile.mother_name,
+            "date_of_birth": iso(profile.date_of_birth),
+            "consent_given_at": iso(profile.consent_given_at),
+            "created_at": iso(profile.created_at),
+        },
+        "attendance": list(profile.attendance_set.values(
+            "date", "subject__subject_code", "is_present")),
+        "internal_marks": list(InternalExam.objects.filter(student=profile).values(
+            "subject__subject_code", "exam_type", "marks_obtained", "max_marks", "exam_date")),
+        "fee_payments": list(profile.fee_payments.values(
+            "fee_structure__fee_type", "amount_paid", "payment_date", "status",
+            "receipt_number", "payment_mode")),
+        "leave_applications": list(profile.leave_applications.values(
+            "from_date", "to_date", "reason", "status")),
+        "feedback": list(profile.feedbacks.values("subject__subject_code", "rating", "comments", "created_at")),
+        "doubts": list(profile.doubts.values("title", "content", "created_at")),
+    }
+
+    response = HttpResponse(
+        json.dumps(data, indent=2, default=str),
+        content_type="application/json",
+    )
+    filename = f"student-{profile.registration_number}-data-{timezone.now():%Y%m%d}.json"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response["Cache-Control"] = "no-store"
+    return response
+
+
+@admin_required
+def student_anonymize(request, pk):
+    """Erase a student's personal identifiers but keep academic/financial records.
+
+    GET shows exactly what will be removed/kept; POST performs the anonymisation.
+    """
+    profile = get_object_or_404(StudentProfile, pk=pk)
+    if request.method == "POST":
+        if request.POST.get("confirm") != "yes":
+            messages.error(request, "Please tick the confirmation box to anonymise this record.")
+            return redirect("student_anonymize", pk=profile.pk)
+
+        reg_no = anonymize_student(profile)
+        log_action(request, "student.anonymize", profile,
+                   detail=f"personal data erased, academic records kept (reg {reg_no})")
+        messages.success(request, "Personal data erased. Academic and fee records kept for the college archive.")
+        return redirect("student_list")
+
+    return render(request, "admin_dashboard/student_privacy.html", {"profile": profile})

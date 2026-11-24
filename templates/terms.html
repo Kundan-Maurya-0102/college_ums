@@ -1,0 +1,62 @@
+{% extends 'public_page.html' %}
+{% block title %}Terms of Use — {{ COLLEGE_NAME|default:"College UMS" }}{% endblock %}
+
+{% block content %}
+<h1>Terms of Use</h1>
+<p class="public-meta">Last updated: {{ PRIVACY_LAST_UPDATED }} · {{ COLLEGE_NAME|default:"College UMS" }} portal</p>
+
+<p class="public-note">
+  By signing in you agree to use this portal only for the college work it is meant for, and to keep
+  your login credentials private.
+</p>
+
+<h2>1. Accounts</h2>
+<ul>
+  <li>Accounts are created by the college. Students receive a one-time set-password link; do not share it.</li>
+  <li>You are responsible for activity under your account. Tell the office immediately if you suspect misuse.</li>
+  <li>The college may suspend an account for security, disciplinary or administrative reasons.</li>
+</ul>
+
+<h2>2. Acceptable use</h2>
+<ul>
+  <li>Do not attempt to access another student's or staff member's data, or probe the portal for vulnerabilities.</li>
+  <li>Do not upload malware, executable files or content that violates college policy.</li>
+  <li>Do not scrape, resell or publish portal data.</li>
+</ul>
+
+<h2>3. Academic records</h2>
+<ul>
+  <li>Marks, attendance and results shown here are working records. The college's signed marksheets/transcripts remain authoritative.</li>
+  <li>Corrections must be requested through the college office; they are logged.</li>
+</ul>
+
+<h2>4. Fees and payments</h2>
+<ul>
+  <li>Receipts are generated for payments recorded in the portal. Online payments are confirmed by the payment gateway.</li>
+  <li>Duplicate or failed payments are reconciled by the accounts office.</li>
+</ul>
+
+<h2>5. Availability</h2>
+<p>
+  The portal may be unavailable during maintenance, upgrades or outages. The college aims for high
+  availability but does not guarantee uninterrupted service, and is not liable for losses caused by
+  outages beyond its control.
+</p>
+
+<h2>6. Changes</h2>
+<p>
+  These terms and the privacy policy may be updated. Material changes are announced on the portal.
+  Continued use after an update means you accept the revised terms.
+</p>
+
+<h2>7. Governing law</h2>
+<p>
+  These terms are governed by the laws applicable to {{ COLLEGE_NAME|default:"the college" }}, and disputes
+  are subject to the jurisdiction of its local courts.
+</p>
+
+<h2>8. Contact</h2>
+<p>
+  Questions about these terms: <a href="mailto:{{ COLLEGE_EMAIL|default:'admin@example.com' }}">{{ COLLEGE_EMAIL|default:"college office" }}</a>{% if COLLEGE_PHONE %} · {{ COLLEGE_PHONE }}{% endif %}
+</p>
+{% endblock %}

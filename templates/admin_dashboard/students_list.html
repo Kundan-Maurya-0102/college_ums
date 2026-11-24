@@ -85,6 +85,7 @@
             <div style="display:flex;gap:6px;">
               <a href="{{ s.get_whatsapp_url }}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;" title="Send WhatsApp">💬</a>
               <a href="{% url 'student_edit' s.pk %}" class="btn btn-outline btn-sm" title="Edit">✏️</a>
+              <a href="{% url 'student_anonymize' s.pk %}" class="btn btn-outline btn-sm" title="Privacy: export / erase">🛡️</a>
               <a href="{% url 'student_delete' s.pk %}" class="btn btn-sm" style="background:var(--gradient-red);color:#fff;" title="Delete">🗑️</a>
             </div>
           </td>

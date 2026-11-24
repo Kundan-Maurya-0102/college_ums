@@ -162,5 +162,10 @@
     </div>
   </section>
 </div>
+<footer class="login-legal" style="text-align:center;padding:18px 12px;font-size:12.5px;color:#6b7280;">
+  <a href="{% url 'privacy_policy' %}" style="color:#4b5563;text-decoration:underline;">Privacy Policy</a> ·
+  <a href="{% url 'terms_of_use' %}" style="color:#4b5563;">Terms of Use</a>
+  {% if COLLEGE_EMAIL %} · <a href="mailto:{{ COLLEGE_EMAIL }}" style="color:#4b5563;">Contact</a>{% endif %}
+</footer>
 </body>
 </html>
