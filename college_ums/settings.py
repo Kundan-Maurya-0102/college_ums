@@ -23,6 +23,18 @@ except ImproperlyConfigured as exc:
 
 DEBUG = env.bool('DEBUG', default=False)
 
+# ── Environment profile ───────────────────────────────────────────────
+# development | staging | production. Everything else stays env-driven; the
+# profile only picks safe *defaults* that differ per environment, so a staging
+# box can look like production without copying production's risk (HSTS preload,
+# long-lived secure cookies, noindex, error tracking tag, tighter backups).
+ENVIRONMENT = env('ENVIRONMENT', default='development' if DEBUG else 'production').lower()
+if ENVIRONMENT not in ('development', 'staging', 'production'):
+    raise ImproperlyConfigured(
+        f"ENVIRONMENT must be development, staging or production (got {ENVIRONMENT!r}).")
+IS_STAGING = ENVIRONMENT == 'staging'
+IS_PRODUCTION = ENVIRONMENT == 'production'
+
 if not DEBUG and SECRET_KEY.startswith('django-insecure'):
     raise ImproperlyConfigured(
         "SECRET_KEY looks like a development key (starts with 'django-insecure'). "
@@ -280,7 +292,7 @@ if SENTRY_DSN:
             before_send=scrub_sentry_event,
             before_breadcrumb=scrub_breadcrumb,
             max_request_body_size='never',
-            environment=env('SENTRY_ENV', default='production'),
+            environment=env('SENTRY_ENV', default=ENVIRONMENT),
         )
 
 # ── Production hardening (toggle via DEBUG) ───────────────────────────
@@ -294,28 +306,47 @@ if not DEBUG:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"
-    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24 * 30)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # Staging keeps HSTS short and skips preload so a staging domain can never
+    # be burned into browser HSTS lists by accident.
+    default_hsts = 60 * 60 * 24 if IS_STAGING else 60 * 60 * 24 * 30
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=default_hsts)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = not IS_STAGING
+    SECURE_HSTS_PRELOAD = not IS_STAGING
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
+
+LOG_FORMAT = env("LOG_FORMAT", default="text").lower()
+if LOG_FORMAT not in ("text", "json"):
+    raise ImproperlyConfigured("LOG_FORMAT must be 'text' or 'json'.")
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "filters": {
+        # Order matters: redact first, then tag the record with the environment.
         "redact": {"()": "students.logging_filters.RedactSensitiveFilter"},
+        "context": {"()": "students.log_formatter.ContextFilter",
+                    "environment": ENVIRONMENT},
+    },
+    "formatters": {
+        "json": {"()": "students.log_formatter.JsonFormatter"},
+        "plain": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"},
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "filters": ["redact"],
+            "filters": ["redact", "context"],
+            "formatter": "json" if LOG_FORMAT == "json" else "plain",
         },
     },
     "root": {
         "handlers": ["console"],
         "level": env("LOG_LEVEL", default="INFO"),
+    },
+    "loggers": {
+        # Django's own request log already carries status codes; keep it terse.
+        "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
     },
 }
 
