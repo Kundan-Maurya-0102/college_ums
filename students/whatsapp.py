@@ -41,7 +41,8 @@ def send_whatsapp_credentials(profile) -> str:
 
     try:
         from twilio.rest import Client
-        client = Client(sid, token)
+        timeout = getattr(settings, 'HTTP_TIMEOUT', 10)
+        client = Client(sid, token, timeout=timeout)
         message = client.messages.create(
             body=message_body,
             from_=from_whatsapp,

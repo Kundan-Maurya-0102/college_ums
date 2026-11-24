@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'students',
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -213,6 +214,26 @@ SECURITY_PERMISSIONS_POLICY = env('SECURITY_PERMISSIONS_POLICY', default=(
 ))
 
 # ── Error tracking (optional; no key = disabled) ──────────────────────
+# ── Outbound services must time out, not hang ─────────────────────────
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=10)          # seconds
+HTTP_TIMEOUT = env.int('HTTP_TIMEOUT', default=10)            # gateway/API calls
+
+# ── Background jobs (django-q2, ORM broker — no Redis required) ───────
+Q_CLUSTER = {
+    'name': 'ums',
+    'workers': env.int('Q_WORKERS', default=2),
+    'timeout': env.int('Q_TIMEOUT', default=120),      # hard kill per task
+    'retry': env.int('Q_RETRY', default=180),          # must be > timeout
+    'max_attempts': env.int('Q_MAX_ATTEMPTS', default=3),
+    'save_limit': 200,
+    'catch_up': False,
+    'orm': 'default',
+    'sync': env.bool('Q_SYNC', default=False),
+    'label': 'College UMS tasks',
+}
+# Per-job retry attempts for outbound calls (inside the task, with backoff).
+TASK_MAX_ATTEMPTS = env.int('TASK_MAX_ATTEMPTS', default=3)
+
 # ── Privacy / data protection ─────────────────────────────────────────
 PRIVACY_LAST_UPDATED = env('PRIVACY_LAST_UPDATED', default='2026-01-01')
 DATA_RETENTION_YEARS = env.int('DATA_RETENTION_YEARS', default=7)

@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """CSV bulk import upload and upload history."""
 import csv
 import datetime
@@ -46,7 +50,19 @@ def csv_upload(request):
             upload.uploaded_by = request.user.get_full_name() or request.user.username
             upload.save()
 
-            result = process_any_csv_upload(upload)
+            try:
+                result = process_any_csv_upload(upload)
+            except Exception as exc:  # a bad sheet must not 500 the whole page
+                logger.exception("CSV import failed for upload %s", upload.pk)
+                upload.is_processed = False
+                upload.errors = f"Import failed: {exc}"[:2000]
+                upload.save(update_fields=["is_processed", "errors"])
+                messages.error(
+                    request,
+                    "Import fail ho gaya. File format check karein; poora error upload history mein hai.",
+                )
+                return render(request, 'admin_dashboard/upload_csv.html',
+                              {'form': form, 'result': {'created': 0, 'updated': 0, 'errors': [str(exc)[:200]]}})
             # Save generic counters for any dataset type
             upload.is_processed = True
             upload.records_created = int(result.get("created", 0) or 0)

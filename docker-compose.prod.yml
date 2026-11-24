@@ -23,6 +23,27 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  worker:
+    build: .
+    command: ["python", "manage.py", "qcluster"]
+    env_file:
+      - ${ENV_FILE:-.env}
+    environment:
+      DEBUG: "False"
+      DB_ENGINE: "django.db.backends.postgresql"
+      DB_NAME: "${DB_NAME:-college_ums}"
+      DB_USER: "${DB_USER:-college_ums}"
+      DB_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in .env}"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      Q_WORKERS: "${Q_WORKERS:-2}"
+    volumes:
+      - media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
     image: postgres:16
     environment:
