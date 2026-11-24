@@ -10,6 +10,9 @@ fi
 echo "[entrypoint] applying database migrations..."
 python manage.py migrate --noinput
 
+echo "[entrypoint] compiling translations (.po -> .mo, no gettext needed)..."
+python manage.py compile_translations
+
 echo "[entrypoint] collecting static files..."
 python manage.py collectstatic --noinput
 

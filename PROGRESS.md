@@ -86,7 +86,47 @@
   and `send_subscription_reminders` commands, `seed_plans`, `docs/PLATFORM_ADMIN.md`,
   `platform_admin/tests.py` (32). Total suite **161 tests OK**.
 
+- **Ops/CI round**: GitHub Actions (test matrix 3.12 + migrations + ruff + bandit +
+  pip-audit + DEBUG=False prod-settings job), `pyproject.toml` ruff config, 808 → 0
+  lint errors, `requirements-dev.txt`, `scripts/ci.sh` local mirror. Found and fixed a
+  real prod bug: cached template loader + APP_DIRS=True raised
+  `ImproperlyConfigured` with DEBUG=False (every page 500). django-q2 pinned to 1.10.0
+  (1.11.1 needs Django 5.2).
+- **Environments/deploy round**: `ENVIRONMENT` (development|staging|production),
+  staging HSTS, `students/log_formatter.py` JSON logs (`LOG_FORMAT=json`) with the
+  existing redaction filter, `scripts/deploy.sh` (backup → build → migrate → health
+  check → auto-rollback, release history per college) and `scripts/update_all.sh`.
+- **Observability round**: `/readyz/` (real DB + cache), `/healthz/` with environment,
+  sentry-sdk 2.x pinned, `scrub_sentry_event` hardened (message/transaction/culprit/
+  logentry/breadcrumbs), `docs/RUNBOOK.md`, `docs/DEPLOYMENT.md`.
+- **UX round**: `scripts/ux_audit.py` (110 renders across roles) → 41 forms showed no
+  error text (fixed with `partials/form_errors.html`), 43 pages had no `<h1>`,
+  fixed multi-column grids given `.grid-2`/`.grid-split`, empty states for events/fees,
+  `rel=noopener` on external links, certificates headings demoted; `docs/UX_AUDIT.md`.
+- **i18n/a11y round**: Hindi + English (`LANGUAGES`, `LocaleMiddleware`, `/i18n/`
+  switch in topbar and on the login page), 53 translated strings, pure-Python
+  `compile_translations` (.po → .mo, no gettext on the host, `--check` in CI),
+  `/help/` Help Centre with role-aware answers + keyboard shortcuts, first-login
+  tour (`static/js/tour.js`, once per browser, Escape, replayable), `/` and Alt+S
+  shortcuts, `prefers-reduced-motion`.
+- **GTM round**: `manage.py seed_demo` (50 students/8 teachers/attendance/marks/fees/
+  notices/timetable, idempotent, `--flush`, refuses in production), public landing
+  page at `/` (features, CSS screenshots, pricing from plans, demo-request form →
+  `platform_admin.DemoRequest`), floating "Report a problem" button →
+  `students.BugReport` + staff triage at `/admin-panel/bug-reports/`.
+- **Docs round**: `docs/USER_GUIDE.md`, `ONBOARDING_CHECKLIST.md`,
+  `docs/TERMS_SLA_TEMPLATE.md`, plus a real gap fixed while writing the guide —
+  single-student "Add student" (`/admin-panel/students/add/`).
+- **Backlog round (top 3)**: `BACKLOG.md` + `CHANGELOG.md`. (1) `/media/` no longer
+  served off disk by Caddy — Django auth-checks it, `csv_uploads/` staff-only,
+  traversal blocked, `MEDIA_PROTECTED` env; (2) `AdminUserForm` no longer forces
+  `is_superuser=True` (flag only for superuser callers, removed when not allowed);
+  (3) lockout message explains minutes left + set-password path with a live countdown.
+  Tests: 244 total, all OK; ruff clean; `makemigrations --check` clean.
+
 ## In progress
+- Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
+
 
 ## Verification (is session)
 - Har Done phase code + tests se verify kiya: `VERIFICATION.md` (20 rows).

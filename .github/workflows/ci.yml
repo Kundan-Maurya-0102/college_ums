@@ -38,6 +38,8 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Django checks
         run: python manage.py check
+      - name: Compile translations
+        run: python manage.py compile_translations --check
       - name: Collect static
         run: python manage.py collectstatic --noinput
       - name: Run test suite
