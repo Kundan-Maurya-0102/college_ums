@@ -23,4 +23,10 @@ cns_exam/
 image2pdf/
 test_csv/
 *.log
-*.png
+# Repo-root screenshots/notes only — static/images/*.png are runtime assets
+# (PWA icons, apple-touch-icon) and MUST reach the image.
+/*.png
+/*.pdf
+/*.jpg
+/test_*.csv
+/*_upload.csv

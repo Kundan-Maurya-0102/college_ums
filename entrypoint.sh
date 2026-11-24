@@ -7,11 +7,11 @@ if [ -z "${SECRET_KEY:-}" ]; then
     exit 1
 fi
 
-echo "[entrypoint] applying database migrations..."
-python manage.py migrate --noinput
-
 echo "[entrypoint] compiling translations (.po -> .mo, no gettext needed)..."
 python manage.py compile_translations
+
+echo "[entrypoint] applying database migrations..."
+python manage.py migrate --noinput
 
 echo "[entrypoint] collecting static files..."
 python manage.py collectstatic --noinput
