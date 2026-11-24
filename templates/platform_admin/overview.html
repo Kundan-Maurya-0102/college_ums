@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Platform overview{% endblock %}
+{% block content %}
+<h1 class="page-title">Platform overview</h1>
+{% include "platform_admin/_nav.html" %}
+
+<div class="stats-grid">
+  <div class="stat-card"><span class="stat-label">Colleges</span><span class="stat-value">{{ stats.colleges }}</span></div>
+  <div class="stat-card"><span class="stat-label">Active</span><span class="stat-value">{{ stats.active }}</span></div>
+  <div class="stat-card"><span class="stat-label">Trial</span><span class="stat-value">{{ stats.trial }}</span></div>
+  <div class="stat-card"><span class="stat-label">Suspended</span><span class="stat-value">{{ stats.suspended }}</span></div>
+  <div class="stat-card"><span class="stat-label">Students</span><span class="stat-value">{{ stats.students }}</span></div>
+  <div class="stat-card"><span class="stat-label">Storage (MB)</span><span class="stat-value">{{ stats.storage_mb }}</span></div>
+  <div class="stat-card"><span class="stat-label">Open tickets</span><span class="stat-value">{{ stats.open_tickets }}</span></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Expiring within 30 days</span></div>
+  <div class="card-body">
+    {% if expiring %}
+      <table class="data-table" data-table>
+        <thead><tr><th>College</th><th>Plan</th><th>Expires</th><th>Days left</th><th></th></tr></thead>
+        <tbody>
+        {% for college in expiring %}
+          <tr>
+            <td>{{ college.name }}</td>
+            <td>{{ college.plan.name|default:"—" }}</td>
+            <td>{{ college.subscription_expires_on }}</td>
+            <td>{% if college.days_to_expiry < 0 %}<span class="badge badge-red">expired</span>{% else %}{{ college.days_to_expiry }}{% endif %}</td>
+            <td><a class="btn btn-outline btn-sm" href="{% url 'platform:college_detail' college.pk %}">Manage</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No subscription is expiring in the next 30 days.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Latest support tickets</span></div>
+  <div class="card-body">
+    {% if recent_tickets %}
+      <table class="data-table" data-table>
+        <thead><tr><th>#</th><th>College</th><th>Subject</th><th>Status</th><th>Opened</th></tr></thead>
+        <tbody>
+        {% for ticket in recent_tickets %}
+          <tr>
+            <td>#{{ ticket.pk }}</td>
+            <td>{{ ticket.college.name }}</td>
+            <td><a href="{% url 'platform:ticket_detail' ticket.pk %}">{{ ticket.subject }}</a></td>
+            <td><span class="badge badge-blue">{{ ticket.get_status_display }}</span></td>
+            <td>{{ ticket.created_at|date:"d M Y H:i" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No tickets yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

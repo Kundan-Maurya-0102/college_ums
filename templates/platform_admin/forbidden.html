@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Platform access denied{% endblock %}
+{% block content %}
+<div class="empty-state" role="alert">
+  <div class="empty-state-icon">🚫</div>
+  <h2>Platform admins only</h2>
+  <p>This area is for the platform owner. Ask a superuser to add you to the
+    “{{ 'Platform Admin' }}” group if you need access.</p>
+  <a class="btn btn-primary" href="{% url 'admin_dashboard' %}">Back to dashboard</a>
+</div>
+{% endblock %}

@@ -59,6 +59,33 @@
   generated PNG icons (192/512/maskable/apple-touch), installable on Android/iOS.
   Tests: `students/tests/test_pwa.py` (7) → **85 total, OK**.
 
+- Privacy (student/parent data): `/privacy/`, `/terms/` (env-branded, retention years
+  variable), data minimization (phone optional, `consent_given_at` on first login),
+  log/Sentry redaction (`students/privacy.py`, `students/logging_filters.py`),
+  admin data export (JSON) + anonymize (audit-logged), retention purge command
+  (`purge_expired_data`), encrypted backups (`scripts/backup_db.sh` + tested
+  `scripts/restore_db.sh`), `docs/DATA_PRIVACY.md`, `docs/BACKUP_RESTORE.md`.
+  Tests: `students/tests/test_privacy.py` (23). Commit `35ff4c3`.
+- Performance: CONN_MAX_AGE, SQLite WAL, cached template loader, bcrypt hasher,
+  visit-tracking skip, dashboard aggregate + 30s cache, reports 2min cache,
+  pagination on feedback/admins/fee-structure, 4 new indexes, `scripts/profile_pages.py`,
+  `scripts/load_test.py`, query budgets in `students/tests/test_performance.py`.
+  100 users × 1600 req: **36.1 → 210.6 req/s**, p50 **1826 ms → 46 ms**.
+  Numbers + method in `PERFORMANCE.md`. Commit `78d74f1`.
+- Background jobs: django-q2 (ORM broker, no Redis), `students/tasks.py`
+  (email/WhatsApp/credentials with in-job retries 1s/2s/4s, retryable vs permanent),
+  inline fallback when the broker is down, `EMAIL_TIMEOUT`/`HTTP_TIMEOUT`,
+  CSV-import crash shows an error instead of a 500, worker service in
+  `docker-compose.prod.yml`, `docs/OPERATIONS.md`, `students/tests/test_tasks.py` (15).
+  Retries proven live against a real worker ("retry 1/3", "retry 2/3"). Commit `3ae7528`.
+- Super Admin panel (`platform_admin` app): College/Plan/UsageSnapshot/SupportTicket/
+  TicketReply models, `/platform/` overview + colleges + plans (module feature flags) +
+  usage (CSV export) + tickets (reply/close), suspend/resume, one-click backup download
+  (path-traversal safe), `SubscriptionStatusMiddleware` (suspended/expired =
+  read-only, reads still allowed), token-only metrics API + `report_college_metrics`
+  and `send_subscription_reminders` commands, `seed_plans`, `docs/PLATFORM_ADMIN.md`,
+  `platform_admin/tests.py` (32). Total suite **161 tests OK**.
+
 ## In progress
 
 ## Verification (is session)
@@ -85,11 +112,15 @@
 - All 37 existing tests pass with enhanced templates
 
 ## Next (is order mein karna ye hai)
-1. Phase 7: notifications, Razorpay, parent portal, roles/groups, reports,
-   exam PDFs, timetable clash detection, admission, notification bell, global
-   search + bulk actions, AI chatbot scoped to college data
-2. Phase 8: `create_college` management command
-3. Phase 9: final checks, README + docs/USER_GUIDE.md
+1. Phase 7 remaining: roles/groups (Principal/HOD/Accountant/Exam Cell/Parent),
+   Razorpay test-mode fee payment, parent portal, exam PDFs (hall ticket/marksheet),
+   timetable clash detection, admission module, notification bell, global search +
+   bulk actions. **Blocked:** Razorpay/WhatsApp/Gemini live keys — `.env` me
+   `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `TWILIO_*`, `GEMINI_API_KEY` chahiye.
+2. Phase 8: `create_college` management command (admin user, default plan/settings,
+   sample data, Platform Admin group) — `platform_admin` ab maujood hai, usi par banana hai.
+3. Phase 9: final checks, README + docs/USER_GUIDE.md, feature-flag menu hiding
+   (`College.has_feature()` ko base.html nav me use karna).
 
 ## Notes / decisions
 - Branding sirf env se: `college_ums/settings.py` (COLLEGE_* + PRIMARY_COLOR) →

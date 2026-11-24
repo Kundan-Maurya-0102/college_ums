@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'students',
     'django_q',
+    'platform_admin',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'students.middleware.WebsiteVisitMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'platform_admin.middleware.SubscriptionStatusMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -233,6 +235,13 @@ Q_CLUSTER = {
 }
 # Per-job retry attempts for outbound calls (inside the task, with backoff).
 TASK_MAX_ATTEMPTS = env.int('TASK_MAX_ATTEMPTS', default=3)
+
+# ── Platform / super admin ────────────────────────────────────────────
+COLLEGE_SLUG = env('COLLEGE_SLUG', default='')
+PLATFORM_ADMIN_GROUP = env('PLATFORM_ADMIN_GROUP', default='Platform Admin')
+PLATFORM_METRICS_TOKEN = env('PLATFORM_METRICS_TOKEN', default='')
+PLATFORM_BACKUP_DIR = env('PLATFORM_BACKUP_DIR', default='/var/backups/ums')
+SUBSCRIPTION_REMINDER_DAYS = env.int('SUBSCRIPTION_REMINDER_DAYS', default=14)
 
 # ── Privacy / data protection ─────────────────────────────────────────
 PRIVACY_LAST_UPDATED = env('PRIVACY_LAST_UPDATED', default='2026-01-01')

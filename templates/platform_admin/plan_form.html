@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ title }}</h1>
+{% include "platform_admin/_nav.html" %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <div class="card-body">
+    <p class="muted">Modules: students, attendance, marks, fees, notices, reports,
+      parent_portal, whatsapp, ai_chatbot, online_payment.
+      Features accepts a JSON list or comma separated codes.</p>
+    {% include "partials/form_fields.html" %}
+    <button class="btn btn-primary" type="submit">Save plan</button>
+    <a class="btn btn-outline" href="{% url 'platform:plans' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

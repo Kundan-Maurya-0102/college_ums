@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Read-only mode{% endblock %}
+{% block content %}
+<div class="empty-state" role="alert">
+  <div class="empty-state-icon">🔒</div>
+  <h2>{{ college_name }} is in read-only mode</h2>
+  <p>The subscription for this college has expired or the account is suspended.
+     You can still view your data, but changes are disabled until the college renews.
+     Please contact the college office.</p>
+  <a class="btn btn-primary" href="{% url 'admin_dashboard' %}">Back to dashboard</a>
+</div>
+{% endblock %}

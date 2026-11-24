@@ -5,6 +5,10 @@ from django.conf.urls.static import static
 from django.shortcuts import redirect
 
 urlpatterns = [
+    path('platform/', include('platform_admin.urls')),
+    path('platform/metrics/<slug:slug>/',
+         __import__('platform_admin.views', fromlist=['metrics_endpoint']).metrics_endpoint,
+         name='platform_metrics'),
     path('admin/', admin.site.urls),
     path('', lambda request: redirect('student_login'), name='home'),
     path('', include('students.urls')),

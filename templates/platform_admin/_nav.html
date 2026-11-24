@@ -1,0 +1,7 @@
+<nav class="pill-nav" aria-label="Platform sections">
+  <a href="{% url 'platform:overview' %}" class="pill {% if active_nav == 'overview' %}is-active{% endif %}">Overview</a>
+  <a href="{% url 'platform:colleges' %}" class="pill {% if active_nav == 'colleges' %}is-active{% endif %}">Colleges</a>
+  <a href="{% url 'platform:plans' %}" class="pill {% if active_nav == 'plans' %}is-active{% endif %}">Plans</a>
+  <a href="{% url 'platform:usage' %}" class="pill {% if active_nav == 'usage' %}is-active{% endif %}">Usage</a>
+  <a href="{% url 'platform:tickets' %}" class="pill {% if active_nav == 'tickets' %}is-active{% endif %}">Support tickets</a>
+</nav>

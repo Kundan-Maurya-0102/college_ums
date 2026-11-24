@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Colleges{% endblock %}
+{% block content %}
+<h1 class="page-title">Colleges</h1>
+{% include "platform_admin/_nav.html" %}
+
+<form method="get" class="table-toolbar" role="search">
+  <input type="search" name="q" value="{{ query }}" placeholder="Search name, slug or domain…" class="form-control">
+  <select name="status" class="form-select">
+    <option value="">All statuses</option>
+    {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary" type="submit">Filter</button>
+  <a class="btn btn-outline" href="{% url 'platform:college_create' %}">+ Add college</a>
+</form>
+
+<table class="data-table" data-table>
+  <thead>
+    <tr><th>College</th><th>Domain</th><th>Plan</th><th>Status</th><th>Students</th>
+      <th>Storage</th><th>Last login</th><th>Expires</th><th data-nosort></th></tr>
+  </thead>
+  <tbody>
+  {% for college in colleges %}
+    <tr>
+      <td><a href="{% url 'platform:college_detail' college.pk %}">{{ college.name }}</a><br><code>{{ college.slug }}</code></td>
+      <td>{{ college.domain|default:"—" }}</td>
+      <td>{{ college.plan.name|default:"—" }}</td>
+      <td>
+        {% if college.status == 'active' %}<span class="badge badge-green">Active</span>
+        {% elif college.status == 'trial' %}<span class="badge badge-blue">Trial</span>
+        {% elif college.status == 'suspended' %}<span class="badge badge-red">Suspended</span>
+        {% else %}<span class="badge badge-amber">Expired</span>{% endif %}
+      </td>
+      <td>{{ college.student_count }} / {{ college.effective_limit }}</td>
+      <td>{{ college.storage_mb }} MB</td>
+      <td>{{ college.last_login_at|date:"d M Y"|default:"—" }}</td>
+      <td>{{ college.subscription_expires_on|default:"—" }}</td>
+      <td><a class="btn btn-outline btn-sm" href="{% url 'platform:college_detail' college.pk %}">Open</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9" class="muted">No colleges match this filter.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}

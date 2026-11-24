@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ college.name }} — platform{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ college.name }}</h1>
+{% include "platform_admin/_nav.html" %}
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Subscription</span></div>
+  <div class="card-body">
+    <p>
+      Status: <strong>{{ college.get_status_display }}</strong> ·
+      Plan: <strong>{{ college.plan.name|default:"—" }}</strong> ·
+      Limit: <strong>{{ college.effective_limit }}</strong> students ·
+      Expires: <strong>{{ college.subscription_expires_on|default:"—" }}</strong>
+      {% if college.days_to_expiry != None %}
+        ({{ college.days_to_expiry }} days{% if college.days_to_expiry < 0 %} — expired, writes blocked{% endif %})
+      {% endif %}
+    </p>
+    <div class="quick-actions">
+      <form method="post" action="{% url 'platform:college_suspend' college.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="reason" value="suspended by platform admin">
+        <button class="btn btn-danger" type="submit">Suspend (read-only)</button>
+      </form>
+      <form method="post" action="{% url 'platform:college_resume' college.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-outline" type="submit">Resume</button>
+      </form>
+      <a class="btn btn-outline" href="{% url 'platform:college_backup' college.pk %}">Download backup</a>
+    </div>
+  </div>
+</div>
+
+<form method="post" class="card">
+  {% csrf_token %}
+  <div class="card-header"><span class="card-title">Edit college</span></div>
+  <div class="card-body">
+    {% include "partials/form_fields.html" %}
+    <button class="btn btn-primary" type="submit">Save changes</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Usage (last 30 days)</span></div>
+  <div class="card-body">
+    {% if usage %}
+      <table class="data-table" data-table>
+        <thead><tr><th>Day</th><th>Students</th><th>Active users</th><th>Messages</th><th>Payments</th><th>API calls</th></tr></thead>
+        <tbody>
+        {% for snap in usage %}
+          <tr><td>{{ snap.day }}</td><td>{{ snap.student_count }}</td><td>{{ snap.active_users }}</td>
+            <td>{{ snap.messages_sent }}</td><td>{{ snap.payments_count }}</td><td>{{ snap.api_calls }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}<p class="muted">No usage reported yet.</p>{% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Tickets</span></div>
+  <div class="card-body">
+    {% if tickets %}
+      <ul class="plain-list">
+        {% for ticket in tickets %}
+          <li><a href="{% url 'platform:ticket_detail' ticket.pk %}">#{{ ticket.pk }} {{ ticket.subject }}</a>
+            — {{ ticket.get_status_display }} · {{ ticket.created_at|date:"d M Y" }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}<p class="muted">No tickets from this college.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.pk }}{% endblock %}
+{% block content %}
+<h1 class="page-title">Ticket #{{ ticket.pk }} — {{ ticket.subject }}</h1>
+{% include "platform_admin/_nav.html" %}
+
+<div class="card">
+  <div class="card-body">
+    <p><strong>{{ ticket.college.name }}</strong> · {{ ticket.get_priority_display }} priority ·
+      <span class="badge badge-blue">{{ ticket.get_status_display }}</span> ·
+      opened {{ ticket.created_at|date:"d M Y H:i" }}{% if ticket.opened_by %} by {{ ticket.opened_by }}{% endif %}</p>
+    <p>{{ ticket.body|linebreaks }}</p>
+  </div>
+</div>
+
+{% for reply in replies %}
+  <div class="card">
+    <div class="card-body">
+      <p class="muted">{{ reply.author }} · {{ reply.created_at|date:"d M Y H:i" }}
+        {% if reply.from_platform %}<span class="badge badge-green">platform</span>{% endif %}</p>
+      <p>{{ reply.body|linebreaks }}</p>
+    </div>
+  </div>
+{% endfor %}
+
+<form method="post" class="card">
+  {% csrf_token %}
+  <div class="card-header"><span class="card-title">Reply</span></div>
+  <div class="card-body">
+    {% include "partials/form_fields.html" %}
+    <button class="btn btn-primary" type="submit">Send reply</button>
+  </div>
+</form>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="close">
+  <button class="btn btn-outline" type="submit">Close ticket</button>
+</form>
+{% endblock %}

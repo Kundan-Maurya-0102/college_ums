@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Usage{% endblock %}
+{% block content %}
+<h1 class="page-title">Usage &amp; storage</h1>
+{% include "platform_admin/_nav.html" %}
+
+<div class="stats-grid">
+  <div class="stat-card"><span class="stat-label">Students (all colleges)</span><span class="stat-value">{{ totals.students }}</span></div>
+  <div class="stat-card"><span class="stat-label">Active users (30d)</span><span class="stat-value">{{ totals.active }}</span></div>
+  <div class="stat-card"><span class="stat-label">Storage</span><span class="stat-value">{{ totals.storage_mb }} MB</span></div>
+</div>
+
+<div class="table-toolbar">
+  <a class="btn btn-outline" href="?format=csv">⬇ Export CSV</a>
+</div>
+
+<table class="data-table" data-table>
+  <thead><tr><th>College</th><th>Plan</th><th>Status</th><th>Students</th><th>Limit use</th>
+    <th>Active 30d</th><th>Storage</th><th>Last login</th></tr></thead>
+  <tbody>
+  {% for college in colleges %}
+    <tr>
+      <td>{{ college.name }}</td>
+      <td>{{ college.plan.name|default:"—" }}</td>
+      <td>{{ college.get_status_display }}</td>
+      <td>{{ college.student_count }}</td>
+      <td>{% if college.effective_limit %}{{ college.student_count }} / {{ college.effective_limit }}{% else %}—{% endif %}</td>
+      <td>{{ college.active_users_30d }}</td>
+      <td>{{ college.storage_mb }} MB</td>
+      <td>{{ college.last_login_at|date:"d M Y"|default:"—" }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8" class="muted">No colleges tracked yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Recent daily snapshots</span></div>
+  <div class="card-body">
+    {% if snapshots %}
+      <table class="data-table" data-table>
+        <thead><tr><th>Day</th><th>College</th><th>Students</th><th>Active</th><th>Messages</th><th>Payments</th><th>API calls</th></tr></thead>
+        <tbody>
+        {% for snap in snapshots %}
+          <tr><td>{{ snap.day }}</td><td>{{ snap.college.name }}</td><td>{{ snap.student_count }}</td>
+            <td>{{ snap.active_users }}</td><td>{{ snap.messages_sent }}</td>
+            <td>{{ snap.payments_count }}</td><td>{{ snap.api_calls }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}<p class="muted">Snapshots appear once a college reports metrics.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

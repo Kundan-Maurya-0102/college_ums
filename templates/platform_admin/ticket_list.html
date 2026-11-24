@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Support tickets{% endblock %}
+{% block content %}
+<h1 class="page-title">Support tickets</h1>
+{% include "platform_admin/_nav.html" %}
+<form method="get" class="table-toolbar">
+  <select name="status" class="form-select">
+    <option value="">All statuses</option>
+    {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary" type="submit">Filter</button>
+  <a class="btn btn-outline" href="{% url 'platform:ticket_create' %}">+ New ticket</a>
+</form>
+<table class="data-table" data-table>
+  <thead><tr><th>#</th><th>College</th><th>Subject</th><th>Priority</th><th>Status</th><th>Opened</th><th data-nosort></th></tr></thead>
+  <tbody>
+  {% for ticket in tickets %}
+    <tr>
+      <td>#{{ ticket.pk }}</td>
+      <td>{{ ticket.college.name }}</td>
+      <td>{{ ticket.subject }}</td>
+      <td>{{ ticket.get_priority_display }}</td>
+      <td>{% if ticket.status == 'open' %}<span class="badge badge-amber">Open</span>
+          {% elif ticket.status == 'answered' %}<span class="badge badge-blue">Answered</span>
+          {% else %}<span class="badge badge-green">Closed</span>{% endif %}</td>
+      <td>{{ ticket.created_at|date:"d M Y H:i" }}</td>
+      <td><a class="btn btn-outline btn-sm" href="{% url 'platform:ticket_detail' ticket.pk %}">Open</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="muted">No tickets.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "partials/pagination.html" %}
+{% endblock %}
