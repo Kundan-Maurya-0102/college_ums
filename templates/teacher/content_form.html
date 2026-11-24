@@ -3,12 +3,15 @@
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
+<h1 class="page-title">{{ title }}</h1>
+
 <div style="display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:24px;">
   <div class="card">
     <div class="card-header"><span class="card-title">Create {{ title }}</span></div>
     <div class="card-body">
       <form method="post" enctype="multipart/form-data" style="display:grid;gap:14px;">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         {% for field in form %}
         <div>
           <label class="form-label">{{ field.label }}</label>
@@ -25,7 +28,7 @@
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
       <span class="card-title">Recent {{ title }}</span>
       {% if title == "Note / PDF" %}
-      <a href="https://drive.google.com/drive/folders/130qPv6oC5MA8H32QkHPCPJDseNrzvTSy" target="_blank" class="btn btn-outline btn-sm" style="background: #f1f5f9; color: #1e293b; border-color: #cbd5e1;">
+      <a href="https://drive.google.com/drive/folders/130qPv6oC5MA8H32QkHPCPJDseNrzvTSy" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="background: #f1f5f9; color: #1e293b; border-color: #cbd5e1;">
         📂 Google Drive Folder
       </a>
       {% endif %}

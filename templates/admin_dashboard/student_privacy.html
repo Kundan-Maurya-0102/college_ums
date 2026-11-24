@@ -3,6 +3,8 @@
 {% block breadcrumb %}Students / Privacy{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Privacy Tools</h1>
+
 <div class="card mb-24">
   <div class="card-header">
     <span class="card-title">Privacy actions — {{ profile.name }} ({{ profile.registration_number }})</span>
@@ -36,6 +38,7 @@
         </table>
         <form method="post" action="{% url 'student_anonymize' profile.pk %}">
           {% csrf_token %}
+{% include 'partials/form_errors.html' %}
           <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin-bottom:12px;">
             <input type="checkbox" name="confirm" value="yes" required>
             <span>Main confirm karta hoon ki ye student ka personal data erase karna hai. Ye undo nahi hoga.</span>

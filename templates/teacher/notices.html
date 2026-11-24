@@ -3,6 +3,8 @@
 {% block page_title %}Notices{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Notices</h1>
+
 <div style="display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:24px;">
   <div class="card">
     <div class="card-header"><span class="card-title">Send Notice</span></div>
@@ -10,6 +12,7 @@
       <p class="text-muted mb-16">Blank target fields send to all your assigned classes only.</p>
       <form method="post" style="display:grid;gap:14px;">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         {% for field in form %}
           <div>
             <label class="form-label">{{ field.label }}</label>

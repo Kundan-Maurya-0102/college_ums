@@ -4,6 +4,8 @@
 {% block page_title %}Student Dashboard{% endblock %}
 {% block breadcrumb %}Student Dashboard{% endblock %}
 {% block content %}
+<h1 class="page-title">Student Dashboard</h1>
+
             <!-- TOP BAR -->
 
 
@@ -231,7 +233,7 @@
                       <div class="notice-content">{{ material.description|default:"Study material." }}</div>
                       <div class="mt-2">
                         {% if material.file %}<a href="{{ material.file.url }}" class="btn btn-small btn-secondary">Download</a>{% endif %}
-                        {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-small btn-secondary" target="_blank">Open Link</a>{% endif %}
+                        {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-small btn-secondary" target="_blank" rel="noopener noreferrer">Open Link</a>{% endif %}
                       </div>
                     </div>
                   {% empty %}
@@ -304,7 +306,7 @@
                       <tr>
                         <td><b>{{ classmate.name }}</b></td>
                         <td>{{ classmate.registration_number }}</td>
-                        <td>{% if classmate.phone %}<a href="https://wa.me/91{{ classmate.phone }}" target="_blank" class="btn btn-small btn-secondary">WhatsApp</a>{% else %}—{% endif %}</td>
+                        <td>{% if classmate.phone %}<a href="https://wa.me/91{{ classmate.phone }}" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-secondary">WhatsApp</a>{% else %}—{% endif %}</td>
                       </tr>
                       {% empty %}
                       <tr><td colspan="3" class="text-muted">No classmates found.</td></tr>

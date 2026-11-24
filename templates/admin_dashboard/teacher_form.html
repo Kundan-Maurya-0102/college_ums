@@ -3,6 +3,8 @@
 {% block page_title %}{{ action }} Teacher{% endblock %}
 
 {% block content %}
+<h1 class="page-title">{{ action }} Teacher</h1>
+
 <div class="card">
   <div class="card-header">
     <span class="card-title">{{ action }} Teacher Account</span>
@@ -11,6 +13,7 @@
   <div class="card-body">
     <form method="post" style="display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:16px;">
       {% csrf_token %}
+{% include 'partials/form_errors.html' %}
       {% for field in form %}
         <div {% if field.name == 'bio' or field.name == 'subjects' %}style="grid-column:1/-1;"{% endif %}>
           <label class="form-label">{{ field.label }}</label>

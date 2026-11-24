@@ -4,6 +4,8 @@
 {% block page_title %}Edit Profile{% endblock %}
 {% block breadcrumb %}Edit Profile{% endblock %}
 {% block content %}
+<h1 class="page-title">Edit Profile</h1>
+
             <!-- TOP BAR -->
 
 
@@ -22,9 +24,10 @@
                 <div class="card-body">
                   <form method="post">
                     {% csrf_token %}
+{% include 'partials/form_errors.html' %}
 
                     <div class="form-student">
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                      <div class="grid-2">
                         <div>
                           <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
                           {{ form.phone }}
@@ -37,7 +40,7 @@
                         </div>
                       </div>
 
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                      <div class="grid-2">
                         <div>
                           <label class="form-label" for="{{ form.father_name.id_for_label }}">Father's Name</label>
                           {{ form.father_name }}

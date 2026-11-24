@@ -3,6 +3,8 @@
 {% block page_title %}Take Attendance{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Take Attendance</h1>
+
 <div class="card mb-24 fade-in-up">
   <div class="card-header">
     <span class="card-title">
@@ -50,6 +52,7 @@
     {% if students %}
     <form method="POST" action="{% url 'take_attendance_bulk' %}">
       {% csrf_token %}
+{% include 'partials/form_errors.html' %}
       <input type="hidden" name="subject" value="{{ selected_subject.id }}">
       <input type="hidden" name="date" value="{{ selected_date }}">
       

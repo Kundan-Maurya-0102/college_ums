@@ -2,6 +2,8 @@
 {% block title %}Fee Payments — UMS{% endblock %}
 {% block page_title %}&#9632; Fee Payments{% endblock %}
 {% block content %}
+<h1 class="page-title">&#9632; Fee Payments</h1>
+
 <fieldset>
   <legend>Fee Payments</legend>
   <div class="mb-8 d-flex gap-8" style="align-items:center;">
@@ -28,7 +30,12 @@
           <td><span class="badge {% if p.status == 'PAID' %}badge-green{% elif p.status == 'PARTIAL' %}badge-yellow{% else %}badge-red{% endif %}">{{ p.status }}</span></td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-muted">No payments recorded.</td></tr>
+        <tr><td colspan="7">
+          <div class="empty-state">
+            <div class="empty-state-icon">💳</div>
+            <p>Koi fee payment record nahi mila — filter badlein ya naya payment add karein.</p>
+          </div>
+        </td></tr>
         {% endfor %}
       </tbody>
     </table>

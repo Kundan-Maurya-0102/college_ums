@@ -19,7 +19,9 @@
 {% endblock %}
 
 {% block content %}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<h1 class="page-title">📤 Bulk CSV Upload</h1>
+
+<div class="grid-2">
 
   <!-- Upload Form -->
   <div>
@@ -30,6 +32,7 @@
       <div class="card-body">
         <form method="post" enctype="multipart/form-data" id="uploadForm">
           {% csrf_token %}
+{% include 'partials/form_errors.html' %}
 
           <div style="margin-bottom:14px;">
             <label class="form-label">What do you want to upload?</label>
@@ -214,7 +217,7 @@
                 {{ row.message|truncatechars:60 }}
                 {% if row.whatsapp_url %}
                 <div style="margin-top:4px;">
-                  <a href="{{ row.whatsapp_url }}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;padding:2px 8px;font-size:10px;">
+                  <a href="{{ row.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:#25D366;color:#fff;padding:2px 8px;font-size:10px;">
                     💬 Send WhatsApp
                   </a>
                 </div>

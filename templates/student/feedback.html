@@ -4,6 +4,8 @@
 {% block page_title %}Feedback{% endblock %}
 {% block breadcrumb %}Feedback{% endblock %}
 {% block content %}
+<h1 class="page-title">Feedback</h1>
+
             <!-- TOP BAR -->
 
 
@@ -14,6 +16,7 @@
               <legend>&#9632; Submit Feedback</legend>
               <form method="post">
                 {% csrf_token %}
+{% include 'partials/form_errors.html' %}
                 <div class="form-student">
                   {% for field in form %}
                   <div class="form-group">

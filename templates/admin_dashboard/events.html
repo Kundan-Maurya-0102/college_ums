@@ -2,6 +2,8 @@
 {% block title %}Events — UMS{% endblock %}
 {% block page_title %}&#9632; Events / Calendar{% endblock %}
 {% block content %}
+<h1 class="page-title">&#9632; Events / Calendar</h1>
+
 <fieldset>
   <legend>Events</legend>
   <div class="mb-8">
@@ -26,7 +28,12 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-muted">No events.</td></tr>
+        <tr><td colspan="6">
+          <div class="empty-state">
+            <div class="empty-state-icon">📅</div>
+            <p>Abhi koi event nahi hai. Neeche form se pehla event add karein.</p>
+          </div>
+        </td></tr>
         {% endfor %}
       </tbody>
     </table>

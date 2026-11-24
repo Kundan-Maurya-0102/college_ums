@@ -3,6 +3,8 @@
 {% block page_title %}🗑️ Delete Student{% endblock %}
 
 {% block content %}
+<h1 class="page-title">🗑️ Delete Student</h1>
+
 <div style="max-width:500px;margin:0 auto;">
   <div class="card">
     <div class="card-body" style="text-align:center;padding:40px;">
@@ -21,6 +23,7 @@
       <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
         <form method="post">
           {% csrf_token %}
+{% include 'partials/form_errors.html' %}
           <button type="submit" class="btn btn-danger">🗑️ Yes, Delete Permanently</button>
         </form>
         <a href="{% url 'student_list' %}" class="btn btn-outline">Cancel</a>

@@ -138,6 +138,7 @@
 
       <form method="post" novalidate>
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         <div class="form-group">
           <label for="id_username">Username / Registration No.</label>
           <input type="text" name="username" id="id_username" class="form-control"

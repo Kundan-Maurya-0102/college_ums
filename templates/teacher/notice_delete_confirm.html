@@ -3,6 +3,8 @@
 {% block page_title %}Delete Notice{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Delete Notice</h1>
+
 <div style="max-width:680px;">
   <div class="card">
     <div class="card-header">
@@ -18,6 +20,7 @@
       </div>
       <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         <a href="{% url 'teacher_notices' %}" class="btn btn-outline">Cancel</a>
         <button type="submit" class="btn btn-danger">Delete Notice</button>
       </form>

@@ -2,11 +2,14 @@
 {% block title %}Confirm Delete — UMS{% endblock %}
 {% block page_title %}&#9632; Confirm Delete{% endblock %}
 {% block content %}
+<h1 class="page-title">&#9632; Confirm Delete</h1>
+
 <fieldset style="max-width:500px;">
   <legend>Confirm Delete</legend>
   <p>Are you sure you want to delete: <b>{{ object_name }}</b>?</p>
   <form method="post">
     {% csrf_token %}
+{% include 'partials/form_errors.html' %}
     <div class="btn-group mt-8">
       <input type="submit" value="Yes, Delete" class="btn btn-danger">
       <a href="{% url cancel_url %}" class="btn">Cancel</a>

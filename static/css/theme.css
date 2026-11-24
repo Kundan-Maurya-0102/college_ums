@@ -887,3 +887,40 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 }
 .quick-action:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .quick-action .qa-icon { font-size: 18px; line-height: 1; }
+
+/* ── Layout helpers (replace hard-coded inline grids) ─────────────────
+   Before Phase UX these pages used `style="display:grid;grid-template-columns:
+   1fr 1fr"`, which overflowed on phones. These classes collapse to one column
+   below 900px (form pairs) / 1024px (form + preview panes). */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-split {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.grid-split > * {
+  min-width: 0;           /* long words/tables must not blow the layout out */
+}
+
+@media (max-width: 1024px) {
+  .grid-split { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Printed certificate headings keep their document look now that they are <h2> */
+.cert-heading {
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}

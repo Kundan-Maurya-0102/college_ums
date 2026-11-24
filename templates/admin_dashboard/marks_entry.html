@@ -3,13 +3,16 @@
 {% block page_title %}✏️ Internal Marks Entry{% endblock %}
 
 {% block content %}
-<div style="display:grid;grid-template-columns:380px 1fr;gap:24px;">
+<h1 class="page-title">✏️ Internal Marks Entry</h1>
+
+<div class="grid-split">
 
   <div class="card" style="height:fit-content;">
     <div class="card-header"><span class="card-title">Enter Marks</span></div>
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         {% for field in form %}
         <div style="margin-bottom:14px;">
           <label class="form-label">{{ field.label }}</label>

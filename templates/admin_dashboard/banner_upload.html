@@ -3,7 +3,9 @@
 {% block page_title %}🖼️ Manage Banner Images{% endblock %}
 
 {% block content %}
-<div style="display:grid;grid-template-columns: 1fr 1fr; gap: 24px;">
+<h1 class="page-title">🖼️ Manage Banner Images</h1>
+
+<div class="grid-2" style="gap:24px;">
     <!-- Upload Section -->
     <div>
         <div class="card mb-24">
@@ -13,6 +15,7 @@
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+{% include 'partials/form_errors.html' %}
                     <div style="margin-bottom: 16px;">
                         <label class="form-label">Banner Title (Optional)</label>
                         {{ form.title }}

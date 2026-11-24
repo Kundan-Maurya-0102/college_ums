@@ -10,6 +10,8 @@
 {% block page_title %}✏️ Edit Student Profile{% endblock %}
 
 {% block content %}
+<h1 class="page-title">✏️ Edit Student Profile</h1>
+
 <div style="max-width:900px;">
   <div class="card">
     <div class="card-header">
@@ -24,8 +26,9 @@
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="grid-2" style="margin-bottom:16px;">
           <div>
             <label class="form-label">Full Name *</label>
             {{ form.name }}

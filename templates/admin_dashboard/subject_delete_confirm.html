@@ -3,6 +3,8 @@
 {% block page_title %}Delete Subject{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Delete Subject</h1>
+
 <div style="max-width:680px;">
   <div class="card">
     <div class="card-header">
@@ -32,6 +34,7 @@
 
       <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         <a href="{% url 'subject_list' %}" class="btn btn-outline">Cancel</a>
         <button type="submit" class="btn btn-danger">Delete Subject</button>
       </form>

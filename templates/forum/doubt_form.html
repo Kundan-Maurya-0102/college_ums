@@ -5,10 +5,13 @@
 {% block page_title %}{{ action }} Your Doubt{% endblock %}
 
 {% block content %}
+<h1 class="page-title">{{ action }} Your Doubt</h1>
+
 <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
     <div class="card-body p-4">
         <form method="post">
             {% csrf_token %}
+{% include 'partials/form_errors.html' %}
             <div class="mb-3">
                 <label class="form-label fw-bold">Title</label>
                 {{ form.title }}

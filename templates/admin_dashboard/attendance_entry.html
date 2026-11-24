@@ -3,12 +3,15 @@
 {% block page_title %}📅 Attendance Entry{% endblock %}
 
 {% block content %}
+<h1 class="page-title">📅 Attendance Entry</h1>
+
 <div style="display:grid;grid-template-columns:360px 1fr;gap:24px;">
   <div class="card" style="height:fit-content;">
     <div class="card-header"><span class="card-title">Mark Attendance</span></div>
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         {% for field in form %}
         <div style="margin-bottom:14px;">
           <label class="form-label">{{ field.label }}</label>

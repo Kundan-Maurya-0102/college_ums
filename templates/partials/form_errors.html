@@ -1,0 +1,20 @@
+{% comment %}
+Validation feedback for hand-written forms: shows a summary of every field error
+so a failed submit is never silent (the JS only outlines fields, it cannot explain).
+Usage: {% include 'partials/form_errors.html' %} inside the <form>, after csrf_token.
+{% endcomment %}
+{% if form.errors %}
+  <div class="alert alert-danger" role="alert" id="form-errors">
+    <strong>Please fix these field(s):</strong>
+    <ul class="errorlist">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

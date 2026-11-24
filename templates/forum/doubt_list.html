@@ -3,6 +3,8 @@
 {% block page_title %}❓ Community Doubt Forum{% endblock %}
 
 {% block content %}
+<h1 class="page-title">❓ Community Doubt Forum</h1>
+
 <div class="responsive-grid">
     <!-- Doubts List -->
     <div>
@@ -60,6 +62,7 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+{% include 'partials/form_errors.html' %}
                     <div style="margin-bottom: 16px;">
                         <label class="form-label">Doubt Title</label>
                         {{ form.title }}

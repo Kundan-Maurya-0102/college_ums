@@ -3,6 +3,8 @@
 {% block page_title %}💬 Doubt Discussion{% endblock %}
 
 {% block content %}
+<h1 class="page-title">💬 Doubt Discussion</h1>
+
 <div style="max-width: 900px; margin: 0 auto;">
     <a href="{% url 'doubt_list' %}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; margin-bottom: 20px; font-size: 14px; font-weight: 500;">
         ← Back to Forum
@@ -87,6 +89,7 @@
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
+{% include 'partials/form_errors.html' %}
                 <div style="margin-bottom: 16px;">
                     {{ form.content }}
                 </div>

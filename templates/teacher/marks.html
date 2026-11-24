@@ -3,6 +3,8 @@
 {% block page_title %}Marks Entry{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Marks Entry</h1>
+
 <div class="card mb-24">
   <div class="card-header"><span class="card-title">Select Class</span></div>
   <div class="card-body">
@@ -52,6 +54,7 @@
     <div class="card-body">
       <form method="post" style="display:grid;gap:14px;">
         {% csrf_token %}
+{% include 'partials/form_errors.html' %}
         <input type="hidden" name="semester" value="{{ selected_semester }}">
         <input type="hidden" name="branch" value="{{ selected_branch }}">
         {% for field in form %}

@@ -2,10 +2,13 @@
 {% block title %}{{ action }} Fee Structure — UMS{% endblock %}
 {% block page_title %}&#9632; {{ action }} Fee Structure{% endblock %}
 {% block content %}
+<h1 class="page-title">&#9632; {{ action }} Fee Structure</h1>
+
 <fieldset style="max-width:500px;">
   <legend>{{ action }} Fee Structure</legend>
   <form method="post">
     {% csrf_token %}
+{% include 'partials/form_errors.html' %}
     {% for field in form %}
     <div class="form-group">
       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
