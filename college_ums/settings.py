@@ -1,4 +1,5 @@
 import environ
+import logging
 import os
 from pathlib import Path
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'students.middleware.SecurityHeadersMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -150,6 +152,47 @@ PASSWORD_RESET_TIMEOUT = env.int('PASSWORD_TOKEN_TIMEOUT_HOURS', default=48) * 6
 # ── Trusted origins (set per deployment, e.g. https://ums.college.edu) ──
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
+# ── Login brute-force protection ──────────────────────────────────────
+LOGIN_MAX_ATTEMPTS = env.int('LOGIN_MAX_ATTEMPTS', default=5)
+LOGIN_LOCKOUT_SECONDS = env.int('LOGIN_LOCKOUT_MINUTES', default=15) * 60
+
+# ── Proxy trust (only enable behind Caddy/nginx; XFF is spoofable) ─────
+TRUST_PROXY_HEADERS = env.bool('TRUST_PROXY_HEADERS', default=False)
+
+# ── Security headers applied by students.middleware.SecurityHeadersMiddleware
+SECURITY_CSP = env('SECURITY_CSP', default=(
+    "default-src 'self'; "
+    "img-src 'self' data: https:; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src 'self' https://fonts.gstatic.com data:; "
+    "script-src 'self' 'unsafe-inline'; "
+    "connect-src 'self'; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self'; "
+    "object-src 'none'"
+))
+SECURITY_PERMISSIONS_POLICY = env('SECURITY_PERMISSIONS_POLICY', default=(
+    "geolocation=(), microphone=(), camera=(), payment=()"
+))
+
+# ── Error tracking (optional; no key = disabled) ──────────────────────
+SENTRY_DSN = env('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+    except ImportError:  # optional dependency not installed
+        logger.warning("SENTRY_DSN set but sentry-sdk is not installed.")
+    else:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=env.float('SENTRY_TRACES_RATE', default=0.0),
+            send_default_pii=False,
+            environment=env('SENTRY_ENV', default='production'),
+        )
+
 # ── Production hardening (toggle via DEBUG) ───────────────────────────
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -167,6 +210,8 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
+
+logger = logging.getLogger(__name__)
 
 LOGGING = {
     "version": 1,

@@ -27,6 +27,7 @@ from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSched
                      LeaveApplication, Notice, SemesterResult, StudentProfile,
                      StudyMaterial, Subject, WebsiteVisit)
 
+from ..audit import log_action
 from ..pagination import paginate
 from .common import *  # noqa: F401,F403
 from .common import (_int_or_none, _date_or_today, _faculty_subjects,
@@ -100,9 +101,13 @@ def marks_entry(request):
             existing.max_marks = obj.max_marks
             existing.exam_date = obj.exam_date
             existing.save()
+            log_action(request, "marks.update", existing,
+                       detail=f"{existing.student.registration_number} {existing.subject.subject_code} {existing.exam_type}={existing.marks_obtained}")
             messages.success(request, "✅ Marks updated.")
         else:
             obj.save()
+            log_action(request, "marks.create", obj,
+                       detail=f"{obj.student.registration_number} {obj.subject.subject_code} {obj.exam_type}={obj.marks_obtained}")
             messages.success(request, "✅ Marks saved.")
         return redirect('marks_entry')
 
@@ -214,6 +219,8 @@ def take_attendance_bulk(request):
                     marked_by=marked_by
                 )
                 
+        log_action(request, "attendance.bulk", subject,
+                   detail=f"{selected_date} present={len(request.POST.getlist('present_student_ids'))}/{len(students)}")
         messages.success(request, f"✅ Attendance saved for {len(students)} students in {subject.subject_code}.")
         # Keep same query params after post
         return redirect(f'/admin-panel/take-attendance/?subject={subject.id}&date={selected_date}')

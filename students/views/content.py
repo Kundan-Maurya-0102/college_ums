@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """Notices, banners, events, doubt forum and the AI chat endpoint."""
 import csv
 import datetime
@@ -220,9 +224,20 @@ def reply_delete(request, pk):
 def ai_chatbot_api(request):
     if request.method == "POST":
         import json
+
+        from ..security import rate_limit_hit
+
+        if rate_limit_hit(request, "ai-chat", limit=20, window_seconds=300):
+            return JsonResponse({"error": "Too many messages, please wait a minute."}, status=429)
         try:
-            data = json.loads(request.body)
-            prompt = data.get("prompt", "")
+            data = json.loads(request.body or b"{}")
+        except (ValueError, UnicodeDecodeError):
+            return JsonResponse({"error": "Malformed request"}, status=400)
+
+        prompt = str(data.get("prompt", ""))[:2000].strip()
+        if not prompt:
+            return JsonResponse({"error": "Please type a question."}, status=400)
+        try:
             
             user_context = f"User: {request.user.username}, Role: "
             if request.user.is_superuser:
@@ -236,8 +251,9 @@ def ai_chatbot_api(request):
                 
             response = get_ai_response(prompt, user_context)
             return JsonResponse({"response": response})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+        except Exception:
+            logger.exception("AI chat failed for user %s", request.user.pk)
+            return JsonResponse({"error": "Assistant is unavailable right now."}, status=503)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 

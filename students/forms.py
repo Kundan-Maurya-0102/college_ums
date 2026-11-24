@@ -1,10 +1,16 @@
 import csv
 
 from django import forms
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
+logger = logging.getLogger(__name__)
+
+from .security import (DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS,
+                       validate_upload)
 from .models import (Assignment, Attendance, BannerImage, ClassSchedule, CSVUpload,
                      Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
                      Feedback, FeePayment, FeeStructure, InternalExam,
@@ -253,6 +259,14 @@ class FacultyProfileForm(forms.ModelForm):
 
 
 class AssignmentForm(forms.ModelForm):
+    def clean_attachment(self):
+        attachment = self.cleaned_data.get('attachment')
+        if attachment:
+            validate_upload(attachment, DOCUMENT_EXTENSIONS,
+                            max_mb=getattr(settings, 'MATERIAL_MAX_UPLOAD_MB', 10),
+                            label='Attachment')
+        return attachment
+
     class Meta:
         model = Assignment
         fields = ["title", "description", "subject", "due_date", "attachment", "is_active"]
@@ -267,6 +281,14 @@ class AssignmentForm(forms.ModelForm):
 
 
 class StudyMaterialForm(forms.ModelForm):
+    def clean_file(self):
+        material = self.cleaned_data.get('file')
+        if material:
+            validate_upload(material, DOCUMENT_EXTENSIONS | IMAGE_EXTENSIONS,
+                            max_mb=getattr(settings, 'MATERIAL_MAX_UPLOAD_MB', 10),
+                            label='Study material')
+        return material
+
     class Meta:
         model = StudyMaterial
         fields = ["title", "description", "subject", "material_type", "file", "external_link", "is_active"]
@@ -303,6 +325,24 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
 
 class BannerImageForm(forms.ModelForm):
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image and hasattr(image, 'size'):
+            validate_upload(image, IMAGE_EXTENSIONS,
+                            max_mb=getattr(settings, 'BANNER_MAX_UPLOAD_MB', 4),
+                            label='Banner image')
+            try:
+                from PIL import Image
+                Image.open(image).verify()
+            except Exception:
+                raise forms.ValidationError('Banner image is not a valid image file.')
+            finally:
+                try:
+                    image.seek(0)
+                except Exception:  # pragma: no cover - stream already closed
+                    logger.debug("Could not rewind uploaded banner image", exc_info=True)
+        return image
+
     class Meta:
         model = BannerImage
         fields = ['title', 'image', 'is_active']

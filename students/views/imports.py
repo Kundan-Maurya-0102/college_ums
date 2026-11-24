@@ -27,6 +27,7 @@ from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSched
                      LeaveApplication, Notice, SemesterResult, StudentProfile,
                      StudyMaterial, Subject, WebsiteVisit)
 
+from ..audit import log_action
 from ..pagination import paginate
 from .common import *  # noqa: F401,F403
 from .common import (_int_or_none, _date_or_today, _faculty_subjects,
@@ -52,6 +53,8 @@ def csv_upload(request):
             upload.records_updated = int(result.get("updated", 0) or 0)
             upload.errors = "\n".join(result.get("errors", []) or [])
             upload.save()
+            log_action(request, "csv.import", upload,
+                       detail=f"created={upload.records_created} updated={upload.records_updated} errors={len(result.get('errors', []) or [])}")
 
             messages.success(
                 request,

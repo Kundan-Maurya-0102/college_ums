@@ -37,8 +37,26 @@
   renders every admin/teacher/student/public GET route).
 
 
+- **Security audit + OWASP fixes (is session)**: `students/security.py` (login lockout
+  per username+IP, `TRUST_PROXY_HEADERS` gated client IP, upload allow-lists +
+  `safe_upload_name`, generic rate limiter), `SecurityHeadersMiddleware` (CSP,
+  Permissions-Policy, COOP, nosniff, DENY), `AuditLog` model (migration `0014`) +
+  `students/audit.py` hooks (fee, marks, attendance, student edit/delete, CSV import),
+  AI chat API hardened (400/429/503, prompt cap, rate limit), Django 4.2.29 → **4.2.30**,
+  `requirements-dev.txt` (pip-audit, bandit), `scripts/backup_db.sh`, optional
+  `SENTRY_DSN`. Docs: `SECURITY.md`, `VERIFICATION.md`, `docs/PERMISSIONS.md`.
+  Tests: `students/tests/test_security.py` (31 new) → **78 total, OK**.
+
 ## In progress
 - Phase 6.3 (tables/forms/teacher polish/PWA) — baaki UI kaam.
+
+## Verification (is session)
+- Har Done phase code + tests se verify kiya: `VERIFICATION.md` (20 rows).
+  Sach mein done: 15, Adhura: deploy (docker non-installed), onboarding, docs,
+  multi-tenant tests. Missing: 6.3, Phase 7 features.
+- Naye gaps bhi band kiye: proxy IP spoofing, login lockout, CSP, upload types,
+  chat API error leak, audit trail, backup script, Django patch.
+
 
 ## UI/UX Enhancements (completed)
 - Modernized student panel with fresh color scheme using PRIMARY_COLOR env variable

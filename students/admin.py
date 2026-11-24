@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import (Assignment, Attendance, CSVUpload, ClassSchedule, Event,
+from .models import (AuditLog, Assignment, Attendance, CSVUpload, ClassSchedule, Event,
                      ExamSchedule, FacultyProfile, Feedback, FeePayment,
                      FeeStructure, InternalExam, LeaveApplication, Notice,
                      SemesterResult, StudentProfile, StudyMaterial, Subject,
@@ -148,3 +148,21 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ['title', 'event_type', 'event_date', 'is_active', 'created_at']
     list_filter = ['event_type', 'is_active']
     search_fields = ['title', 'description']
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "user", "action", "model_name", "object_id", "ip_address")
+    list_filter = ("action", "model_name")
+    search_fields = ("user__username", "action", "model_name", "object_id", "detail")
+    date_hierarchy = "created_at"
+    readonly_fields = ("user", "action", "model_name", "object_id", "detail", "ip_address", "created_at")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser

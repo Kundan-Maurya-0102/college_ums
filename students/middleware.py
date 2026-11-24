@@ -1,6 +1,12 @@
+import logging
+
+from django.conf import settings
 from django.utils import timezone
 
 from .models import WebsiteVisit
+from .security import client_ip
+
+logger = logging.getLogger(__name__)
 
 
 class WebsiteVisitMiddleware:
@@ -26,8 +32,8 @@ class WebsiteVisitMiddleware:
                     last_dt = timezone.make_aware(last_dt)
                 duration = min(max(int((now - last_dt).total_seconds()), 0), 1800)
                 WebsiteVisit.objects.filter(pk=last_visit_id).update(duration_seconds=duration)
-            except Exception:
-                pass
+            except Exception:  # pragma: no cover - metrics must never 500
+                logger.debug("Could not update visit duration", exc_info=True)
 
         visit = WebsiteVisit.objects.create(
             path=request.path[:255],
@@ -41,7 +47,29 @@ class WebsiteVisitMiddleware:
         return response
 
     def _client_ip(self, request):
-        forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-        return request.META.get("REMOTE_ADDR")
+        # Only trust X-Forwarded-For when the deployment says it is behind a proxy.
+        return client_ip(request)
+
+
+class SecurityHeadersMiddleware:
+    """Add the headers Django does not set by default (CSP, Permissions-Policy...).
+
+    Inline styles/scripts are still used by a few templates, so the CSP allows
+    'unsafe-inline'; tighten it to nonces when those are migrated.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        csp = getattr(settings, "SECURITY_CSP", "")
+        if csp and "Content-Security-Policy" not in response:
+            response["Content-Security-Policy"] = csp
+        policy = getattr(settings, "SECURITY_PERMISSIONS_POLICY", "")
+        if policy:
+            response.setdefault("Permissions-Policy", policy)
+        response.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+        response.setdefault("X-Content-Type-Options", "nosniff")
+        response.setdefault("X-Frame-Options", "DENY")
+        return response

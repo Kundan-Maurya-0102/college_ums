@@ -21,6 +21,7 @@ from ..forms import (AssignmentForm, BannerImageForm, CSVUploadForm, ClassSchedu
                     FeeStructureForm, InternalExamForm, LeaveApplicationForm,
                     NoticeForm, StudentProfileForm, StudyMaterialForm, SubjectForm,
                     AdminUserForm)
+from ..audit import log_action
 from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSchedule,
                      Doubt, DoubtReply, Event, ExamSchedule, FacultyProfile,
                      Feedback, FeePayment, FeeStructure, InternalExam,
@@ -91,6 +92,8 @@ def fee_payment_create(request):
         payment = form.save(commit=False)
         payment.recorded_by = request.user.get_full_name() or request.user.username
         payment.save()
+        log_action(request, "fee.payment.create", payment,
+                   detail=f"{payment.student.registration_number} amount={payment.amount_paid} receipt={payment.receipt_number}")
         messages.success(request, f"Payment recorded: Receipt #{payment.receipt_number}")
         return redirect('fee_payments')
     return render(request, 'admin_dashboard/fee_payment_form.html', {'form': form})

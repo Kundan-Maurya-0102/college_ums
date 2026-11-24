@@ -597,3 +597,27 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.title} ({self.event_date})"
 
+
+
+class AuditLog(models.Model):
+    """Who changed what, when (marks, fees, attendance, users, imports)."""
+
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="audit_entries")
+    action = models.CharField(max_length=64)
+    model_name = models.CharField(max_length=64, blank=True)
+    object_id = models.CharField(max_length=64, blank=True)
+    detail = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["action", "-created_at"], name="audit_action_idx"),
+            models.Index(fields=["user", "-created_at"], name="audit_user_idx"),
+        ]
+
+    def __str__(self):
+        who = self.user.username if self.user else "system"
+        return f"{who} {self.action} {self.model_name}:{self.object_id}".strip()

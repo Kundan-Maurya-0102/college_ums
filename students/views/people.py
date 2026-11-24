@@ -27,6 +27,7 @@ from ..models import (Assignment, Attendance, BannerImage, CSVUpload, ClassSched
                      LeaveApplication, Notice, SemesterResult, StudentProfile,
                      StudyMaterial, Subject, WebsiteVisit)
 
+from ..audit import log_action
 from ..pagination import paginate
 from .common import *  # noqa: F401,F403
 from .common import (_int_or_none, _date_or_today, _faculty_subjects,
@@ -173,6 +174,7 @@ def student_edit(request, pk):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
+            log_action(request, "student.update", profile, detail=profile.registration_number)
             messages.success(request, f"✅ {profile.name}'s profile updated successfully.")
             return redirect('student_list')
         else:
@@ -189,6 +191,7 @@ def student_delete(request, pk):
     profile = get_object_or_404(StudentProfile, pk=pk)
     if request.method == 'POST':
         name = profile.name
+        log_action(request, "student.delete", profile, detail=f"{name} / {profile.registration_number}")
         profile.user.delete()  # Cascade deletes profile
         messages.success(request, f"🗑️ Student '{name}' deleted.")
         return redirect('student_list')

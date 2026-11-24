@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
@@ -12,6 +13,8 @@ from .models import (Assignment, Attendance, BannerImage, ClassSchedule, Event,
                      ExamSchedule, FacultyProfile, Feedback, FeePayment,
                      FeeStructure, InternalExam, LeaveApplication, Notice,
                      SemesterResult, StudentProfile, StudyMaterial, Subject)
+from .security import (login_lockout_remaining, register_login_failure,
+                       reset_login_failures)
 from .password_links import token_generator
 
 def plane(request):
@@ -34,8 +37,19 @@ def student_login(request):
 
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST':
+        username = request.POST.get('username', '')
+        locked_for = login_lockout_remaining(request, username)
+        if locked_for:
+            wait_minutes = max(1, locked_for // 60)
+            messages.error(
+                request,
+                f"Too many failed login attempts. Try again in {wait_minutes} minute(s).",
+            )
+            return render(request, 'student/login.html', {'form': form})
+
         if form.is_valid():
             user = form.get_user()
+            reset_login_failures(request, username)
             login(request, user)
             if user.is_staff:
                 if hasattr(user, "facultyprofile") and not user.is_superuser:
@@ -51,7 +65,12 @@ def student_login(request):
                 pass
             return redirect('student_dashboard')
         else:
-            messages.error(request, "❌ Invalid username or password.")
+            remaining = register_login_failure(request, username)
+            left = max(0, getattr(settings, "LOGIN_MAX_ATTEMPTS", 5) - remaining)
+            if left:
+                messages.error(request, f"❌ Invalid username or password. {left} attempt(s) left.")
+            else:
+                messages.error(request, "❌ Bahut zyada galat attempts. Kuch der baad try karein.")
 
     return render(request, 'student/login.html', {'form': form})
 
