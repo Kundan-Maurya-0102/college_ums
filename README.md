@@ -101,7 +101,13 @@ check** (see §5), not straight off disk.
 
 ## 4. Production deployment (Caddy + Postgres + gunicorn)
 
-1. Create the deployment (generates `.env` with strong secrets, `chmod 600`):
+1. Fresh server, one command (writes `.env` with generated secrets, migrates, creates
+   the college and runs `diagnose_college`):
+   ```bash
+   ./scripts/provision_server.sh <slug> --name "College Name" \
+       --domain ums.college.edu --plan pro --repo /opt/src/college_ums
+   ```
+   Docker-based flow instead (generates `.env` with strong secrets, `chmod 600`):
    ```bash
    ./scripts/new_college.sh --name "College Name" --domain ums.college.edu \
        --email info@college.edu --phone "+91 ..." --color "#1d4ed8" \

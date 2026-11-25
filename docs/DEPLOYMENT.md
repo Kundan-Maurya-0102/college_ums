@@ -23,7 +23,27 @@ DATA_RETENTION_YEARS=1     # shorter retention on test data
 SENTRY_ENV=staging
 ```
 
-## First install of a college
+## First install of a college — one command (recommended)
+
+On a **fresh server** (nothing installed but python3, git, openssl and the Postgres
+client tools):
+
+```bash
+./scripts/provision_server.sh gp-tekari \
+    --name "Government Polytechnic Tekari" --domain ums.gp-tekari.edu \
+    --plan pro --repo /opt/src/college_ums \
+    --admin-username admin --admin-email office@gp-tekari.edu
+```
+
+It creates `/opt/ums/gp-tekari`, a virtualenv, a `.env` with generated
+`SECRET_KEY` / `BACKUP_ENCRYPTION_KEY` / metrics token, migrates, seeds plans,
+compiles translations, collects static files, creates the college + first admin, and
+finishes with `diagnose_college` (exit code 0 ok / 1 broken / 2 warnings).
+Add `--restore <backup>` to bring back an existing college after a disaster.
+
+Re-running is safe: an existing `.env` and code tree are left alone.
+
+## First install (docker compose variant)
 
 ```bash
 ./scripts/new_college.sh gp-tekari \
