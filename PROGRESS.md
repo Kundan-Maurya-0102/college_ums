@@ -154,6 +154,24 @@
   scripts, manifest-dependent tests, `.dockerignore` `*.png`, entrypoint order) sab fix +
   tests. Clean clone me: 304 tests OK, `check --deploy` 0 issues, `makemigrations` clean.
 
+- **Release candidate v1.0.0 (`RELEASE_CHECKLIST.md`)**:
+  postgres 18 + `DEBUG=False` par poora app chalaya (gunicorn, 3 workers).
+  `scripts/rc_flows.py` se **admin / teacher / student / parent / super admin /
+  anonymous** — **112/112 checks pass**; naye server par provisioning ke baad 64/64.
+  Naye ops features: **System status page**, **error tracking + daily digest**
+  (`send_error_digest`), **`diagnose_college <domain>`** (13 checks, exit 0/1/2),
+  **`record_backup`**, **`scripts/provision_server.sh`** (ek command me deployment).
+  **Parent portal** bana (`GuardianProfile`, `/parent/`, `add_guardian`) — pehle
+  Pending tha. RC me mile aur fix hue: metrics API har machine call par 403
+  (csrf_exempt missing), `SESSION/CSRF_COOKIE_SECURE` hardcoded, venv Django 6.1.3
+  drift (pin 4.2.30), pg_dump missing par khali backup, `DB_ENGINE=postgres` Django ko
+  tod deta tha, restore maujood-na-hone par DB nahi banata tha, provision script source
+  repo ka `.env` copy kar deta tha, `ALLOWED_HOSTS` loopback chhod deta tha.
+  **Backup drill (asli):** backup → `DROP DATABASE` → restore → 11/12 tables ke counts
+  identical (12vi row restore ke baad ki nayi error thi). Gate: 353 tests OK,
+  `check --deploy` 0 issues, `makemigrations` clean, ruff clean, bandit medium+ 0,
+  pip-audit 9 (sab Django 4.2, 5.2 LTS tak ignore). Tag: **v1.0.0**.
+
 ## In progress
 - Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
 

@@ -55,6 +55,8 @@ LANDING_PAGE_ENABLED = env.bool('LANDING_PAGE_ENABLED', default=True)
 # Set False only if an object-storage layer already enforces access.
 MEDIA_PROTECTED = env.bool('MEDIA_PROTECTED', default=True)
 ENVIRONMENT = env('ENVIRONMENT', default='development' if DEBUG else 'production').lower()
+# Shown on the System status page (and useful in support tickets).
+RELEASE_VERSION = env('RELEASE_VERSION', default='1.0.0')
 if ENVIRONMENT not in ('development', 'staging', 'production'):
     raise ImproperlyConfigured(
         f"ENVIRONMENT must be development, staging or production (got {ENVIRONMENT!r}).")

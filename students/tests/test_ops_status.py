@@ -279,3 +279,21 @@ class RecordBackupTests(TestCase):
         plain.write_bytes(b'x')
         call_command('record_backup', '--path', str(plain), stdout=StringIO())
         self.assertFalse(BackupRecord.objects.get().encrypted)
+
+
+class ReleaseVersionTests(TestCase):
+    def test_version_is_visible_on_the_status_page(self):
+        from django.conf import settings
+
+        admin_user = User.objects.create_user(
+            username='status-admin', password='TestPass@12345', is_staff=True)
+        client = Client(HTTP_HOST='localhost')
+        client.force_login(admin_user)
+        body = client.get(reverse('system_status')).content.decode()
+        self.assertIn('release', body.lower())
+        self.assertIn(settings.RELEASE_VERSION, body)
+
+    def test_version_defaults_to_a_release_number(self):
+        from django.conf import settings
+
+        self.assertRegex(settings.RELEASE_VERSION, r'^\d+\.\d+\.\d+')
