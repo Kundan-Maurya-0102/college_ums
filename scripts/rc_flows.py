@@ -316,7 +316,8 @@ def role_super_admin(base, creds):
             base + f'/platform/metrics/{slug}/', data=data, method='POST',
             headers={'Content-Type': 'application/json', 'X-Platform-Token': token})
         try:
-            status = urllib.request.urlopen(request, timeout=15).status
+            # URL comes from the operator (--base-url); this is a test script.
+            status = urllib.request.urlopen(request, timeout=15).status  # nosec B310
         except urllib.error.HTTPError as exc:
             status = exc.code
         check('metrics endpoint accepts the college token', status == 200, f'status={status}')

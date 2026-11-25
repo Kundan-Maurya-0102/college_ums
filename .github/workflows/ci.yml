@@ -71,7 +71,9 @@ jobs:
       - name: ruff
         run: ruff check . --output-format=github
       - name: bandit
-        run: bandit -r students college_ums platform_admin scripts -q -ll
+        run: |
+          bandit -r students college_ums platform_admin scripts -q -ll \
+            -x "*/tests/*,students/tests,platform_admin/tests.py,*/migrations/*"
 
   audit:
     name: Dependency audit (pip-audit)

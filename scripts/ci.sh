@@ -11,7 +11,8 @@ echo "==> ruff"
 .venv/bin/ruff check .
 
 echo "==> bandit (medium+ severity fails the build; test files hold dummy secrets)"
-.venv/bin/bandit -r students college_ums platform_admin scripts -q -ll
+.venv/bin/bandit -r students college_ums platform_admin scripts -q -ll \
+  -x "*/tests/*,students/tests,platform_admin/tests.py,*/migrations/*"
 
 echo "==> django check --deploy (production settings)"
 DEBUG=False SECURE_SSL_REDIRECT=False ALLOWED_HOSTS=ci.example.com \

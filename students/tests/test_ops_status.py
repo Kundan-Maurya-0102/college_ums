@@ -102,8 +102,8 @@ class SystemStatusPageTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_page_shows_measured_facts(self):
-        BackupRecord.objects.create(path='/tmp/x.sql.gz.enc', size_bytes=2048,
-                                    encrypted=True)
+        BackupRecord.objects.create(path=Path(tempfile.gettempdir()) / 'x.sql.gz.enc',
+                                    size_bytes=2048, encrypted=True)
         ErrorEvent.objects.create(level='ERROR', logger_name='django.request',
                                   message='a real problem', fingerprint='fp1')
         response = self.login().get(reverse('system_status'))
@@ -118,7 +118,8 @@ class SystemStatusPageTests(TestCase):
 
     def test_stale_backup_is_flagged(self):
         old = timezone.now() - timedelta(hours=100)
-        record = BackupRecord.objects.create(path='/tmp/old.sql.gz.enc', size_bytes=1)
+        record = BackupRecord.objects.create(
+            path=str(Path(tempfile.gettempdir()) / 'old.sql.gz.enc'), size_bytes=1)
         BackupRecord.objects.filter(pk=record.pk).update(created_at=old)
         with override_settings(BACKUP_MAX_AGE_HOURS=48):
             body = self.login().get(reverse('system_status')).content.decode()

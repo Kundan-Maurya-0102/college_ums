@@ -34,6 +34,25 @@ Configure the uptime monitor (UptimeRobot / BetterStack / Healthchecks.io):
 
 ---
 
+## 0.1 Pehle ye do commands (5 minute me 80% cases pata chal jate hain)
+
+```bash
+cd /opt/ums/<slug>
+.venv/bin/python manage.py diagnose_college <domain>      # exit 0/1/2 = ok/broken/warn
+.venv/bin/python manage.py send_error_digest --dry-run     # last 24h ke errors
+```
+
+`diagnose_college` ek-ek line me batata hai: DB reachable?, migrations applied?,
+static manifest?, e-mail/SMTP keys + real connection?, Twilio keys?, disk free?,
+backup kitna purana?. `BROKEN` row = usi ko pehle theek karo.
+
+Admin panel me **System status** (`/admin-panel/system-status/`) live numbers deta hai:
+last backup (age + stale flag), storage, queued/failed jobs (24h), error count.
+Uptime/alerting ke liye har college ka error digest roz subah 7 baje super admin ko
+jata hai (`send_error_digest`), aur usi page par notification channels ki state dikhti hai.
+
+---
+
 ## 1. Site is down (5xx, timeout, blank page)
 
 1. `dc ps` — are `web`, `worker`, `db`, `caddy` all `running`?
@@ -60,6 +79,25 @@ Configure the uptime monitor (UptimeRobot / BetterStack / Healthchecks.io):
 3. Wrong password after an `.env` change ⇒ `dc up -d db web` to reload env.
 4. Disk full ⇒ free space, then `dc restart db`.
 5. If the DB volume is corrupted, restore from backup (section 3).
+
+---
+
+## 2.1 Deploy naya server (disaster ke baad ya naya college)
+
+```bash
+./scripts/provision_server.sh <slug> \
+    --name "<College name>" --domain <domain> --plan pro \
+    --repo /opt/src/college_ums \
+    --restore /var/backups/ums/<slug>-YYYYmmdd-HHMM.sql.gz.enc
+```
+
+Ek hi command me: tools check → venv → `.env` (naye SECRET_KEY / BACKUP_ENCRYPTION_KEY /
+metrics token) → migrate → plans → translations → collectstatic → restore (agar diya) →
+college + admin → `diagnose_college`. Exit code = diagnosis ka code (0 ok, 1 broken,
+2 warnings). Dobara chalana safe hai (existing `.env` ko chhedta nahi).
+
+Data-only restore (server theek hai, DB nahi) ke liye `scripts/restore_db.sh` — dekho
+`docs/BACKUP_RESTORE.md`.
 
 ---
 
@@ -130,6 +168,10 @@ and the padlock shows a valid certificate in the browser.
    `dc exec web python manage.py shell -c "from django_q.models import Failure; print(Failure.objects.count())"`.
 3. Credentials: `.env` must have `EMAIL_*` / `TWILIO_*`; missing ones are reported
    as `skipped (no credentials)` and are **not** retried.
+   Sabse pehle: `manage.py check_email you@college.edu` — backend, host aur real
+   connection dono batata hai (SMTP failure par clear error).`diagnose_college` ka
+   `E-mail` row bhi wahi kehta hai. **System status** page par "not configured —
+   mail is only printed" ka matlab hai `EMAIL_BACKEND` console par hai.
 4. Queue stuck: `dc restart worker`. Pending count:
    `from django_q.models import OrmQ; print(OrmQ.objects.count())`.
 5. Nothing blocks the site: jobs run after the response, so a dead SMTP server
