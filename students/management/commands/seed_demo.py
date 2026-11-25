@@ -80,7 +80,8 @@ class Command(BaseCommand):
             raise CommandError(
                 "DEBUG=False: refusing to insert demo data. Use --force on a demo/staging box."
             )
-        rng = random.Random(20251124)
+        # Deterministic fake names for demo data; not used for tokens or passwords.
+        rng = random.Random(20251124)  # nosec B311
         today = timezone.localdate()
 
         if options['flush']:

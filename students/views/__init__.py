@@ -71,6 +71,11 @@ from .leave_feedback import (  # noqa: F401
                        leave_review,
 )
 from .media import serve_media  # noqa: F401
+from .parents import (  # noqa: F401
+                       guardian_for,
+                       parent_child,
+                       parent_dashboard,
+)
 from .people import (  # noqa: F401
                        admin_create,
                        admin_delete,

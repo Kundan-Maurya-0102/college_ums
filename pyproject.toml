@@ -39,3 +39,10 @@ known-first-party = ["college_ums", "students", "platform_admin"]
 
 [tool.ruff.format]
 quote-style = "preserve"
+
+[tool.bandit]
+# Same rules locally and in CI. Test files hold dummy passwords/tokens on purpose;
+# migrations are generated. Everything else is scanned for medium+ severity in CI.
+# directories only (bandit's exclude_dirs does not take file globs)
+exclude_dirs = ["tests", "students/tests", "migrations", "students/migrations",
+                "platform_admin/migrations"]

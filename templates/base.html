@@ -50,6 +50,9 @@
         <div class="nav-section-title">{% translate "Account" %}</div>
         {% url 'student_profile_edit' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'student_profile_edit' %}" {% if request.resolver_match.url_name == 'student_profile_edit' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-edit"/></svg></span> {% translate "Edit Profile" %}</a>
         {% url 'change_password' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'change_password' %}" {% if request.resolver_match.url_name == 'change_password' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "Change Password" %}</a>
+      {% elif request.user.guardianprofile %}
+        <div class="nav-section-title">My Family</div>
+        <a href="{% url 'parent_dashboard' %}" class="sidebar-link {% nav_active 'parent_dashboard' %}" {% if request.resolver_match.url_name == 'parent_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-users"/></svg></span> {% translate "My Children" %}</a>
       {% elif request.user.facultyprofile and not request.user.is_superuser %}
         <div class="nav-section-title">{% translate "Teaching" %}</div>
         {% url 'teacher_dashboard' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><span class="icon"><svg><use href="#i-grid"/></svg></span> {% translate "Dashboard" %}</a>
@@ -137,7 +140,7 @@
           <span class="avatar" aria-hidden="true">{{ request.user.username|slice:":2" }}</span>
           <span class="user-name">
             <b>{{ request.user.get_full_name|default:request.user.username }}</b><br>
-            {% if request.user.studentprofile %}Student{% elif request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Administrator{% endif %}
+            {% if request.user.studentprofile %}Student{% elif request.user.guardianprofile %}Parent{% elif request.user.facultyprofile and not request.user.is_superuser %}Teacher{% else %}Administrator{% endif %}
           </span>
         </div>
       </div>

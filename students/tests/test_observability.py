@@ -111,6 +111,9 @@ class SentryWiringTests(TestCase):
 
         from students.privacy import scrub_breadcrumb, scrub_sentry_event
 
+        # The SDK is global: restore the "no DSN" state afterwards, otherwise the rest
+        # of the suite keeps trying to reach example.invalid and slows down.
+        self.addCleanup(sentry_sdk.init, dsn="")
         client = sentry_sdk.init(
             dsn="https://public@example.invalid/1",
             integrations=[DjangoIntegration()],

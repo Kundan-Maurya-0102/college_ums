@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+{% block title %}My Children — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}My Children{% endblock %}
+{% block breadcrumb %}Parent Portal{% endblock %}
+{% block content %}
+<h1 class="page-title">My Children</h1>
+
+{% if not children %}
+  <div class="empty-state">
+    <p>No student is linked to this account yet.</p>
+    <p>Please contact the college office with your child's registration number.</p>
+  </div>
+{% endif %}
+
+<div class="grid-2">
+{% for row in children %}
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">{{ row.student.name }}</span>
+      <span class="badge badge-blue">{{ row.student.registration_number }}</span>
+    </div>
+    <div class="card-body">
+      <p class="muted">
+        {{ row.student.get_branch_display_name }}
+        {% if row.student.semester %} · Semester {{ row.student.semester }}{% endif %}
+      </p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Attendance</div>
+          <div class="stat-value">
+            {% if row.attendance is None %}—{% else %}{{ row.attendance }}%{% endif %}
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Fees paid</div>
+          <div class="stat-value">₹{{ row.fees.paid|floatformat:0|intcomma }}</div>
+        </div>
+      </div>
+      <a class="btn btn-primary btn-sm" href="{% url 'parent_child' row.student.pk %}">
+        View attendance, marks and fees
+      </a>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% if notices %}
+  <div class="card mt-24">
+    <div class="card-header"><span class="card-title">Latest notices</span></div>
+    <div class="card-body">
+      <ul class="plain-list">
+        {% for notice in notices %}
+          <li>
+            <b>{{ notice.title }}</b>
+            <span class="muted">— {{ notice.created_at|date:"d M Y" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

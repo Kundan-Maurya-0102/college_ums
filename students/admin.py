@@ -12,6 +12,7 @@ from .models import (
     Feedback,
     FeePayment,
     FeeStructure,
+    GuardianProfile,
     InternalExam,
     LeaveApplication,
     Notice,
@@ -181,3 +182,11 @@ class AuditLogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(GuardianProfile)
+class GuardianProfileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'relationship', 'phone', 'is_active')
+    list_filter = ('is_active', 'relationship')
+    search_fields = ('name', 'user__username', 'phone', 'students__registration_number')
+    filter_horizontal = ('students',)

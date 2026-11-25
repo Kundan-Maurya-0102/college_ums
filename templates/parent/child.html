@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ student.name }} — Parent Portal{% endblock %}
+{% block page_title %}{{ student.name }}{% endblock %}
+{% block breadcrumb %}Parent Portal / {{ student.name }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ student.name }} <span class="badge badge-blue">{{ student.registration_number }}</span></h1>
+<p class="muted">
+  {{ student.get_branch_display_name }}
+  {% if student.semester %} · Semester {{ student.semester }}{% endif %}
+  {% if student.year_of_admission %} · Admitted {{ student.year_of_admission }}{% endif %}
+</p>
+
+<div class="stats-grid mb-24">
+  <div class="stat-card">
+    <div class="stat-label">Attendance</div>
+    <div class="stat-value">{% if attendance is None %}—{% else %}{{ attendance }}%{% endif %}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Fee payments</div>
+    <div class="stat-value">{{ payments|length }}</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Recent marks</span></div>
+    <div class="card-body">
+      {% if marks %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Subject</th><th>Exam</th><th>Marks</th></tr></thead>
+            <tbody>
+            {% for row in marks %}
+              <tr>
+                <td>{{ row.subject.subject_name }}</td>
+                <td>{{ row.get_exam_type_display }}</td>
+                <td>{{ row.marks_obtained }}/{{ row.max_marks }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state"><p>No marks published yet.</p></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Fee payments</span></div>
+    <div class="card-body">
+      {% if payments %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Receipt</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for payment in payments %}
+              <tr>
+                <td>{{ payment.receipt_number }}</td>
+                <td>₹{{ payment.amount_paid|floatformat:0|intcomma }}</td>
+                <td>{{ payment.get_status_display }}</td>
+                <td>{{ payment.payment_date|date:"d M Y" }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state"><p>No payment recorded yet.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-24">
+  <div class="card-header"><span class="card-title">Notices</span></div>
+  <div class="card-body">
+    {% if notices %}
+      <ul class="plain-list">
+        {% for notice in notices %}
+          <li><b>{{ notice.title }}</b> <span class="muted">— {{ notice.created_at|date:"d M Y" }}</span></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state"><p>No notices right now.</p></div>
+    {% endif %}
+  </div>
+</div>
+
+<p class="mt-24"><a class="btn btn-outline btn-sm" href="{% url 'parent_dashboard' %}">← Back to my children</a></p>
+{% endblock %}

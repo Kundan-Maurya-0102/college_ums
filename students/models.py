@@ -667,3 +667,33 @@ class BugReport(models.Model):
 
     def __str__(self):
         return f"{self.get_category_display()} — {self.message[:40]}"
+
+
+class GuardianProfile(models.Model):
+    """A parent/guardian account: read-only view of their own children.
+
+    Deliberately narrow. A guardian can see attendance, marks, fees and notices of
+    the students they are linked to and nothing else; staff create the link. One
+    guardian can have several children (siblings in the same college).
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='guardianprofile')
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=15, blank=True)
+    email = models.EmailField(blank=True)
+    students = models.ManyToManyField(StudentProfile, blank=True, related_name='guardians')
+    relationship = models.CharField(
+        max_length=20, default='Parent',
+        choices=[('Parent', 'Parent'), ('Guardian', 'Guardian'), ('Sibling', 'Sibling')])
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['name']
+        indexes = [models.Index(fields=['is_active'], name='guardian_active_idx')]
+
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
+
+    def children(self):
+        return self.students.select_related('user').order_by('name')

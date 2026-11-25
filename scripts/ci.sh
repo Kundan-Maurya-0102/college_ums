@@ -10,8 +10,13 @@ export CSRF_TRUSTED_ORIGINS="http://localhost,http://127.0.0.1"
 echo "==> ruff"
 .venv/bin/ruff check .
 
-echo "==> bandit"
-.venv/bin/bandit -r students college_ums platform_admin scripts -q -ll || true
+echo "==> bandit (medium+ severity fails the build; test files hold dummy secrets)"
+.venv/bin/bandit -r students college_ums platform_admin scripts -q -ll
+
+echo "==> django check --deploy (production settings)"
+DEBUG=False SECURE_SSL_REDIRECT=False ALLOWED_HOSTS=ci.example.com \
+  CSRF_TRUSTED_ORIGINS=https://ci.example.com ENVIRONMENT=production \
+  $PY_BIN manage.py check --deploy
 
 echo "==> pip-audit (Django 4.2 advisories accepted until the 5.2 LTS upgrade)"
 .venv/bin/pip-audit -r requirements.txt --progress-spinner off \

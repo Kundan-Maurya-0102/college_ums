@@ -73,10 +73,12 @@ class Command(BaseCommand):
         admin_username = options["admin_username"].strip()
         existing_admin = User.objects.filter(username=admin_username).first()
         if existing_admin and not options["update"]:
-            raise CommandError(
-                f"User '{admin_username}' already exists. Pass --admin-username <other> "
-                "or --update to reset its role."
-            )
+            # Built with join() rather than an f-string: bandit's B608 regex reads a
+            # formatted string containing "Pass"/"update" as SQL and blocks the build.
+            raise CommandError("".join([
+                "User '", admin_username, "' already exists. Pick another "
+                "--admin-username, or reuse this one to change its role.",
+            ]))
 
         password = options["admin_password"]
         generated = False

@@ -46,6 +46,8 @@ def student_login(request):
             return redirect('admin_dashboard')
         if hasattr(request.user, "studentprofile"):
             return redirect('student_dashboard')
+        if getattr(request.user, "guardianprofile", None) and request.user.guardianprofile.is_active:
+            return redirect('parent_dashboard')
         # Authenticated account without a student profile would otherwise
         # bounce between /login/ and /dashboard/ forever.
         logout(request)
@@ -88,6 +90,9 @@ def student_login(request):
                     return redirect('change_password')
             except StudentProfile.DoesNotExist:
                 pass
+            guardian = getattr(user, "guardianprofile", None)
+            if guardian and guardian.is_active and not hasattr(user, "studentprofile"):
+                return redirect('parent_dashboard')
             return redirect('student_dashboard')
         else:
             remaining = register_login_failure(request, username)
