@@ -85,13 +85,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install pip-audit
-      # Django 4.2 is EOL for security fixes; these advisories only have 5.2/6.x
-      # fixes. They are accepted knowingly until the Django 5.2 LTS upgrade
-      # (tracked in BACKLOG.md). Any NEW advisory still fails the build.
+      # Django 5.2 LTS: no accepted advisories any more (upgrade done in v1.1.0).
       - name: pip-audit
-        run: |
-          pip-audit -r requirements.txt --progress-spinner off \
-            --ignore-vuln PYSEC-2026-3717 --ignore-vuln PYSEC-2026-198 --ignore-vuln PYSEC-2026-199 --ignore-vuln PYSEC-2026-201 --ignore-vuln PYSEC-2026-2090 --ignore-vuln PYSEC-2026-2091 --ignore-vuln PYSEC-2026-2092 --ignore-vuln PYSEC-2026-4035
+        run: pip-audit -r requirements.txt --progress-spinner off
 
   prod-settings:
     name: Production settings smoke

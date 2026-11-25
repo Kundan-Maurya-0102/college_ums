@@ -303,6 +303,12 @@ class StudyMaterialForm(forms.ModelForm):
                             label='Study material')
         return material
 
+    # Declared explicitly: Django 5.2 warns that the default URL scheme becomes
+    # https in 6.0. Teachers paste "example.com/notes", so assume https ourselves.
+    external_link = forms.URLField(
+        required=False, assume_scheme="https",
+        widget=forms.URLInput(attrs={"class": "form-control"}))
+
     class Meta:
         model = StudyMaterial
         fields = ["title", "description", "subject", "material_type", "file", "external_link", "is_active"]
@@ -312,7 +318,6 @@ class StudyMaterialForm(forms.ModelForm):
             "subject": forms.Select(attrs={"class": "form-select"}),
             "material_type": forms.Select(attrs={"class": "form-select"}),
             "file": forms.FileInput(attrs={"class": "form-control"}),
-            "external_link": forms.URLInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
