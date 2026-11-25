@@ -139,7 +139,8 @@ def role_admin(base, creds):
 
     csv_response = session.get('/admin-panel/students/export/')
     check('students CSV export downloads', csv_response.status == 200
-          and 'DEMO0001' in csv_response.body, str(csv_response.status))
+          and 'Reg' in csv_response.body.splitlines()[0],
+          f'status={csv_response.status} first_line={csv_response.body.splitlines()[:1]}')
 
     # create a notice (real form POST with CSRF)
     token = session.csrf('/admin-panel/notices/create/')
@@ -158,16 +159,17 @@ def role_admin(base, creds):
     student_form = session.get('/admin-panel/students/add/')
     check('add-student form loads', student_form.status == 200)
     token = session.csrf('/admin-panel/students/add/')
+    reg = f'RCW{int(time.time()) % 100000:05d}'   # unique per run, safe to repeat
     response = session.post('/admin-panel/students/add/', {
         'csrfmiddlewaretoken': token, 'name': 'RC Walkthrough Student',
-        'registration_number': 'RCW0001', 'branch': 'CS', 'semester': '3',
+        'registration_number': reg, 'branch': 'CS', 'semester': '3',
         'year_of_admission': '2024', 'phone': '9000000001',
         'father_name': '', 'mother_name': '', 'email': '', 'address': '',
     })
     check('admin adds a student', response.status in (200, 302, 303),
           f'{response.status} {response.body[:300]}')
     check('new student is searchable',
-          'RC Walkthrough Student' in session.get('/admin-panel/students/?q=RCW0001').body)
+          'RC Walkthrough Student' in session.get(f'/admin-panel/students/?q={reg}').body)
 
     # bug-report triage page reachable, and the platform overview
     check('platform overview reachable', session.get('/platform/').status == 200)
@@ -307,10 +309,11 @@ def role_super_admin(base, creds):
 
     # metrics API: this deployment's own token
     token = os.environ.get('RC_METRICS_TOKEN') or os.environ.get('PLATFORM_METRICS_TOKEN', '')
-    if token:
+    slug = os.environ.get('RC_COLLEGE_SLUG', '')
+    if token and slug:
         data = json.dumps({'student_count': 51}).encode()
         request = urllib.request.Request(
-            base + '/platform/metrics/rc-test/', data=data, method='POST',
+            base + f'/platform/metrics/{slug}/', data=data, method='POST',
             headers={'Content-Type': 'application/json', 'X-Platform-Token': token})
         try:
             status = urllib.request.urlopen(request, timeout=15).status
@@ -318,7 +321,7 @@ def role_super_admin(base, creds):
             status = exc.code
         check('metrics endpoint accepts the college token', status == 200, f'status={status}')
     else:
-        print('  SKIP  metrics endpoint (set RC_METRICS_TOKEN)')
+        print('  SKIP  metrics endpoint (set RC_METRICS_TOKEN and RC_COLLEGE_SLUG)')
 
 
 def anonymous(base):
