@@ -1,3 +1,5 @@
+import secrets
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -30,6 +32,8 @@ class StudentProfile(models.Model):
     father_name = models.CharField(max_length=100, blank=True)
     mother_name = models.CharField(max_length=100, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    # Optional: printed on the hall ticket when the office uploads one.
+    photo = models.ImageField(upload_to='photos/%Y/%m/', blank=True, null=True)
 
     # System Fields
     is_password_changed = models.BooleanField(default=False)
@@ -813,3 +817,58 @@ class DashboardSettings(models.Model):
     def is_card_visible(self, key):
         hidden = self.hidden_cards if isinstance(self.hidden_cards, list) else []
         return key not in hidden
+
+
+class ExamDocument(models.Model):
+    """One issued exam PDF: the audit record and the public verification key.
+
+    Every download goes through this row, so "who generated what for whom" is
+    answerable months later, and a hall ticket can be checked at /verify/<code>/.
+    The PDF is generated on demand (never stored), so a correction to marks shows up
+    immediately; the code proves the document was issued by this college.
+    """
+
+    KIND_HALL_TICKET = 'HALL_TICKET'
+    KIND_MARKSHEET = 'MARKSHEET'
+    KINDS = [
+        (KIND_HALL_TICKET, 'Hall ticket'),
+        (KIND_MARKSHEET, 'Marksheet'),
+    ]
+
+    kind = models.CharField(max_length=12, choices=KINDS)
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE,
+                                related_name='exam_documents')
+    semester = models.IntegerField(null=True, blank=True)
+    exam_type = models.CharField(max_length=20, blank=True,
+                                 help_text="e.g. END_SEM, MID_SEM (hall tickets only)")
+    verification_code = models.CharField(max_length=16, unique=True)
+    issued_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                  related_name='issued_exam_documents')
+    issued_at = models.DateTimeField(default=timezone.now)
+    downloads = models.PositiveIntegerField(default=0)
+    last_downloaded_at = models.DateTimeField(null=True, blank=True)
+    is_valid = models.BooleanField(default=True,
+                                   help_text="Unset to invalidate a wrongly issued document")
+
+    class Meta:
+        ordering = ['-issued_at']
+        indexes = [
+            models.Index(fields=['student', 'kind'], name='examdoc_student_kind_idx'),
+            models.Index(fields=['-issued_at'], name='examdoc_issued_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.get_kind_display()} — {self.student.registration_number}"
+
+    def verify_url(self):
+        from django.urls import reverse
+        return reverse('exam_document_verify', args=[self.verification_code])
+
+    @classmethod
+    def new_code(cls):
+        """Short, unambiguous code (no 0/O/1/I) that cannot be guessed in bulk."""
+        alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+        while True:
+            code = ''.join(secrets.choice(alphabet) for _ in range(12))
+            if not cls.objects.filter(verification_code=code).exists():
+                return code

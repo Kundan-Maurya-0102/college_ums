@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Exam documents" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Exam documents" %}{% endblock %}
+{% block breadcrumb %}{% translate "Exam documents" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "Exam documents" %}</h1>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">{% translate "Hall ticket" %}</span></div>
+    <div class="card-body">
+      {% if has_upcoming_exams %}
+        <p class="muted">{% translate "Your exam schedule is published. The hall ticket carries the dates, rooms, instructions and a verification code." %}</p>
+        <div class="btn-group">
+          <a class="btn btn-primary" href="{% url 'student_hall_ticket' %}">{% translate "Download hall ticket (PDF)" %}</a>
+        </div>
+        <p class="muted small mt-3">
+          {% translate "Only upcoming papers are printed. A latest copy is regenerated each time, so corrections show up immediately." %}
+        </p>
+      {% else %}
+        <div class="empty-state">
+          <p>{% translate "No exam schedule published yet." %}</p>
+          <p class="muted small">{% translate "The exam cell will publish dates here before the exams." %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">{% translate "Marksheet" %}</span></div>
+    <div class="card-body">
+      {% if semesters %}
+        <p class="muted">{% translate "Semester-wise result with internal and external marks, grade, SGPA and CGPA." %}</p>
+        <div class="btn-group" style="flex-wrap:wrap;">
+          <a class="btn btn-primary" href="{% url 'student_marksheet' %}">
+            {% translate "Latest marksheet (PDF)" %}
+          </a>
+          {% for sem in semesters %}
+            {% if sem != latest_semester %}
+              <a class="btn btn-outline" href="{% url 'student_marksheet' %}?semester={{ sem }}">
+                {% blocktranslate with s=sem %}Semester {{ s }}{% endblocktranslate %}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <p>{% translate "No result published yet." %}</p>
+          <p class="muted small">{% translate "Your marksheet appears here as soon as the exam cell publishes the result." %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-24">
+  <div class="card-header"><span class="card-title">{% translate "Documents issued to you" %}</span></div>
+  <div class="card-body">
+    {% if documents %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{% translate "Document" %}</th>
+              <th>{% translate "Semester" %}</th>
+              <th>{% translate "Verification code" %}</th>
+              <th>{% translate "Issued" %}</th>
+              <th>{% translate "Downloads" %}</th>
+              <th data-nosort></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in documents %}
+              <tr>
+                <td>{{ doc.get_kind_display }}</td>
+                <td>{{ doc.semester|default:"—" }}</td>
+                <td><code>{{ doc.verification_code }}</code></td>
+                <td>{{ doc.issued_at|date:"d M Y, H:i" }}</td>
+                <td>{{ doc.downloads }}</td>
+                <td>
+                  <a class="btn btn-outline btn-sm"
+                     href="{% url 'exam_document_download' doc.verification_code %}">
+                    {% translate "Download" %}
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small mt-3">
+        {% translate "Anyone can check a document with its code at" %}
+        <code>{% url 'exam_document_verify' 'CODE' %}</code>
+      </p>
+    {% else %}
+      <div class="empty-state">
+        <p>{% translate "Nothing issued yet." %}</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

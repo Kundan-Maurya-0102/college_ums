@@ -28,6 +28,18 @@ urlpatterns = [
     path('help/', views.help_center, name='help_center'),
     path('report-problem/', views.report_problem, name='report_problem'),
 
+    # ── Exam documents (hall ticket / marksheet / verification) ──
+    path('exam/documents/', views.exam_documents, name='exam_documents'),
+    path('exam/hall-ticket/', views.student_hall_ticket, name='student_hall_ticket'),
+    path('exam/marksheet/', views.student_marksheet, name='student_marksheet'),
+    path('exam/documents/<str:code>/download/', views.download_exam_document,
+         name='exam_document_download'),
+    path('verify/<str:code>/', views.verify_exam_document, name='exam_document_verify'),
+    path('admin-panel/exam-documents/', views.admin_exam_documents,
+         name='admin_exam_documents'),
+    path('admin-panel/exam-documents/bulk/', views.admin_exam_documents_bulk,
+         name='admin_exam_documents_bulk'),
+
     # ── Parent / guardian portal (read-only) ──────
     path('parent/', views.parent_dashboard, name='parent_dashboard'),
     path('parent/child/<int:pk>/', views.parent_child, name='parent_child'),

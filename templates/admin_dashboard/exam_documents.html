@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Exam documents" %} — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}{% translate "Exam documents" %}{% endblock %}
+{% block breadcrumb %}{% translate "Exam documents" %}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{% translate "Exam documents" %}</h1>
+<p class="muted">
+  {% translate "Generate hall tickets or marksheets for a whole class as one ZIP, or one student at a time from their student list." %}
+  · {% blocktranslate count counter=generated %}Total hall tickets issued so far: {{ counter }}{% plural %}Total hall tickets issued so far: {{ counter }}{% endblocktranslate %}
+</p>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">{% translate "1. Choose the class" %}</span></div>
+  <div class="card-body">
+    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="min-width:180px;">
+        <label class="form-label" for="branch">{% translate "Branch" %}</label>
+        <select name="branch" id="branch" class="form-select">
+          <option value="">{% translate "Select" %}</option>
+          {% for code in branches %}
+            <option value="{{ code }}" {% if code == branch %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="width:150px;">
+        <label class="form-label" for="semester">{% translate "Semester" %}</label>
+        <select name="semester" id="semester" class="form-select">
+          <option value="">{% translate "Select" %}</option>
+          {% for sem in semesters %}
+            <option value="{{ sem }}" {% if sem == semester %}selected{% endif %}>{{ sem }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">{% translate "Show class" %}</button>
+    </form>
+  </div>
+</div>
+
+{% if branch and semester %}
+  <div class="card mt-24">
+    <div class="card-header">
+      <span class="card-title">
+        {% translate "2. Generate" %} · {{ branch }} · {% blocktranslate with s=semester %}Semester {{ s }}{% endblocktranslate %}
+        <span class="badge badge-blue">{{ students|length }}</span>
+      </span>
+    </div>
+    <div class="card-body">
+      {% if students %}
+        <form method="post" action="{% url 'admin_exam_documents_bulk' %}" class="form-inline"
+              style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+          {% csrf_token %}
+          {% include 'partials/form_errors.html' %}
+          <input type="hidden" name="branch" value="{{ branch }}">
+          <input type="hidden" name="semester" value="{{ semester }}">
+          <div style="min-width:220px;">
+            <label class="form-label" for="kind">{% translate "Document" %}</label>
+            <select name="kind" id="kind" class="form-select">
+              <option value="HALL_TICKET">{% translate "Hall tickets (with QR + verification code)" %}</option>
+              <option value="MARKSHEET">{% translate "Marksheets (SGPA / CGPA / backlogs)" %}</option>
+            </select>
+          </div>
+          <div style="min-width:180px;">
+            <label class="form-label" for="exam_type">{% translate "Exam (hall tickets only)" %}</label>
+            <select name="exam_type" id="exam_type" class="form-select">
+              <option value="">{% translate "All examinations" %}</option>
+              {% for value, label in exam_types %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">{% translate "Download ZIP" %}</button>
+        </form>
+        <p class="muted small mt-3">
+          {% translate "Each PDF is generated fresh for every student, so marks corrections apply immediately. Every generation and download is written to the audit log." %}
+        </p>
+
+        <div class="table-responsive mt-3">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>{% translate "Reg. No." %}</th><th>{% translate "Name" %}</th><th>{% translate "Branch" %}</th><th>{% translate "Sem" %}</th></tr>
+            </thead>
+            <tbody>
+              {% for student in students %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ student.registration_number }}</td>
+                  <td>{{ student.name }}</td>
+                  <td>{{ student.branch }}</td>
+                  <td>{{ student.semester }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <p>{% translate "No students in this class yet." %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

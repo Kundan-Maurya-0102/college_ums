@@ -1,0 +1,57 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% translate "Document verification" %} — {{ COLLEGE_NAME }}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  {% include 'partials/college_colors.html' %}
+</head>
+<body>
+  <main class="page-content" style="max-width:720px;margin:40px auto;">
+    <h1 class="page-title">{{ COLLEGE_NAME }}</h1>
+    <p class="muted">{% translate "Document verification" %}</p>
+
+    <div class="card mt-24">
+      <div class="card-body">
+        {% if not document %}
+          <p class="badge badge-red" style="display:inline-block;">{% translate "Not found" %}</p>
+          <p class="mt-3">
+            {% translate "No document was issued with this code by this college. It may be typed wrongly, or the document was not issued here." %}
+          </p>
+        {% elif not valid %}
+          <p class="badge badge-red" style="display:inline-block;">{% translate "Cancelled" %}</p>
+          <p class="mt-3">
+            {% translate "This document was withdrawn by the college and is no longer valid." %}
+          </p>
+        {% else %}
+          <p class="badge badge-green" style="display:inline-block;">{% translate "Valid" %}</p>
+          <table class="data-table mt-3">
+            <tbody>
+              <tr><th>{% translate "College" %}</th><td>{{ COLLEGE_NAME }}</td></tr>
+              <tr><th>{% translate "Document" %}</th><td>{{ document.get_kind_display }}</td></tr>
+              {% if document.exam_type %}
+                <tr><th>{% translate "Examination" %}</th><td>{{ exam_label }}</td></tr>
+              {% endif %}
+              <tr><th>{% translate "Student" %}</th><td>{{ masked_name }}</td></tr>
+              <tr><th>{% translate "Registration no." %}</th><td>{{ masked_registration }}</td></tr>
+              <tr><th>{% translate "Semester" %}</th><td>{{ document.semester|default:"—" }}</td></tr>
+              <tr><th>{% translate "Issued on" %}</th><td>{{ document.issued_at|date:"d M Y, H:i" }}</td></tr>
+              <tr><th>{% translate "Code" %}</th><td><code>{{ document.verification_code }}</code></td></tr>
+            </tbody>
+          </table>
+          <p class="muted small mt-3">
+            {% translate "Marks are not shown here on purpose. Only the holder of the document can see the result." %}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <p class="muted small mt-24">
+      {% translate "Issued documents are logged by the college. Contact the exam cell for any doubt." %}
+    </p>
+  </main>
+</body>
+</html>

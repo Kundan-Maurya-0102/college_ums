@@ -190,6 +190,22 @@
   (15 subject add karne par +2 se zyada query nahi), hidden cards, gateway ke bina
   "Pay online" nahi, a11y (ek h1, landmarks, aria-current, badge text).
 
+- **Exam module** — `students/pdf.py` (reportlab: college letterhead from `COLLEGE_*`
+  env + `PRIMARY_COLOR` table header, logo, footer, QR) aur `students/exams.py`
+  (data + access rules). **Hall ticket**: exams list, photo (optional), instructions,
+  verification code + QR. **Marksheet**: internal/external, grade, credits, **SGPA/CGPA**
+  (credit-weighted grade points), pass/fail, backlog table. **Bulk**: class ka ek ZIP
+  (hall tickets ya marksheets, per-student PDF, 500 ka cap). **Verification**:
+  `/verify/<code>/` public page (college + kind + date, masked name/reg, **koi marks
+  nahi**). **Audit**: har generation/download `AuditLog` + `ExamDocument` row
+  (code, issuer, downloads) — models migration `0022`, `StudentProfile.photo` optional.
+  Access: student sirf apna (URL me student id nahi), staff sab, teacher sirf apni class;
+  galat code par 403 + `exam.download_denied` audit. Tests:
+  `students/tests/test_exam_documents.py` (28) — PDF text (pypdf se verify), SGPA math,
+  backlog, khali semester, A-student can't open B's document, **College A/B** (doosre DB
+  ka code resolve nahi hota, local row doosri DB me nahi jaata), teacher scope, bulk ZIP,
+  audit rows. Deps: `reportlab`, `qrcode`, `pypdf` (tests) pinned in requirements.
+
 ## In progress
 - Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
 

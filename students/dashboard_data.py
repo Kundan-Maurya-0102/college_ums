@@ -37,6 +37,7 @@ ATTENDANCE_WATCH = 60.0   # amber between WATCH and OK, red below
 DEFAULT_QUICK_LINKS = [
     {"label": "Fee Dashboard", "url_name": "student_fees", "icon": "i-rupee", "badge": ""},
     {"label": "Date Sheet", "url_name": "student_exam_schedule", "icon": "i-calendar", "badge": "exam"},
+    {"label": "Hall ticket", "url_name": "exam_documents", "icon": "i-download", "badge": ""},
     {"label": "Certificate Request", "url_name": "student_certificates", "icon": "i-shield", "badge": ""},
     {"label": "Leave Apply", "url_name": "student_leave_apply", "icon": "i-clipboard", "badge": ""},
     {"label": "Academic Calendar", "url_name": "student_events", "icon": "i-calendar", "badge": ""},

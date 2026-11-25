@@ -52,6 +52,15 @@ from .dashboard import (  # noqa: F401
                        reports_view,
                        teacher_dashboard,
 )
+from .exams import (  # noqa: F401
+                       admin_exam_documents,
+                       admin_exam_documents_bulk,
+                       download_exam_document,
+                       exam_documents,
+                       student_hall_ticket,
+                       student_marksheet,
+                       verify_exam_document,
+)
 from .finance import (  # noqa: F401
                        fee_payment_create,
                        fee_payments,

@@ -147,3 +147,27 @@ Parents cannot change any data. Ask the office for a fresh link if the old one e
 | No internet mid-work? | You get an offline page instead of an error; unsaved form data must be retyped. |
 | Data export? | Every list has **Export CSV**; a student's full data can be exported by the office from *All Students → student → Privacy*. |
 | Deleted something by mistake? | Deletions are permanent in the app; the office can restore from the previous nightly backup (see `docs/BACKUP_RESTORE.md`). |
+
+## Exam documents (hall ticket & marksheet)
+
+**Student:** top menu → *Exam documents* (or the dashboard's "Hall ticket" pill).
+- *Download hall ticket (PDF)* — carries your photo (if the office uploaded one),
+  the upcoming papers with dates, times and rooms, the instructions, and a
+  verification code with a QR.
+- *Latest marksheet (PDF)* — internal + external marks, grade per subject, SGPA, CGPA
+  and any backlog list. Older semesters are one click away.
+
+Both are generated fresh on every download, so a corrected mark shows up immediately.
+Anyone can check a document at `/verify/<code>/` — that page confirms the college,
+the document type and the issue date, and deliberately shows **no marks**.
+
+**Office / teacher:** *Exam documents* in the admin sidebar.
+1. Pick branch + semester → *Show class*.
+2. Choose *Hall tickets* or *Marksheets*, and for hall tickets the examination
+   (or "All examinations").
+3. *Download ZIP* — one PDF per student, named by registration number.
+Every generation and every download is written to the audit log, so "who printed what,
+when" is answerable later.
+
+A teacher can only generate for classes they teach; the office can generate for any
+class in this deployment.
