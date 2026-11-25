@@ -6,6 +6,7 @@ from .models import (
     AuditLog,
     ClassSchedule,
     CSVUpload,
+    DashboardSettings,
     Event,
     ExamSchedule,
     FacultyProfile,
@@ -190,3 +191,22 @@ class GuardianProfileAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'relationship')
     search_fields = ('name', 'user__username', 'phone', 'students__registration_number')
     filter_horizontal = ('students',)
+
+
+@admin.register(DashboardSettings)
+class DashboardSettingsAdmin(admin.ModelAdmin):
+    """One row: switch dashboard cards off and edit the quick-link row."""
+
+    list_display = ('__str__', 'hidden_cards', 'show_dark_mode_toggle', 'updated_at')
+    fieldsets = (
+        ("Cards", {'fields': ('hidden_cards',),
+                   'description': 'Card keys to hide: notices, messages, courses, fees, '
+                                  'assignments, events, exams, summary.'}),
+        ("Quick links", {'fields': ('quick_links',),
+                         'description': 'Leave empty for the default row. Each item: '
+                                        '{"label": "...", "url_name": "...", "icon": "i-rupee"}'}),
+        ("Appearance", {'fields': ('show_dark_mode_toggle',)}),
+    )
+
+    def has_add_permission(self, request):
+        return not DashboardSettings.objects.exists()

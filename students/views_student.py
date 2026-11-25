@@ -9,24 +9,19 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
 
+from . import dashboard_data
 from .forms import CustomPasswordChangeForm, FeedbackForm, LeaveApplicationForm, StudentSelfProfileForm
 from .models import (
-    Assignment,
-    Attendance,
     BannerImage,
-    ClassSchedule,
+    DashboardSettings,
     Event,
     ExamSchedule,
     FacultyProfile,
     Feedback,
     FeePayment,
     FeeStructure,
-    InternalExam,
     LeaveApplication,
-    Notice,
-    SemesterResult,
     StudentProfile,
-    StudyMaterial,
     Subject,
 )
 from .password_links import token_generator
@@ -182,6 +177,12 @@ def set_password(request, uidb64, token):
 
 @login_required(login_url='/login/')
 def student_dashboard(request):
+    """The whole student view on one screen.
+
+    Data comes from `students.dashboard_data.build` (aggregate queries only, scoped to
+    this student). The layout is `student/dashboard.html` on the `student/shell.html`
+    chrome: top navbar, collapsible sidebar, quick links, card grid.
+    """
     if request.user.is_staff:
         return redirect('admin_dashboard')
 
@@ -191,94 +192,33 @@ def student_dashboard(request):
         messages.error(request, "No student profile found for your account.")
         return redirect('student_login')
 
-    # Force password change
+    # Force password change (and keep the banner honest about it).
     if not profile.is_password_changed:
         messages.warning(request, "⚠️ Please change your default password first.")
         return redirect('change_password')
 
-    # Get subjects for this branch/semester
-    subjects = Subject.objects.filter(
-        branch=profile.branch,
-        semester=profile.semester,
-        is_active=True
-    ) if profile.branch and profile.semester else []
+    settings_obj = DashboardSettings.load()
+    cards = {key: settings_obj.is_card_visible(key)
+             for key, _label in DashboardSettings.CARD_CHOICES}
+    context = dashboard_data.build(
+        profile,
+        gateway_configured=bool(getattr(settings, 'RAZORPAY_KEY_ID', '')),
+        cards=cards,
+    )
+    read_state = profile.dashboard_seen_at     # computed before marking, for the dots
+    dashboard_data.mark_seen(profile)
 
-    # Internal Marks
-    internal_marks = {}
-    if subjects:
-        marks_qs = InternalExam.objects.filter(
-            student=profile
-        ).select_related('subject')
-        for mark in marks_qs:
-            key = mark.subject.subject_code
-            if key not in internal_marks:
-                internal_marks[key] = {'subject': mark.subject, 'marks': {}}
-            internal_marks[key]['marks'][mark.exam_type] = {
-                'obtained': mark.marks_obtained,
-                'max': mark.max_marks,
-                'pct': mark.percentage(),
-            }
-
-    # Semester Results
-    results = SemesterResult.objects.filter(
-        student=profile
-    ).select_related('subject').order_by('semester', 'subject__subject_code')
-
-    results_by_sem = {}
-    for r in results:
-        if r.semester not in results_by_sem:
-            results_by_sem[r.semester] = []
-        results_by_sem[r.semester].append(r)
-
-    # Attendance per subject
-    attendance_data = []
-    for subject in subjects:
-        total = Attendance.objects.filter(student=profile, subject=subject).count()
-        present = Attendance.objects.filter(student=profile, subject=subject, is_present=True).count()
-        pct = round((present / total) * 100, 1) if total > 0 else 0
-        attendance_data.append({
-            'subject': subject,
-            'total': total,
-            'present': present,
-            'absent': total - present,
-            'percentage': pct,
-            'status': 'danger' if pct < 75 else ('warning' if pct < 85 else 'success'),
-        })
-
-    # Notices for this student
-    all_notices = Notice.objects.filter(is_active=True)
-    notices = [n for n in all_notices if n.is_for_student(profile)]
-
-    exam_types = ['CA1', 'CA2', 'CA3', 'MSE', 'ASSIGNMENT']
-    assignments = Assignment.objects.filter(subject__in=subjects, is_active=True).select_related("subject", "assigned_by")[:10]
-    materials = StudyMaterial.objects.filter(subject__in=subjects, is_active=True).select_related("subject", "uploaded_by")[:10]
-    schedules = ClassSchedule.objects.filter(subject__in=subjects, is_active=True).select_related("subject", "faculty")
-    teachers = []
-    for subject in subjects:
-        for faculty in subject.faculty.filter(is_active=True):
-            teachers.append({"subject": subject, "faculty": faculty})
-
-    # Classmates
-    classmates = StudentProfile.objects.filter(
-        branch=profile.branch,
-        semester=profile.semester
-    ).exclude(id=profile.id).only('name', 'registration_number', 'email')[:15]
-
-    context = {
+    context.update({
         'profile': profile,
-        'subjects': subjects,
-        'internal_marks': internal_marks,
-        'results_by_sem': results_by_sem,
-        'attendance_data': attendance_data,
-        'notices': notices,
-        'exam_types': exam_types,
-        'assignments': assignments,
-        'materials': materials,
-        'schedules': schedules,
-        'teachers': teachers,
+        'dashboard_settings': settings_obj,
+        'quick_links': dashboard_data.DEFAULT_QUICK_LINKS,
+        'read_state': read_state,
         'banners': BannerImage.objects.filter(is_active=True),
-        'classmates': classmates,
-    }
+        'today': timezone.localdate(),
+        # kept for templates/tests that still read the flat lists
+        'subjects': [row['subject'] for row in context['course_rows']],
+        'notices': [entry['notice'] for entry in context['announcements']],
+    })
     return render(request, 'student/dashboard.html', context)
 
 

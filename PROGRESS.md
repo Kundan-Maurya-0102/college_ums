@@ -172,6 +172,24 @@
   `check --deploy` 0 issues, `makemigrations` clean, ruff clean, bandit medium+ 0,
   pip-audit 9 (sab Django 4.2, 5.2 LTS tak ignore). Tag: **v1.0.0**.
 
+- **Student dashboard redesign (one screen)** — naya student shell:
+  `templates/student/shell.html` (top navbar: logo+naam env se, Academics/Services/Links
+  dropdowns, search, notification bell with unread badge, profile dropdown, dark-mode
+  toggle; left sidebar collapsible + mobile drawer) aur `templates/student/dashboard.html`
+  (quick-link pills row, password/fee banner, responsive card grid 3/2/1: Announcements,
+  My Messages, My Courses with attendance rings, Fees, Pending assignments, Events,
+  Upcoming exams, Attendance+result summary — har card me empty state).
+  Data `students/dashboard_data.py` me: 9 aggregate queries (koi N+1 nahi), sirf
+  `request.user.studentprofile` ki rows. Naya model `DashboardSettings` (card on/off,
+  quick links, dark-mode toggle) Django admin me. Models: `StudentProfile.dashboard_seen_at`
+  (unread dots), `FeeStructure.due_date` (due/overdue), `Event.venue/start_time/end_time`
+  → migration `0021`. CSS `static/css/dashboard.css` sirf maujooda `theme.css` variables
+  (college branding same), JS `static/js/dashboard.js` (drawer, dropdowns, theme cookie,
+  subject filter). Tests: `students/tests/test_dashboard_redesign.py` (18) — 200 render,
+  student A/B aur College A/B isolation (same PKs), khali data par 200, query budget
+  (15 subject add karne par +2 se zyada query nahi), hidden cards, gateway ke bina
+  "Pay online" nahi, a11y (ek h1, landmarks, aria-current, badge text).
+
 ## In progress
 - Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
 

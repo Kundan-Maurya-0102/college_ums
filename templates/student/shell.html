@@ -1,0 +1,141 @@
+{% load static i18n ui %}{% get_current_language as CURRENT_LANG %}<!DOCTYPE html>
+<html lang="{{ CURRENT_LANG|default:'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ COLLEGE_NAME }} UMS{% endblock %}</title>
+  <meta name="description" content="{{ COLLEGE_NAME }} — student portal">
+  <meta name="theme-color" content="{{ PRIMARY_COLOR|default:'#1d4ed8' }}">
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  {% include 'partials/college_colors.html' %}
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="dash-body dash-loading{% if request.COOKIES.ums_theme == 'dark' %} dash-dark{% endif %}">
+
+{% include 'partials/icons.html' %}
+<a class="skip-link" href="#main-content">{% translate "Skip to content" %}</a>
+
+<header class="dash-nav" role="banner">
+  <div class="dash-nav-inner">
+    <button class="dash-icon-btn dash-nav-toggle" id="nav-toggle" type="button"
+            aria-label="{% translate 'Toggle navigation' %}" aria-controls="dash-sidebar"
+            aria-expanded="false">&#9776;</button>
+
+    <a class="dash-brand" href="{% url 'student_dashboard' %}">
+      <span class="dash-brand-logo">{% include 'partials/college_logo.html' %}</span>
+      <span class="dash-brand-text">
+        <b>{{ COLLEGE_NAME|default:_("College UMS") }}</b>
+        <small>{% translate "Student portal" %}</small>
+      </span>
+    </a>
+
+    <nav class="dash-nav-menus" aria-label="{% translate 'Main sections' %}">
+      <details class="dash-menu">
+        <summary>{% translate "Academics" %}</summary>
+        <div class="dash-menu-panel">
+          <a href="{% url 'student_dashboard' %}">{% translate "Dashboard" %}</a>
+          <a href="{% url 'student_exam_schedule' %}">{% translate "Exam Schedule" %}</a>
+          <a href="{% url 'student_certificates' %}">{% translate "Certificates" %}</a>
+          <a href="{% url 'student_fees' %}">{% translate "Fees" %}</a>
+        </div>
+      </details>
+      <details class="dash-menu">
+        <summary>{% translate "Services" %}</summary>
+        <div class="dash-menu-panel">
+          <a href="{% url 'student_leave_apply' %}">{% translate "Leave" %}</a>
+          <a href="{% url 'student_feedback' %}">{% translate "Feedback" %}</a>
+          <a href="{% url 'doubt_list' %}">{% translate "Doubt Forum" %}</a>
+          <a href="{% url 'student_events' %}">{% translate "Events" %}</a>
+        </div>
+      </details>
+      <details class="dash-menu">
+        <summary>{% translate "Links" %}</summary>
+        <div class="dash-menu-panel">
+          <a href="{% url 'help_center' %}">{% translate "Help & guide" %}</a>
+          <a href="{% url 'privacy_policy' %}">{% translate "Privacy policy" %}</a>
+          <a href="{% url 'terms_of_use' %}">{% translate "Terms of use" %}</a>
+          {% if COLLEGE_WEBSITE %}<a href="{{ COLLEGE_WEBSITE }}" target="_blank" rel="noopener noreferrer">{% translate "College website" %}</a>{% endif %}
+        </div>
+      </details>
+    </nav>
+
+    <div class="dash-nav-actions">
+      <a class="dash-icon-btn" href="{% url 'student_dashboard' %}#courses"
+         aria-label="{% translate 'Search subjects' %}" title="{% translate 'Search subjects' %}">
+        <svg width="18" height="18" aria-hidden="true"><use href="#i-search"/></svg>
+      </a>
+
+      <a class="dash-icon-btn dash-bell" href="{% url 'student_dashboard' %}#notices"
+         aria-label="{% translate 'Notifications' %}{% if unread_count %}, {{ unread_count }} {% translate 'unread' %}{% endif %}"
+         title="{% translate 'Notifications' %}">
+        <svg width="18" height="18" aria-hidden="true"><use href="#i-bell"/></svg>
+        {% if unread_count %}
+          <span class="dash-badge-count" aria-hidden="true">{{ unread_count }}</span>
+        {% endif %}
+      </a>
+
+      {% if dashboard_settings.show_dark_mode_toggle %}
+      <button class="dash-icon-btn" id="dash-theme" type="button"
+              aria-label="{% translate 'Toggle dark mode' %}" aria-pressed="false">
+        <svg width="18" height="18" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      {% endif %}
+
+      <details class="dash-menu dash-profile">
+        <summary aria-label="{% translate 'Account menu' %}">
+          <span class="dash-avatar" aria-hidden="true">{{ profile.name|slice:":1"|upper }}</span>
+          <span class="dash-profile-name">{{ profile.name|truncatechars:18 }}</span>
+        </summary>
+        <div class="dash-menu-panel dash-menu-right">
+          <a href="{% url 'student_profile_edit' %}">{% translate "Profile" %}</a>
+          <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
+          <a href="{% url 'student_logout' %}">{% translate "Logout" %}</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<div class="dash-layout">
+  <aside class="dash-sidebar" id="dash-sidebar" aria-label="{% translate 'Sidebar' %}">
+    <nav class="dash-side-nav">
+      {% url 'student_dashboard' as u %}<a href="{{ u }}" class="dash-side-link {% nav_active 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><svg aria-hidden="true"><use href="#i-grid"/></svg><span>{% translate "Dashboard" %}</span></a>
+      <a href="{% url 'student_dashboard' %}#courses" class="dash-side-link"><svg aria-hidden="true"><use href="#i-book"/></svg><span>{% translate "Courses" %}</span></a>
+      <a href="{% url 'student_certificates' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Attendance" %}</span></a>
+      <a href="{% url 'student_dashboard' %}#summary" class="dash-side-link"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Marks / Results" %}</span></a>
+      <a href="{% url 'student_fees' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-rupee"/></svg><span>{% translate "Fees" %}</span></a>
+      <a href="{% url 'student_dashboard' %}#courses" class="dash-side-link"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Timetable" %}</span></a>
+      <a href="{% url 'student_exam_schedule' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-clipboard"/></svg><span>{% translate "Exam Schedule" %}</span></a>
+      <a href="{% url 'student_leave_apply' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-history"/></svg><span>{% translate "Leave" %}</span></a>
+      <a href="{% url 'student_certificates' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>{% translate "Certificates" %}</span></a>
+      <a href="{% url 'student_events' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Events" %}</span></a>
+      <a href="{% url 'doubt_list' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-message"/></svg><span>{% translate "Doubt Forum" %}</span></a>
+      <a href="{% url 'student_feedback' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-edit"/></svg><span>{% translate "Feedback" %}</span></a>
+    </nav>
+
+    <div class="dash-side-foot">
+      <a href="{% url 'student_logout' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-logout"/></svg><span>{% translate "Logout" %}</span></a>
+    </div>
+  </aside>
+
+  <div class="dash-scrim" id="dash-scrim" hidden></div>
+
+  <main class="dash-main" id="main-content">
+    {# validation errors are rendered per-form; nothing to include here #}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% include 'partials/bug_report.html' %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

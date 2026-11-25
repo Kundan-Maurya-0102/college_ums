@@ -36,6 +36,9 @@ class StudentProfile(models.Model):
     # When the student accepted the privacy policy / terms (null = not recorded).
     consent_given_at = models.DateTimeField(null=True, blank=True)
     credentials_sent = models.BooleanField(default=False)
+    # Last time the dashboard was opened: drives the "unread" dot on notices.
+    # Per-student row, so it never leaks another student's read state.
+    dashboard_seen_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -444,6 +447,8 @@ class FeeStructure(models.Model):
     fee_type = models.CharField(max_length=20, choices=FEE_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     academic_year = models.CharField(max_length=9, help_text="e.g. 2024-2025")
+    # Optional: without it the dashboard just shows the amount, never "overdue".
+    due_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -594,6 +599,9 @@ class Event(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     event_date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+    venue = models.CharField(max_length=120, blank=True)
     event_type = models.CharField(max_length=15, choices=EVENT_TYPES, default='OTHER')
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -753,3 +761,55 @@ class BackupRecord(models.Model):
     @property
     def size_mb(self):
         return round(self.size_bytes / (1024 * 1024), 2)
+
+
+class DashboardSettings(models.Model):
+    """Per-college dashboard switches the office can change without a deploy.
+
+    Singleton: `DashboardSettings.load()` always returns row 1 (created on demand).
+    Everything has a safe default, so an empty table behaves like the full dashboard.
+    """
+
+    #: Cards that can be switched off from the admin. Keys match the template.
+    CARD_CHOICES = [
+        ('notices', 'Announcements / Notices'),
+        ('messages', 'My Messages'),
+        ('courses', 'My Courses'),
+        ('fees', 'Fees'),
+        ('assignments', 'Pending Assignments'),
+        ('events', 'Upcoming Events'),
+        ('exams', 'Upcoming Exams'),
+        ('summary', 'Attendance & result summary'),
+    ]
+
+    hidden_cards = models.JSONField(
+        default=list, blank=True,
+        help_text="Card keys to hide, e.g. [\"events\", \"assignments\"]",
+    )
+    #: Quick links row: [{"label": "Fee Dashboard", "url_name": "student_fees", "icon": "rupee"}]
+    quick_links = models.JSONField(
+        default=list, blank=True,
+        help_text="Leave empty for the default row. Each item: label, url_name, icon",
+    )
+    show_dark_mode_toggle = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Dashboard settings"
+        verbose_name_plural = "Dashboard settings"
+
+    def __str__(self):
+        return "Dashboard settings"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1          # singleton
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def is_card_visible(self, key):
+        hidden = self.hidden_cards if isinstance(self.hidden_cards, list) else []
+        return key not in hidden

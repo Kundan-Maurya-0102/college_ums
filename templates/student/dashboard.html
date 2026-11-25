@@ -1,367 +1,348 @@
-{% extends 'base.html' %}
-{% load static student_tags %}
-{% block title %}Student Dashboard — {{ COLLEGE_NAME }} UMS{% endblock %}
-{% block page_title %}Student Dashboard{% endblock %}
-{% block breadcrumb %}Student Dashboard{% endblock %}
+{% extends 'student/shell.html' %}
+{% load static i18n humanize %}
+
+{% block title %}{% translate "Dashboard" %} — {{ COLLEGE_NAME }}{% endblock %}
+
 {% block content %}
-<h1 class="page-title">Student Dashboard</h1>
+<div class="dash-hero">
+  <div>
+    <h1 class="dash-title">{% blocktranslate with name=profile.name %}Hello, {{ name }}{% endblocktranslate %}</h1>
+    <p class="dash-sub">
+      {{ profile.get_branch_display_name|default:_("Student") }}
+      {% if profile.semester %}· {% blocktranslate with sem=profile.semester %}Semester {{ sem }}{% endblocktranslate %}{% endif %}
+      · {{ today|date:"l, d M Y" }}
+    </p>
+  </div>
+  <div class="dash-hero-stats">
+    <div class="dash-mini">
+      <span class="dash-mini-label">{% translate "Attendance" %}</span>
+      <span class="dash-mini-value ring-{{ attendance.ring }}">
+        {% if attendance.percent is None %}—{% else %}{{ attendance.percent }}%{% endif %}
+      </span>
+    </div>
+    <div class="dash-mini">
+      <span class="dash-mini-label">{% translate "Fee due" %}</span>
+      <span class="dash-mini-value">₹{{ fee_card.due|floatformat:0|intcomma }}</span>
+    </div>
+  </div>
+</div>
 
-            <!-- TOP BAR -->
+{% if banner %}
+  <div class="dash-banner dash-banner-{{ banner.kind }}" role="status">
+    <strong>{{ banner.title }}</strong>
+    <span>{{ banner.text }}</span>
+    <a class="btn btn-sm btn-primary" href="{% url banner.url_name %}">{{ banner.label }}</a>
+  </div>
+{% endif %}
 
-
-            <div class="student-content">
-
-              <!-- MESSAGES -->
-
-
-              <!-- NEWS MARQUEE -->
-              <div class="news-banner">
-                <div class="news-label">NEWS</div>
-                <div class="news-marquee">
-                  <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();">
-                    {% if notices %}
-                      {% for n in notices %}
-                        <a href="#notices">&#9658; {{ n.title }} ({{ n.created_at|date:"d M" }})</a>
-                      {% endfor %}
-                    {% else %}
-                      Welcome to {{ COLLEGE_NAME }} UMS Portal!
-                    {% endif %}
-                  </marquee>
-                </div>
-              </div>
-
-              <!-- BANNER CAROUSEL -->
-              {% if banners %}
-              <div class="card-student mb-10">
-                <div class="card-header">
-                  <span class="card-title">&#9632; Announcements & Updates</span>
-                  <span class="badge badge-blue" id="carouselIndex">1 / {{ banners|length }}</span>
-                </div>
-                <div class="card-body" style="position: relative; background: var(--bg-white); padding: 0; height: auto;">
-                  {% for banner in banners %}
-                  <div class="carousel-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %}; width: 100%; position: relative; height: 220px; overflow: hidden;">
-                    <img src="{{ banner.image.url }}" alt="{{ banner.title|default:'Banner' }}" style="width: 100%; height: 100%; object-fit: cover; display: block; border: 2px solid; border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);">
-                    {% if banner.title %}
-                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: #fff; padding: 10px; font-size: 13px; font-weight: bold; text-align: center; border-top: 1px solid var(--border-light);">
-                      {{ banner.title }}
-                    </div>
-                    {% endif %}
-                  </div>
-                  {% endfor %}
-
-                  <!-- Navigation buttons -->
-                  {% if banners|length > 1 %}
-                  <div style="position: absolute; top: 50%; left: 10px; right: 10px; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events: auto; width: calc(100% - 20px); z-index: 10;">
-                    <button onclick="prevSlide()" style="font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 12px; padding: 8px 12px; background: var(--bg-white); color: var(--highlight); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">< Prev</button>
-                    <button onclick="nextSlide()" style="font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 12px; padding: 8px 12px; background: var(--bg-white); color: var(--highlight); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">Next ></button>
-                  </div>
-                  {% endif %}
-                </div>
-              </div>
-
-
-              {% endif %}
-
-              <!-- PROFILE -->
-              <fieldset class="fieldset-student">
-                <legend>&#9632; Student Profile</legend>
-                <div class="profile-summary">
-                  <div><b>Name:</b> {{ profile.name }}</div>
-                  <div><b>Reg. No:</b> {{ profile.registration_number }}</div>
-                  <div><b>Branch:</b> {{ profile.get_branch_display|default:"—" }}<span class="profile-pill">{{ profile.get_branch_display|default:"—" }}</span></div>
-                  <div><b>Semester:</b> {{ profile.semester|default:"—" }}</div>
-                  <div><b>Batch:</b> {{ profile.year_of_admission|default:"—" }}</div>
-                </div>
-
-                <table class="table-student" style="width:100%;margin-top:1rem;">
-                  <thead>
-                    <tr>
-                      <th>Field</th><th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr><td style="width:140px;font-weight:bold;">Name</td><td>{{ profile.name }}</td></tr>
-                    <tr><td style="font-weight:bold;">Father</td><td>{{ profile.father_name|default:"—" }}</td></tr>
-                    <tr><td style="font-weight:bold;">Mother</td><td>{{ profile.mother_name|default:"—" }}</td></tr>
-                    <tr><td style="font-weight:bold;">DOB</td><td>{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
-                    <tr><td style="font-weight:bold;">Phone</td><td>{{ profile.phone|default:"—" }}</td></tr>
-                    <tr><td style="font-weight:bold;">Email</td><td>{{ profile.email|default:"—" }}</td></tr>
-                    <tr><td style="font-weight:bold;">Address</td><td>{{ profile.address|default:"—" }}</td></tr>
-                  </tbody>
-                </table>
-              </fieldset>
-
-              <!-- QUICK STATS -->
-              <div class="stats-grid">
-                <div class="stat-card">
-                  <div class="stat-label">Subjects</div>
-                  <div class="stat-value">{{ subjects|length }}</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-label">Semesters</div>
-                  <div class="stat-value">{{ results_by_sem.values|length }}</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-label">Attendance</div>
-                  <div class="stat-value">{% if attendance_data %}{{ attendance_data.0.percentage }}%{% else %}—{% endif %}</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-label">Notices</div>
-                  <div class="stat-value">{{ notices|length }}</div>
-                </div>
-              </div>
-
-              <!-- RESPONSIVE GRID -->
-              <div class="responsive-grid">
-
-                <!-- INTERNAL MARKS -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Internal Marks {% if profile.branch %}({{ profile.get_branch_display }} Sem {{ profile.semester }}){% endif %}</legend>
-                  {% if internal_marks %}
-                  <div class="table-responsive">
-                    <table class="table-student">
-                      <thead>
-                        <tr>
-                          <th>Subject</th>
-                          {% for et in exam_types %}<th>{{ et }}</th>{% endfor %}
-                          <th>% Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for code, data in internal_marks.items %}
-                        <tr>
-                          <td><b>{{ code }}</b><br><small>{{ data.subject.subject_name }}</small></td>
-                          {% for et in exam_types %}
-                          {% with val=data.marks|marks_display:et pct=data.marks|marks_pct:et %}
-                          <td>
-                            {% if val != "—" %}
-                              <span style="color:{% if pct >= 75 %}var(--success){% elif pct >= 50 %}#d4a017{% else %}var(--error){% endif %};font-weight:bold;">{{ val }}</span>
-                              <br><small>{{ pct }}%</small>
-                            {% else %}—{% endif %}
-                          </td>
-                          {% endwith %}
-                          {% endfor %}
-                          </td>
-                        </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-                  {% else %}
-                    <p class="text-muted">No internal marks recorded yet.</p>
-                  {% endif %}
-                </fieldset>
-
-                <!-- ATTENDANCE -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Attendance</legend>
-                  {% if attendance_data %}
-                  <table class="table-student">
-                    <thead>
-                      <tr><th>Subject</th><th>Present</th><th>Total</th><th>%</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                      {% for a in attendance_data %}
-                      <tr>
-                        <td><b>{{ a.subject.subject_code }}</b> — {{ a.subject.subject_name }}</td>
-                        <td>{{ a.present }}</td>
-                        <td>{{ a.total }}</td>
-                        <td style="color:{% if a.status == 'success' %}var(--success){% elif a.status == 'warning' %}#d4a017{% else %}var(--error){% endif %};font-weight:bold;">{{ a.percentage }}%</td>
-                        <td>
-                          {% if a.status == 'danger' %}<span class="badge badge-student danger"><svg class="icon" width="12" height="12" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Below 75%</span>{% elif a.status == 'warning' %}<span class="badge badge-student warning"><svg class="icon" width="12" height="12" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9 4zM12 2L2 6v10l8 6 8-6V6l-10 4z"/></svg> Warning</span>{% else %}<span class="badge badge-student success"><svg class="icon" width="12" height="12" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> OK</span>{% endif %}
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                  {% else %}
-                    <p class="text-muted">No attendance records yet.</p>
-                  {% endif %}
-                </fieldset>
-
-                <!-- SEMESTER RESULTS -->
-                {% if results_by_sem %}
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Semester Results</legend>
-                  {% for sem, res_list in results_by_sem.items %}
-                  <p style="margin:0.5rem 0 0.5rem;"><b>Semester {{ sem }}</b></p>
-                  <table class="table-student">
-                    <thead>
-                      <tr><th>Subject</th><th>Internal</th><th>External</th><th>Total</th><th>Grade</th><th>Result</th></tr>
-                    </thead>
-                    <tbody>
-                      {% for r in res_list %}
-                      <tr>
-                        <td>{{ r.subject.subject_name }}</td>
-                        <td>{{ r.internal_marks }}</td>
-                        <td>{{ r.external_marks }}</td>
-                        <td><b>{{ r.total_marks }}</b></td>
-                        <td><span class="grade-badge grade-{{ r.grade|lower }}">{{ r.grade }}</span></td>
-                        <td class="{% if r.is_pass %}passed{% else %}failed{% endif %}">
-                          {% if r.is_pass %}&#10004; Pass{% else %}&#10008; Fail{% endif %}
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                  {% endfor %}
-                </fieldset>
-                {% endif %}
-
-                <!-- ASSIGNMENTS -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Assignments ({{ assignments|length }})</legend>
-                  {% for assignment in assignments %}
-                    <div class="notice-card">
-                      <div class="notice-title">{{ assignment.title }}</div>
-                      <div class="notice-date">{{ assignment.subject.subject_code }}{% if assignment.due_date %} | Due: {{ assignment.due_date }}{% endif %}</div>
-                      <div class="notice-content">{{ assignment.description|default:"No description" }}</div>
-                      {% if attachment %}<a href="{{ attachment.url }}" class="btn btn-small btn-secondary mt-2">Download</a>{% endif %}
-                    </div>
-                  {% empty %}
-                    <p class="text-muted">No assignments yet.</p>
-                  {% endfor %}
-                </fieldset>
-
-                <!-- NOTES & PDF -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Notes / PDF ({{ materials|length }})</legend>
-                  {% for material in materials %}
-                    <div class="notice-card">
-                      <div class="notice-title">{{ material.title }}</div>
-                      <div class="notice-date">{{ material.subject.subject_code }} | {{ material.get_material_type_display }}</div>
-                      <div class="notice-content">{{ material.description|default:"Study material." }}</div>
-                      <div class="mt-2">
-                        {% if material.file %}<a href="{{ material.file.url }}" class="btn btn-small btn-secondary">Download</a>{% endif %}
-                        {% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-small btn-secondary" target="_blank" rel="noopener noreferrer">Open Link</a>{% endif %}
-                      </div>
-                    </div>
-                  {% empty %}
-                    <p class="text-muted">No notes uploaded yet.</p>
-                  {% endfor %}
-                </fieldset>
-
-                <!-- TEACHERS -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Teachers</legend>
-                  <table class="table-student">
-                    <thead><tr><th>Teacher</th><th>Subject</th><th>Contact</th></tr></thead>
-                    <tbody>
-                      {% for row in teachers %}
-                      <tr>
-                        <td><b>{{ row.faculty.name }}</b><br><small>{{ row.faculty.designation }}</small></td>
-                        <td>{{ row.subject.subject_code }} — {{ row.subject.subject_name }}</td>
-                        <td>{{ row.faculty.email|default:row.faculty.phone|default:"—" }}</td>
-                      </tr>
-                      {% empty %}
-                      <tr><td colspan="3" class="text-muted">No teachers assigned yet.</td></tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </fieldset>
-
-                <!-- CLASS SCHEDULE -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Class Schedule</legend>
-                  <table class="table-student">
-                    <thead><tr><th>Day</th><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
-                    <tbody>
-                      {% for schedule in schedules %}
-                      <tr>
-                        <td>{{ schedule.get_weekday_display }}</td>
-                        <td>{{ schedule.subject.subject_code }}</td>
-                        <td>{{ schedule.start_time }} — {{ schedule.end_time }}</td>
-                        <td>{{ schedule.room|default:"—" }}</td>
-                      </tr>
-                      {% empty %}
-                      <tr><td colspan="4" class="text-muted">Schedule not available.</td></tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </fieldset>
-
-                <!-- NOTICES -->
-                <fieldset class="notices-section" id="notices">
-                  <legend>&#9632; Notices ({{ notices|length }})</legend>
-                  {% if notices %}
-                    {% for n in notices %}
-                    <div class="notice">
-                      <div class="notice-title-small">{{ n.title }}</div>
-                      <div class="notice-date-small">{{ n.created_at|date:"d M Y, H:i" }}</div>
-                      <div class="notice-content">{{ n.content|truncatewords:30 }}</div>
-                    </div>
-                  {% endfor %}
-                  {% else %}
-                    <p class="text-muted">No notices right now.</p>
-                  {% endif %}
-                </fieldset>
-
-                <!-- CLASSMATES -->
-                <fieldset class="fieldset-student">
-                  <legend>&#9632; Classmates ({{ profile.get_branch_display }} Sem {{ profile.semester }})</legend>
-                  <table class="table-student">
-                    <thead><tr><th>Name</th><th>Reg No.</th><th>Contact</th></tr></thead>
-                    <tbody>
-                      {% for classmate in classmates %}
-                      <tr>
-                        <td><b>{{ classmate.name }}</b></td>
-                        <td>{{ classmate.registration_number }}</td>
-                        <td>{% if classmate.phone %}<a href="https://wa.me/91{{ classmate.phone }}" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-secondary">WhatsApp</a>{% else %}—{% endif %}</td>
-                      </tr>
-                      {% empty %}
-                      <tr><td colspan="3" class="text-muted">No classmates found.</td></tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </fieldset>
-
-              </div>
-
-              <hr style="margin:1.5rem 0;border-color:var(--border-light);">
-              <div class="page-footer">
-                {{ COLLEGE_NAME }} UMS | Logged in: <b>{{ request.user.username }}</b>
-              </div>
-
-            </div>
-
-{% endblock %}
-{% block extra_js %}
-<script>
-          let currentSlide = 0;
-          const slides = document.querySelectorAll('.carousel-slide');
-          const indexIndicator = document.getElementById('carouselIndex');
-          const slideCount = slides.length;
-
-          function showSlide(index) {
-            slides.forEach((slide, i) => {
-              slide.style.display = i === index ? 'block' : 'none';
-            });
-            if (indexIndicator) {
-              indexIndicator.textContent = `${index + 1} / ${slideCount}`;
-            }
-          }
-
-          function nextSlide() {
-            currentSlide = (currentSlide + 1) % slideCount;
-            showSlide(currentSlide);
-          }
-
-          function prevSlide() {
-            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
-            showSlide(currentSlide);
-          }
-
-          {% if banners|length > 1 %}
-          let slideInterval = setInterval(nextSlide, 5000);
-          
-          // Reset timer on manual button click
-          const buttons = document.querySelectorAll('.card-body button');
-          buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-              clearInterval(slideInterval);
-              slideInterval = setInterval(nextSlide, 5000);
-            });
-          });
+<nav class="dash-quick" aria-label="{% translate 'Quick links' %}">
+  <ul class="dash-quick-row">
+    {% for link in quick_links %}
+      <li>
+        <a class="dash-pill" href="{% url link.url_name %}">
+          <svg width="15" height="15" aria-hidden="true"><use href="#{{ link.icon }}"/></svg>
+          <span>{{ link.label }}</span>
+          {% if link.badge == 'exam' and new_exam_schedule %}
+            <span class="dash-chip" title="{% translate 'New date sheet' %}">{% translate "New" %}</span>
           {% endif %}
-        </script>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+
+<div class="dash-skeleton" aria-hidden="true">
+  <div class="dash-card"><div class="dash-card-body">
+    <div class="dash-skeleton-row" style="width:60%"></div>
+    <div class="dash-skeleton-row" style="width:85%"></div>
+    <div class="dash-skeleton-row" style="width:70%"></div>
+  </div></div>
+  <div class="dash-card"><div class="dash-card-body">
+    <div class="dash-skeleton-row" style="width:50%"></div>
+    <div class="dash-skeleton-row" style="width:80%"></div>
+  </div></div>
+</div>
+
+<div class="dash-grid">
+
+  {% if cards.notices %}
+  <section class="dash-card" id="notices" aria-labelledby="h-notices">
+    <header class="dash-card-head">
+      <h2 id="h-notices">{% translate "Announcements" %}</h2>
+      <a class="dash-card-link" href="{% url 'student_dashboard' %}#notices">{% translate "All notices" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if announcements %}
+        <ul class="dash-list">
+          {% for entry in announcements %}
+            <li class="dash-item">
+              <span class="dash-dot {% if entry.unread %}is-unread{% endif %}" aria-hidden="true"></span>
+              <div>
+                <p class="dash-item-title">{{ entry.notice.title }}</p>
+                <p class="dash-item-meta">
+                  {{ entry.notice.created_at|date:"d M Y" }}
+                  {% if entry.notice.created_by %}· {{ entry.notice.created_by.name }}{% endif %}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-bell"/></svg>
+          <p>{% translate "No notices right now" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.messages %}
+  <section class="dash-card" aria-labelledby="h-messages">
+    <header class="dash-card-head">
+      <h2 id="h-messages">{% translate "My Messages" %}</h2>
+      <span class="dash-count">{{ messages|length }}</span>
+    </header>
+    <div class="dash-card-body">
+      {% if messages %}
+        <ul class="dash-list">
+          {% for entry in messages %}
+            <li class="dash-item">
+              <span class="dash-dot {% if entry.unread %}is-unread{% endif %}" aria-hidden="true"></span>
+              <div>
+                <p class="dash-item-title">{{ entry.notice.title }}</p>
+                <p class="dash-item-meta">
+                  {% if entry.notice.target_branches %}{{ entry.notice.target_branches }}{% endif %}
+                  {% if entry.notice.target_semesters %} · {% translate "Sem" %} {{ entry.notice.target_semesters }}{% endif %}
+                  · {{ entry.notice.created_at|date:"d M" }}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-message"/></svg>
+          <p>{% translate "No messages yet" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.courses %}
+  <section class="dash-card dash-card-wide" id="courses" aria-labelledby="h-courses">
+    <header class="dash-card-head">
+      <h2 id="h-courses">{% translate "My Courses" %}</h2>
+      <a class="dash-card-link" href="{% url 'student_certificates' %}">{% translate "Attendance detail" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      <label class="dash-filter">
+        <span class="visually-hidden">{% translate "Search subjects" %}</span>
+        <input type="search" id="course-filter" class="form-control"
+               placeholder="{% translate 'Search subject or code…' %}"
+               autocomplete="off">
+      </label>
+      <p class="dash-item-meta" id="course-filter-empty" hidden>
+        {% translate "No subject matches that search." %}
+      </p>
+      {% if course_rows %}
+        <ul class="dash-courses">
+          {% for row in course_rows %}
+            <li class="dash-course">
+              <div class="dash-ring ring-{{ row.ring }}"
+                   style="--pct: {{ row.percent|default:0 }}"
+                   role="img"
+                   aria-label="{% blocktranslate with sub=row.subject.subject_name pct=row.percent|default:0 %}Attendance {{ pct }} percent for {{ sub }}{% endblocktranslate %}">
+                <span>{% if row.percent is None %}—{% else %}{{ row.percent }}%{% endif %}</span>
+              </div>
+              <div class="dash-course-body">
+                <p class="dash-item-title">{{ row.subject.subject_name }}</p>
+                <p class="dash-item-meta">
+                  {{ row.subject.subject_code }} ·
+                  {% blocktranslate with p=row.attended t=row.held %}{{ p }} of {{ t }} classes{% endblocktranslate %}
+                  {% if row.today %} · {% translate "today" %} {{ row.today.start_time|time:"H:i" }}{% if row.today.room %} ({{ row.today.room }}){% endif %}{% endif %}
+                </p>
+                <div class="dash-course-actions">
+                  <a href="{% url 'student_dashboard' %}#courses" class="dash-chip-link">{% translate "Timetable" %}</a>
+                  <a href="{% url 'doubt_list' %}" class="dash-chip-link">{% translate "Materials" %} ({{ row.material_count }})</a>
+                  <a href="{% url 'student_dashboard' %}#summary" class="dash-chip-link">{% translate "Marks" %}</a>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-book"/></svg>
+          <p>{% translate "No subjects assigned yet — the office will add them" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.fees %}
+  <section class="dash-card" aria-labelledby="h-fees">
+    <header class="dash-card-head">
+      <h2 id="h-fees">{% translate "Fees" %}</h2>
+      <a class="dash-card-link" href="{% url 'student_fees' %}">{% translate "Receipts" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      <p class="dash-money">₹{{ fee_card.due|floatformat:0|intcomma }}</p>
+      <p class="dash-item-meta">
+        {% if fee_card.status == 'paid' %}
+          <span class="badge badge-green">{% translate "Paid" %}</span>
+        {% elif fee_card.status == 'overdue' %}
+          <span class="badge badge-red">{% translate "Overdue" %}</span>
+        {% else %}
+          <span class="badge badge-yellow">{% translate "Due" %}</span>
+        {% endif %}
+        {% if fee_card.due_date %}· {% translate "due by" %} {{ fee_card.due_date|date:"d M Y" }}{% endif %}
+        · {% blocktranslate with paid=fee_card.paid|floatformat:0|intcomma %}paid ₹{{ paid }}{% endblocktranslate %}
+      </p>
+      {% if fee_card.pay_online %}
+        <a class="btn btn-primary btn-sm" href="{% url 'student_fees' %}">{% translate "Pay online" %}</a>
+      {% elif fee_card.due > 0 %}
+        <a class="btn btn-outline btn-sm" href="{% url 'student_fees' %}">{% translate "Contact accounts" %}</a>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.assignments %}
+  <section class="dash-card" aria-labelledby="h-assign">
+    <header class="dash-card-head">
+      <h2 id="h-assign">{% translate "Pending assignments" %}</h2>
+    </header>
+    <div class="dash-card-body">
+      {% if pending_assignments %}
+        <ul class="dash-list">
+          {% for row in pending_assignments %}
+            <li class="dash-item">
+              <div>
+                <p class="dash-item-title">{{ row.assignment.title }}</p>
+                <p class="dash-item-meta {% if row.overdue %}is-late{% endif %}">
+                  {{ row.assignment.subject.subject_code }}
+                  {% if row.assignment.due_date %}· {{ row.assignment.due_date|date:"d M Y" }}{% endif %}
+                  {% if row.overdue %}· {% translate "overdue" %}{% endif %}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-upload"/></svg>
+          <p>{% translate "Nothing pending" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.events %}
+  <section class="dash-card" aria-labelledby="h-events">
+    <header class="dash-card-head">
+      <h2 id="h-events">{% translate "Upcoming events" %}</h2>
+      <a class="dash-card-link" href="{% url 'student_events' %}">{% translate "All events" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if events %}
+        <ul class="dash-list">
+          {% for event in events %}
+            <li class="dash-item">
+              <div>
+                <p class="dash-item-title">{{ event.title }}</p>
+                <p class="dash-item-meta">
+                  {{ event.event_date|date:"d M Y" }}
+                  {% if event.start_time %}· {{ event.start_time|time:"H:i" }}{% endif %}
+                  {% if event.venue %}· {{ event.venue }}{% endif %}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-calendar"/></svg>
+          <p>{% translate "No events scheduled" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.exams %}
+  <section class="dash-card" aria-labelledby="h-exams">
+    <header class="dash-card-head">
+      <h2 id="h-exams">{% translate "Upcoming exams" %}</h2>
+      <a class="dash-card-link" href="{% url 'student_exam_schedule' %}">{% translate "Full date sheet" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if exams %}
+        <ul class="dash-list">
+          {% for exam in exams %}
+            <li class="dash-item">
+              <div>
+                <p class="dash-item-title">{{ exam.subject.subject_name }}</p>
+                <p class="dash-item-meta">
+                  {{ exam.exam_date|date:"d M Y" }} · {{ exam.start_time|time:"H:i" }}–{{ exam.end_time|time:"H:i" }}
+                  {% if exam.room %}· {{ exam.room }}{% endif %}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-clipboard"/></svg>
+          <p>{% translate "No exams scheduled" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cards.summary %}
+  <section class="dash-card" id="summary" aria-labelledby="h-summary">
+    <header class="dash-card-head">
+      <h2 id="h-summary">{% translate "Attendance & result" %}</h2>
+    </header>
+    <div class="dash-card-body">
+      <p class="dash-item-meta">{% translate "Overall attendance" %}</p>
+      <p class="dash-money ring-{{ attendance.ring }}">
+        {% if attendance.percent is None %}—{% else %}{{ attendance.percent }}%{% endif %}
+      </p>
+      <p class="dash-item-meta">
+        {% blocktranslate with a=attendance.attended h=attendance.held %}{{ a }} present of {{ h }} classes{% endblocktranslate %}
+      </p>
+      {% if latest_result %}
+        <hr class="dash-hr">
+        <p class="dash-item-meta">
+          {% blocktranslate with sem=latest_result.semester %}Semester {{ sem }} result{% endblocktranslate %}
+        </p>
+        <p class="dash-item-title">
+          {% blocktranslate with avg=latest_result.average %}Average {{ avg }}%{% endblocktranslate %}
+          {% if latest_result.is_pass %}
+            <span class="badge badge-green">{% translate "Pass" %}</span>
+          {% else %}
+            <span class="badge badge-red">{% blocktranslate count n=latest_result.failed %}{{ n }} backlog{% plural %}{{ n }} backlogs{% endblocktranslate %}</span>
+          {% endif %}
+        </p>
+      {% else %}
+        <hr class="dash-hr">
+        <p class="dash-item-meta">{% translate "No result published yet" %}</p>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+
+{% if not has_any_data %}
+  <p class="dash-hint">
+    {% translate "Your dashboard fills up as the office adds subjects, fees and notices." %}
+  </p>
+{% endif %}
 {% endblock %}
