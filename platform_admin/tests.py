@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
+from django.urls import reverse
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
@@ -345,3 +346,31 @@ class CommandTests(PlatformFixtures):
         with override_settings(COLLEGE_SLUG="test-poly"):
             call_command("report_college_metrics", "--dry-run", stdout=out)
         self.assertIn("student_count", out.getvalue())
+
+
+class MetricsEndpointIsMachineCallableTests(TestCase):
+    """The token API must work without a browser session or CSRF cookie."""
+
+    def setUp(self):
+        self.college = College.objects.create(
+            name='Machine College', slug='machine-college', metrics_token='machine-token')
+
+    def test_post_without_csrf_token_succeeds(self):
+        client = Client(enforce_csrf_checks=True, HTTP_HOST='localhost')
+        response = client.post(
+            reverse('platform_metrics', args=['machine-college']),
+            data=json.dumps({'student_count': 12}),
+            content_type='application/json',
+            HTTP_X_PLATFORM_TOKEN='machine-token')
+        self.assertEqual(response.status_code, 200, response.content[:300])
+        self.college.refresh_from_db()
+        self.assertEqual(self.college.student_count, 12)
+
+    def test_wrong_token_is_still_rejected_without_csrf(self):
+        client = Client(enforce_csrf_checks=True, HTTP_HOST='localhost')
+        response = client.post(
+            reverse('platform_metrics', args=['machine-college']),
+            data=json.dumps({'student_count': 99}),
+            content_type='application/json',
+            HTTP_X_PLATFORM_TOKEN='nope')
+        self.assertEqual(response.status_code, 403)

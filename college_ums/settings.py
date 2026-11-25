@@ -390,8 +390,11 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
     # Keep the container health probe on plain HTTP (see Dockerfile HEALTHCHECK).
     SECURE_REDIRECT_EXEMPT = [r"^healthz/$", r"^readyz/$"]
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # Secure cookies are the default because production traffic is HTTPS end to end.
+    # Overridable for staging boxes that are only reachable over plain HTTP; turning
+    # them off under DEBUG=False makes `manage.py check --deploy` warn on purpose.
+    SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
+    CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"

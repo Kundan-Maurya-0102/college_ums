@@ -14,6 +14,7 @@ from django.db.models import Count, Q, Sum
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 from students.audit import log_action
 from students.pagination import paginate
@@ -355,6 +356,7 @@ def _metrics_token_ok(request, college):
     return bool(shared) and secrets.compare_digest(presented, shared)
 
 
+@csrf_exempt  # token-authenticated machine endpoint: no browser cookie, no CSRF token
 def metrics_endpoint(request, slug):
     """POST {"student_count":…, "active_users_30d":…, "storage_bytes":…} with the
     shared token from PLATFORM_METRICS_TOKEN. Kept token-only (no session) so a
