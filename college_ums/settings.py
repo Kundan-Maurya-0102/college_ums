@@ -402,7 +402,14 @@ if SENTRY_DSN:
             dsn=SENTRY_DSN,
             integrations=[DjangoIntegration()],
             traces_sample_rate=env.float('SENTRY_TRACES_RATE', default=0.0),
-            send_default_pii=False,
+            # sentry-sdk >= 2.7x: explicit deny list instead of the deprecated
+            # send_default_pii flag. Nothing about a student leaves the deployment.
+            data_collection={
+                "user_info": False,
+                "cookies": False,
+                "request_body": False,
+                "query_string": False,
+            },
             # Never ship request bodies/cookies or student PII to the error tracker.
             before_send=scrub_sentry_event,
             before_breadcrumb=scrub_breadcrumb,

@@ -1,7 +1,7 @@
 # College UMS: Project Rules
 
 ## Project
-Django 4.2 College Management System (app: `students`, Python 3.12).
+Django 5.2 LTS College Management System (app: `students`, Python 3.12).
 Details: docs/PROJECT_REPORT.md
 
 ## Goal

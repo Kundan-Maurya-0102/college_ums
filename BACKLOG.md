@@ -12,7 +12,7 @@ Legend: 🔴 blocks a sale / data-safety risk · 🟠 real friction for daily us
 | 2 | Creating an "Admin" from *Manage Admins* silently granted `is_superuser=True` — a clerk could reach the Django admin and change anything | 🔴 | `students/forms.py:AdminUserForm` | ✅ |
 | 3 | Login lockout was indistinguishable from a wrong password, with no self-service way out | 🟠 | `students/views_student.py:student_login` | ✅ |
 | 4 | Logout is a GET link (any page can log a user out with an `<img>` tag) | 🟠 | `students/views_student.py:student_logout`, `base.html` | open |
-| 5 | Django 4.2 → 5.2 LTS: 9 security advisories still accepted in `pip-audit --ignore-vuln` | 🔴 | `requirements.txt`, `.github/workflows/ci.yml` | open |
+| 5 | ~~Django 4.2 → 5.2 LTS (9 advisories accepted in pip-audit)~~ | ✅ | `UPGRADE_NOTES.md` | done in v1.1.0 |
 | 6 | Cache and sessions are locmem/db: the login lockout counter and rate limits reset on restart | 🟠 | `college_ums/settings.py` (`CACHES`, `SESSION_ENGINE`) | open |
 | 7 | Plan feature flags (`College.has_feature()`) are stored but not used to hide menu items | 🟠 | `platform_admin/models.py`, `templates/base.html` | open |
 | 8 | Study material and assignment files are still not scoped per branch/semester | 🟠 | `students/views/content.py` | open |

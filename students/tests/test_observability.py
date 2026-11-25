@@ -117,7 +117,8 @@ class SentryWiringTests(TestCase):
         client = sentry_sdk.init(
             dsn="https://public@example.invalid/1",
             integrations=[DjangoIntegration()],
-            send_default_pii=False,
+            data_collection={"user_info": False, "cookies": False,
+                             "request_body": False, "query_string": False},
             before_send=scrub_sentry_event,
             before_breadcrumb=scrub_breadcrumb,
             max_request_body_size="never",

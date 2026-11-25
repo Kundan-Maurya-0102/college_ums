@@ -19,9 +19,8 @@ DEBUG=False SECURE_SSL_REDIRECT=False ALLOWED_HOSTS=ci.example.com \
   CSRF_TRUSTED_ORIGINS=https://ci.example.com ENVIRONMENT=production \
   $PY_BIN manage.py check --deploy
 
-echo "==> pip-audit (Django 4.2 advisories accepted until the 5.2 LTS upgrade)"
-.venv/bin/pip-audit -r requirements.txt --progress-spinner off \
-  --ignore-vuln PYSEC-2026-3717 --ignore-vuln PYSEC-2026-198 --ignore-vuln PYSEC-2026-199 --ignore-vuln PYSEC-2026-201 --ignore-vuln PYSEC-2026-2090 --ignore-vuln PYSEC-2026-2091 --ignore-vuln PYSEC-2026-2092 --ignore-vuln PYSEC-2026-4035
+echo "==> pip-audit (Django 5.2 LTS: no accepted advisories)"
+.venv/bin/pip-audit -r requirements.txt --progress-spinner off
 
 echo "==> migrations"
 DEBUG=True $PY_BIN manage.py makemigrations --check --dry-run
