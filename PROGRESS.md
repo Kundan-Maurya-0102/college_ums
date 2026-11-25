@@ -206,8 +206,43 @@
   ka code resolve nahi hota, local row doosri DB me nahi jaata), teacher scope, bulk ZIP,
   audit rows. Deps: `reportlab`, `qrcode`, `pypdf` (tests) pinned in requirements.
 
+- **Student dashboard: one-screen redesign, round 2 (shell + cards + real pages)**:
+  audit me pata chala project me **Placement aur Library module nahi hai** — isliye wo
+  cards nahi bane (jhooth nahi). Dashboard/sidebar jin modules par link karte the
+  (Attendance, Marks/Results, Timetable, Notices, Notes/Assignments) unke **student pages
+  hi nahi the** — isliye 5 naye read-only pages `students/views/student_pages.py` +
+  `templates/student/{attendance,results,timetable,notices,materials}.html`:
+  `/attendance/` (subject-wise held/present/%, 75/60 threshold states, recent absences),
+  `/results/` (semester-wise SGPA + CGPA, backlog badge, marksheet PDF link),
+  `/timetable/` (week grid, aaj highlight), `/notices/` (sirf apni class + general,
+  unread flags `dashboard_seen_at` se), `/materials/` (notes + assignments subject-wise,
+  due date overdue red). Sab me **student id URL me nahi** (IDOR-safe), empty states.
+  **Shell**: navbar global search (`GET /dashboard/?q=` — subject code/name + notice
+  title/content, 60 char cap, sirf apne rows), bell `<details>` dropdown (2+2 preview +
+  unread count + "View all notices"), profile dropdown me naam/reg no/branch/sem,
+  "Emergency contacts" panel (`COLLEGE_PHONE`/`EMAIL`/`WEBSITE` env se, scroll strip ke
+  bahar taaki clip na ho), dismissible alert banner (localStorage key per banner text),
+  Escape/outside-click se menus band. **Cards**: har card ka footer action (real URL),
+  Courses footer me Overall Attendance + CGPA badge, Fees me receipts list +
+  "Fee details & receipts", Exams me date sheet + hall ticket, summary me results +
+  marksheet. **Real-browser verification** (Chrome via playwright, dev-only
+  `requirements-dev.txt`): 1440/900/375 par **overflowX = 0** sab pages par; grid
+  3/2/1 columns; contacts/bell panel viewport ke andar. Isi verification ne 4 real bugs
+  pakde: (1) band `<details>` ka panel phir bhi paint ho raha tha (author `display: grid`
+  UA hiding ko beat karta hai) → `.dash-menu:not([open]) > .dash-menu-panel{display:none}`;
+  (2) mobile par navbar search **0px** wide ho gaya tha → ≤620px par apni row;
+  (3) base topbar ka avatar block 375px par 11px overflow → phone par hide + title
+  ellipsis; (4) contacts panel scroll strip ke andar clip hota tha → strip ke bahar
+  + edge-aware align. Tests: `students/tests/test_student_pages.py` (18) — 200 sab pages,
+  anonymous → login, own rows only, B ke marks/notices/materials kabhi nahi, khali
+  student par empty state, attendance threshold (75/60), search filter + khali search +
+  500-char query truncation, **`href="#"` kahin nahi** + har footer link reverse()
+  se match, unread flag logic. Total: **417 tests OK**, `ruff` clean.
+
+
 ## In progress
-- Kuch nahi. Agla kaam: BACKLOG.md ke 🔴 items (#4 logout GET → POST, #5 Django 5.2 LTS).
+- Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
+  Agla: notifications pilot (provider abstraction + dry-run) ya admission module.
 
 
 ## Verification (is session)

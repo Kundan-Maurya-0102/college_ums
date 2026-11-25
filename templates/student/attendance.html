@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Attendance" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Attendance" %}{% endblock %}
+{% block breadcrumb %}{% translate "Attendance" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "My attendance" %}</h1>
+
+<div class="stats-grid mb-24">
+  <div class="stat-card">
+    <div class="stat-label">{% translate "Overall" %}</div>
+    <div class="stat-value">{% if overall is None %}—{% else %}{{ overall }}%{% endif %}</div>
+    <div class="muted small">{% blocktranslate with a=attended h=held %}{{ a }} present of {{ h }}{% endblocktranslate %}</div>
+  </div>
+  {% for row in rows|slice:":3" %}
+    <div class="stat-card">
+      <div class="stat-label">{{ row.subject.subject_code }}</div>
+      <div class="stat-value">{% if row.percent is None %}—{% else %}{{ row.percent }}%{% endif %}</div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">{% translate "Subject wise" %}</span></div>
+  <div class="card-body">
+    {% if rows %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr><th>{% translate "Subject" %}</th><th>{% translate "Held" %}</th><th>{% translate "Present" %}</th><th>{% translate "Absent" %}</th><th>{% translate "Percent" %}</th></tr>
+          </thead>
+          <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.subject.subject_code }} — {{ row.subject.subject_name }}</td>
+              <td>{{ row.held }}</td>
+              <td>{{ row.attended }}</td>
+              <td>{{ row.absent }}</td>
+              <td>
+                {% if row.percent is None %}—
+                {% else %}
+                  <span class="badge {% if row.state == 'ok' %}badge-green{% elif row.state == 'watch' %}badge-yellow{% else %}badge-red{% endif %}">{{ row.percent }}%</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state"><p>{% translate "No subjects assigned yet, so there is no attendance to show." %}</p></div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card mt-24">
+  <div class="card-header"><span class="card-title">{% translate "Recent absences" %}</span></div>
+  <div class="card-body">
+    {% if recent_absences %}
+      <ul class="plain-list">
+        {% for absence in recent_absences %}
+          <li>{{ absence.date|date:"d M Y" }} — {{ absence.subject.subject_code }} {{ absence.subject.subject_name }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state"><p>{% translate "No absences recorded." %}</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

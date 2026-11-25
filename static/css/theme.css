@@ -279,7 +279,15 @@ a:hover { color: var(--primary-600); text-decoration: underline; }
 }
 
 .topbar-left, .topbar-right { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
-.topbar-title { font-weight: 650; font-size: 15px; color: var(--ink); white-space: nowrap; }
+.topbar-title {
+  font-weight: 650;
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 .sidebar-toggle {
   display: none;
@@ -295,6 +303,7 @@ a:hover { color: var(--primary-600); text-decoration: underline; }
 }
 
 .topbar-user {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -303,6 +312,8 @@ a:hover { color: var(--primary-600); text-decoration: underline; }
   border-left: 1px solid var(--line);
   padding-left: var(--s3);
 }
+/* Long college names must truncate, never widen the page on a phone. */
+.topbar-right { margin-left: auto; }
 .avatar {
   width: 30px; height: 30px;
   border-radius: 50%;
@@ -653,7 +664,10 @@ textarea { min-height: 90px; resize: vertical; }
   .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
   .stat-value { font-size: 22px; }
   .card-body { padding: var(--s4); }
-  .topbar-user .user-name { display: none; }
+  /* On a phone the topbar keeps only the controls that still do something:
+     the avatar block duplicated the sidebar/profile menu and overflowed. */
+  .topbar-user { display: none; }
+  .topbar-right { gap: var(--s2); }
   .btn { padding: 8px 12px; }
   .table td, .table th { padding: 8px 10px; }
 }

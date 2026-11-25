@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Timetable" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Timetable" %}{% endblock %}
+{% block breadcrumb %}{% translate "Timetable" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "Class timetable" %}</h1>
+<p class="muted">
+  {{ profile.get_branch_display_name|default:_("Branch not set") }}
+  {% if profile.semester %}· {% blocktranslate with s=profile.semester %}Semester {{ s }}{% endblocktranslate %}{% endif %}
+</p>
+
+{% if not has_slots %}
+  <div class="card mt-24"><div class="card-body">
+    <div class="empty-state">
+      <p>{% translate "No timetable published for your class yet." %}</p>
+      <p class="muted small">{% translate "The office publishes it before classes start." %}</p>
+    </div>
+  </div></div>
+{% else %}
+  <div class="grid-2 mt-24">
+    {% for day in week %}
+      <div class="card{% if day.is_today %} card-today{% endif %}">
+        <div class="card-header">
+          <span class="card-title">
+            {{ day.name }}
+            {% if day.is_today %}<span class="badge badge-blue">{% translate "Today" %}</span>{% endif %}
+          </span>
+          <span class="muted small">{{ day.slots|length }} {% translate "class(es)" %}</span>
+        </div>
+        <div class="card-body">
+          {% if day.slots %}
+            <ul class="plain-list">
+              {% for slot in day.slots %}
+                <li>
+                  <b>{{ slot.start_time|time:"H:i" }}–{{ slot.end_time|time:"H:i" }}</b>
+                  · {{ slot.subject.subject_code }} {{ slot.subject.subject_name }}
+                  {% if slot.room %}· {% translate "Room" %} {{ slot.room }}{% endif %}
+                  {% if slot.faculty %}<span class="muted small">· {{ slot.faculty.name }}</span>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="muted small">{% translate "No classes." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

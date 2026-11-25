@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Notices" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Notices" %}{% endblock %}
+{% block breadcrumb %}{% translate "Notices" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "Notices and messages" %}</h1>
+<p class="muted">
+  {% translate "Everything the college published for you (whole college and your class)." %}
+  {% if unread %}· <span class="badge badge-blue">{% blocktranslate count n=unread %}{{ n }} unread{% plural %}{{ n }} unread{% endblocktranslate %}</span>{% endif %}
+</p>
+
+{% if entries %}
+  <div class="card mt-24">
+    <div class="card-body">
+      <ul class="plain-list">
+        {% for entry in entries %}
+          <li>
+            {% if entry.unread %}<span class="badge badge-blue">{% translate "New" %}</span>{% endif %}
+            {% if entry.targeted %}<span class="badge badge-purple">{% translate "Your class" %}</span>{% endif %}
+            <b>{{ entry.notice.title }}</b>
+            <span class="muted small">
+              — {{ entry.notice.created_at|date:"d M Y, H:i" }}
+              {% if entry.notice.created_by %}· {{ entry.notice.created_by.name }}{% endif %}
+            </span>
+            <p class="mt-3">{{ entry.notice.content|linebreaksbr }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% else %}
+  <div class="card mt-24"><div class="card-body">
+    <div class="empty-state">
+      <p>{% translate "No notices yet." %}</p>
+      <p class="muted small">{% translate "Announcements from the office and your teachers appear here." %}</p>
+    </div>
+  </div></div>
+{% endif %}
+{% endblock %}

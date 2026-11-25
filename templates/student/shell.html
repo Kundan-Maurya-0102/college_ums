@@ -43,14 +43,19 @@
         <div class="dash-menu-panel">
           <a href="{% url 'student_dashboard' %}">{% translate "Dashboard" %}</a>
           <a href="{% url 'student_exam_schedule' %}">{% translate "Exam Schedule" %}</a>
+          <a href="{% url 'student_attendance' %}">{% translate "Attendance" %}</a>
+          <a href="{% url 'student_results' %}">{% translate "Marks / Results" %}</a>
+          <a href="{% url 'student_timetable' %}">{% translate "Timetable" %}</a>
           <a href="{% url 'student_certificates' %}">{% translate "Certificates" %}</a>
-          <a href="{% url 'student_fees' %}">{% translate "Fees" %}</a>
+          <a href="{% url 'exam_documents' %}">{% translate "Hall ticket / Marksheet" %}</a>
         </div>
       </details>
       <details class="dash-menu">
         <summary>{% translate "Services" %}</summary>
         <div class="dash-menu-panel">
+          <a href="{% url 'student_materials' %}">{% translate "Notes & assignments" %}</a>
           <a href="{% url 'student_leave_apply' %}">{% translate "Leave" %}</a>
+          <a href="{% url 'student_notices' %}">{% translate "Notices" %}</a>
           <a href="{% url 'student_feedback' %}">{% translate "Feedback" %}</a>
           <a href="{% url 'doubt_list' %}">{% translate "Doubt Forum" %}</a>
           <a href="{% url 'student_events' %}">{% translate "Events" %}</a>
@@ -68,19 +73,52 @@
     </nav>
 
     <div class="dash-nav-actions">
-      <a class="dash-icon-btn" href="{% url 'student_dashboard' %}#courses"
-         aria-label="{% translate 'Search subjects' %}" title="{% translate 'Search subjects' %}">
-        <svg width="18" height="18" aria-hidden="true"><use href="#i-search"/></svg>
-      </a>
-
-      <a class="dash-icon-btn dash-bell" href="{% url 'student_dashboard' %}#notices"
-         aria-label="{% translate 'Notifications' %}{% if unread_count %}, {{ unread_count }} {% translate 'unread' %}{% endif %}"
-         title="{% translate 'Notifications' %}">
-        <svg width="18" height="18" aria-hidden="true"><use href="#i-bell"/></svg>
-        {% if unread_count %}
-          <span class="dash-badge-count" aria-hidden="true">{{ unread_count }}</span>
+      <form class="dash-search" action="{% url 'student_dashboard' %}" method="get" role="search">
+        <label class="visually-hidden" for="dash-q">{% translate "Search subjects and notices" %}</label>
+        <svg width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="dash-q" type="search" name="q" value="{{ query|default:'' }}"
+               placeholder="{% translate 'Search subjects, notices…' %}" autocomplete="off">
+        {% if is_searching %}
+          <a class="dash-search-clear" href="{% url 'student_dashboard' %}"
+             aria-label="{% translate 'Clear search' %}">✕</a>
         {% endif %}
-      </a>
+      </form>
+
+      <details class="dash-menu dash-bell-menu">
+        <summary class="dash-icon-btn dash-bell"
+                 aria-label="{% translate 'Notifications' %}{% if unread_count %}, {{ unread_count }} {% translate 'unread' %}{% endif %}"
+                 title="{% translate 'Notifications' %}">
+          <svg width="18" height="18" aria-hidden="true"><use href="#i-bell"/></svg>
+          {% if unread_count %}
+            <span class="dash-badge-count" aria-hidden="true">{{ unread_count }}</span>
+          {% endif %}
+        </summary>
+        <div class="dash-menu-panel dash-menu-right dash-bell-panel">
+          <p class="dash-bell-title">{% translate "Notifications" %}</p>
+          {% for entry in announcements|slice:":2" %}
+            <a href="{% url 'student_notices' %}" class="dash-bell-item">
+              {% if entry.unread %}<span class="dash-dot is-unread" aria-hidden="true"></span>{% endif %}
+              <span>
+                <b>{{ entry.notice.title|truncatechars:44 }}</b>
+                <small>{{ entry.notice.created_at|date:"d M" }}</small>
+              </span>
+            </a>
+          {% endfor %}
+          {% for entry in messages|slice:":2" %}
+            <a href="{% url 'student_notices' %}" class="dash-bell-item">
+              {% if entry.unread %}<span class="dash-dot is-unread" aria-hidden="true"></span>{% endif %}
+              <span>
+                <b>{{ entry.notice.title|truncatechars:44 }}</b>
+                <small>{% translate "Your class" %} · {{ entry.notice.created_at|date:"d M" }}</small>
+              </span>
+            </a>
+          {% endfor %}
+          {% if not announcements and not messages %}
+            <p class="dash-empty small" style="padding:10px;">{% translate "No notifications yet" %}</p>
+          {% endif %}
+          <a class="dash-bell-all" href="{% url 'student_notices' %}">{% translate "View all notices" %} →</a>
+        </div>
+      </details>
 
       {% if dashboard_settings.show_dark_mode_toggle %}
       <button class="dash-icon-btn" id="dash-theme" type="button"
@@ -94,7 +132,11 @@
           <span class="dash-avatar" aria-hidden="true">{{ profile.name|slice:":1"|upper }}</span>
           <span class="dash-profile-name">{{ profile.name|truncatechars:18 }}</span>
         </summary>
-        <div class="dash-menu-panel dash-menu-right">
+        <div class="dash-menu-panel dash-menu-right dash-profile-card">
+          <div class="dash-profile-head">
+            <b>{{ profile.name }}</b>
+            <small>{{ profile.registration_number }}{% if profile.branch %} · {{ profile.get_branch_display_name }}{% endif %}{% if profile.semester %} · {% translate "Sem" %} {{ profile.semester }}{% endif %}</small>
+          </div>
           <a href="{% url 'student_profile_edit' %}">{% translate "Profile" %}</a>
           <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
           <a href="{% url 'student_logout' %}">{% translate "Logout" %}</a>
@@ -108,16 +150,17 @@
   <aside class="dash-sidebar" id="dash-sidebar" aria-label="{% translate 'Sidebar' %}">
     <nav class="dash-side-nav">
       {% url 'student_dashboard' as u %}<a href="{{ u }}" class="dash-side-link {% nav_active 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}aria-current="page"{% endif %}><svg aria-hidden="true"><use href="#i-grid"/></svg><span>{% translate "Dashboard" %}</span></a>
-      <a href="{% url 'student_dashboard' %}#courses" class="dash-side-link"><svg aria-hidden="true"><use href="#i-book"/></svg><span>{% translate "Courses" %}</span></a>
-      <a href="{% url 'student_certificates' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Attendance" %}</span></a>
-      <a href="{% url 'student_dashboard' %}#summary" class="dash-side-link"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Marks / Results" %}</span></a>
-      <a href="{% url 'student_fees' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-rupee"/></svg><span>{% translate "Fees" %}</span></a>
-      <a href="{% url 'student_dashboard' %}#courses" class="dash-side-link"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Timetable" %}</span></a>
+      <a href="{% url 'student_materials' %}" class="dash-side-link {% nav_active 'student_materials' %}"><svg aria-hidden="true"><use href="#i-book"/></svg><span>{% translate "Courses" %}</span></a>
+      <a href="{% url 'student_attendance' %}" class="dash-side-link {% nav_active 'student_attendance' %}"><svg aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Attendance" %}</span></a>
+      <a href="{% url 'student_results' %}" class="dash-side-link {% nav_active 'student_results' %}"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Marks / Results" %}</span></a>
+      <a href="{% url 'student_fees' %}" class="dash-side-link {% nav_active 'student_fees' %}"><svg aria-hidden="true"><use href="#i-rupee"/></svg><span>{% translate "Fees" %}</span></a>
+      <a href="{% url 'student_timetable' %}" class="dash-side-link {% nav_active 'student_timetable' %}"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Timetable" %}</span></a>
       <a href="{% url 'student_exam_schedule' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-clipboard"/></svg><span>{% translate "Exam Schedule" %}</span></a>
       <a href="{% url 'exam_documents' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-download"/></svg><span>{% translate "Hall ticket / Marksheet" %}</span></a>
       <a href="{% url 'student_leave_apply' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-history"/></svg><span>{% translate "Leave" %}</span></a>
       <a href="{% url 'student_certificates' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>{% translate "Certificates" %}</span></a>
-      <a href="{% url 'student_events' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Events" %}</span></a>
+      <a href="{% url 'student_notices' %}" class="dash-side-link {% nav_active 'student_notices' %}"><svg aria-hidden="true"><use href="#i-bell"/></svg><span>{% translate "Notices" %}</span></a>
+      <a href="{% url 'student_events' %}" class="dash-side-link {% nav_active 'student_events' %}"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Events" %}</span></a>
       <a href="{% url 'doubt_list' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-message"/></svg><span>{% translate "Doubt Forum" %}</span></a>
       <a href="{% url 'student_feedback' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-edit"/></svg><span>{% translate "Feedback" %}</span></a>
     </nav>

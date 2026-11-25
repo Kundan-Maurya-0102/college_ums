@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate "Notes and assignments" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Notes and assignments" %}{% endblock %}
+{% block breadcrumb %}{% translate "Notes and assignments" %}{% endblock %}
+{% block content %}
+<h1 class="page-title">{% translate "Notes and assignments" %}</h1>
+<p class="muted">{% translate "Study material and assignments published for your subjects." %}</p>
+
+{% if not has_any %}
+  <div class="card mt-24"><div class="card-body">
+    <div class="empty-state">
+      <p>{% translate "No material or assignment published yet." %}</p>
+      <p class="muted small">{% translate "Your teachers upload notes and assignments here." %}</p>
+    </div>
+  </div></div>
+{% endif %}
+
+{% for subject, items in grouped.items %}
+  {% if items.materials or items.assignments %}
+    <div class="card mt-24">
+      <div class="card-header">
+        <span class="card-title">{{ subject.subject_code }} — {{ subject.subject_name }}</span>
+        <span class="muted small">
+          {{ items.materials|length }} {% translate "note(s)" %} · {{ items.assignments|length }} {% translate "assignment(s)" %}
+        </span>
+      </div>
+      <div class="card-body">
+        {% if items.materials %}
+          <h3 class="h3-small">{% translate "Notes" %}</h3>
+          <ul class="plain-list">
+            {% for material in items.materials %}
+              <li>
+                <b>{{ material.title }}</b>
+                <span class="badge badge-blue">{{ material.get_material_type_display }}</span>
+                {% if material.description %}<span class="muted small">— {{ material.description|truncatechars:120 }}</span>{% endif %}
+                <span class="muted small">
+                  · {{ material.created_at|date:"d M Y" }}
+                  {% if material.uploaded_by %}· {{ material.uploaded_by.name }}{% endif %}
+                </span>
+                {% if material.file %}
+                  · <a href="{{ material.file.url }}" target="_blank" rel="noopener noreferrer">{% translate "Open" %}</a>
+                {% elif material.external_link %}
+                  · <a href="{{ material.external_link }}" target="_blank" rel="noopener noreferrer">{% translate "Open link" %}</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if items.assignments %}
+          <h3 class="h3-small mt-24">{% translate "Assignments" %}</h3>
+          <ul class="plain-list">
+            {% for assignment in items.assignments %}
+              <li>
+                <b>{{ assignment.title }}</b>
+                {% if assignment.due_date %}
+                  <span class="muted small {% if assignment.due_date < today %}" style="color:var(--danger)"{% endif %}>
+                    — {% translate "due" %} {{ assignment.due_date|date:"d M Y" }}
+                  </span>
+                {% endif %}
+                {% if assignment.attachment %}
+                  · <a href="{{ assignment.attachment.url }}" target="_blank" rel="noopener noreferrer">{% translate "Attachment" %}</a>
+                {% endif %}
+                {% if assignment.description %}<p class="muted small">{{ assignment.description|truncatechars:200 }}</p>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endfor %}
+{% endblock %}

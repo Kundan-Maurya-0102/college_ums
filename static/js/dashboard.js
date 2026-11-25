@@ -127,14 +127,68 @@
   }
 
   input.addEventListener('input', apply);
+})();
 
-  // The navbar magnifier is a plain link for no-JS users; with JS it just focuses.
-  var searchLink = document.querySelector('.dash-nav-actions a[href$="#courses"]');
-  if (searchLink) {
-    searchLink.addEventListener('click', function (event) {
-      event.preventDefault();
-      input.focus();
-      input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+/* Dismissible alert banner: remembered per banner text, not forever. */
+(function () {
+  var banner = document.getElementById('dash-banner');
+  var close = document.getElementById('dash-banner-close');
+  if (!banner || !close) return;
+
+  var key = 'ums.dash.banner.' + (banner.getAttribute('data-banner-key') || 'x');
+  try {
+    if (window.localStorage.getItem(key) === '1') {
+      banner.hidden = true;
+      return;
+    }
+  } catch (err) { /* private mode: banner simply stays visible */ }
+
+  close.addEventListener('click', function () {
+    banner.hidden = true;
+    try { window.localStorage.setItem(key, '1'); } catch (err) { /* ignore */ }
+  });
+})();
+
+/* One open menu at a time; Escape and outside clicks close them. */
+(function () {
+  var menus = Array.prototype.slice.call(document.querySelectorAll('.dash-menu'));
+
+  function closeAll(except) {
+    menus.forEach(function (menu) {
+      if (menu !== except) menu.open = false;
+    });
+  }
+
+  menus.forEach(function (menu) {
+    menu.addEventListener('toggle', function () {
+      if (menu.open) closeAll(menu);
+    });
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.dash-menu')) closeAll(null);
+    var contact = event.target.closest('.dash-quick-contact details');
+    document.querySelectorAll('.dash-quick-contact details[open]').forEach(function (node) {
+      if (node !== contact) node.open = false;
+    });
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    closeAll(null);
+    document.querySelectorAll('.dash-quick-contact details[open]').forEach(function (node) {
+      node.open = false;
+    });
+  });
+
+  /* "/" jumps to the navbar search, like most dashboards. */
+  var search = document.getElementById('dash-q');
+  if (search) {
+    document.addEventListener('keydown', function (event) {
+      if (event.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
+        event.preventDefault();
+        search.focus();
+      }
     });
   }
 })();

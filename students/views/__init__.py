@@ -108,6 +108,13 @@ from .reports_feedback import (  # noqa: F401
                        bug_report_update,
                        report_problem,
 )
+from .student_pages import (  # noqa: F401
+                       student_attendance,
+                       student_materials,
+                       student_notices,
+                       student_results,
+                       student_timetable,
+)
 from .system_status import system_status  # noqa: F401
 from .teacher import (  # noqa: F401
                        teacher_assignments,

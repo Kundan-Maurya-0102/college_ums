@@ -419,3 +419,185 @@
   .dash-layout { grid-template-columns: 1fr; }
   .dash-card { break-inside: avoid; box-shadow: none; }
 }
+
+/* ── navbar search, bell dropdown, profile card, contacts ───────────── */
+.dash-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  min-width: 0;
+  flex: 1 1 240px;
+  max-width: 340px;
+}
+.dash-search:focus-within { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px var(--primary-100); }
+.dash-search svg { fill: none; stroke: currentColor; stroke-width: 2; flex: 0 0 auto; }
+.dash-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  padding: 0;
+}
+.dash-search input:focus { outline: none; }
+.dash-search input::placeholder { color: var(--muted); }
+.dash-search-clear { color: var(--muted); text-decoration: none; font-size: 13px; line-height: 1; }
+.dash-search-clear:hover { color: var(--primary); }
+
+.dash-search-state {
+  margin: 0 0 var(--s2);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.dash-bell-menu > summary { list-style: none; }
+.dash-bell-panel {
+  min-width: 290px;
+  max-width: 330px;
+  gap: 0;
+  padding: 8px;
+}
+.dash-bell-title {
+  margin: 2px 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.dash-bell-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink-2);
+}
+.dash-bell-item:hover { background: var(--primary-050); }
+.dash-bell-item b { display: block; font-size: 13px; font-weight: 600; line-height: 1.35; }
+.dash-bell-item small { font-size: 11.5px; color: var(--muted); }
+.dash-bell-all {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--primary) !important;
+}
+
+.dash-profile-card { min-width: 240px; }
+.dash-profile-head {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.dash-profile-head b { font-size: 13.5px; }
+.dash-profile-head small { font-size: 11.5px; color: var(--muted); }
+
+.dash-quick-contact > details { position: relative; }
+.dash-quick-contact summary { list-style: none; cursor: pointer; }
+.dash-quick-contact summary::-webkit-details-marker { display: none; }
+.dash-contact-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  min-width: 240px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  font-size: 12.5px;
+  text-align: left;
+}
+.dash-contact-panel p { margin: 0 0 6px; }
+.dash-contact-panel p:last-child { margin-bottom: 0; }
+.dash-contact-panel a { color: var(--primary); }
+
+.dash-banner-close {
+  margin-left: var(--s2);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  opacity: .75;
+}
+.dash-banner-close:hover { opacity: 1; background: rgba(0, 0, 0, .06); }
+.dash-banner .btn + .btn { margin-left: 0; }
+.dash-banner > .dash-banner-close { margin-left: auto; }
+
+/* ── card footer actions ─────────────────────────────────────────────── */
+.dash-card-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 8px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.dash-card-foot-split { justify-content: space-between; flex-wrap: wrap; }
+.dash-card-foot b { font-weight: 600; color: var(--ink-2); }
+.dash-card-action {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dash-card-action:hover { text-decoration: underline; }
+.dash-card-action:focus-visible,
+.dash-banner-close:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+@media (max-width: 900px) { .dash-search { max-width: none; flex: 1 1 auto; } }
+@media (max-width: 620px) {
+  /* The search gets its own row; inside a nowrap row it collapsed to 0px. */
+  .dash-nav-inner { flex-wrap: wrap; row-gap: 4px; padding-bottom: 8px; }
+  .dash-nav-actions { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-end; }
+  .dash-search { order: 5; flex: 1 1 100%; max-width: none; height: 34px; }
+  .dash-bell-panel { min-width: 0; width: min(300px, calc(100vw - 24px)); }
+  /* on a phone the pill sits on its own row at the left, so open to the right */
+  .dash-contact-panel {
+    min-width: 0;
+    width: min(250px, calc(100vw - 32px));
+    left: 0;
+    right: auto;
+  }
+  .dash-card-foot { padding: 8px 12px; }
+}
+
+/* A closed <details> must never paint its panel: author `display` would
+   otherwise beat the browser's own hiding rule for details children. */
+.dash-menu:not([open]) > .dash-menu-panel { display: none; }
+.dash-quick-contact details:not([open]) > .dash-contact-panel { display: none; }
+
+/* The quick-link strip scrolls horizontally, so the contacts panel lives
+   beside it (a panel inside a scroll container would be clipped). */
+.dash-quick-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  min-width: 0;
+}
+.dash-quick-wrap .dash-quick { flex: 1 1 auto; min-width: 0; }
+.dash-quick-contact { position: relative; flex: 0 0 auto; }
+.dash-quick-contact > summary { list-style: none; cursor: pointer; }
+.dash-quick-contact > summary::-webkit-details-marker { display: none; }
+@media (max-width: 620px) {
+  .dash-quick-wrap { flex-wrap: wrap; }
+  .dash-quick-wrap .dash-quick { flex-basis: 100%; }
+}

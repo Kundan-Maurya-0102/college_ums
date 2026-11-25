@@ -28,28 +28,56 @@
 </div>
 
 {% if banner %}
-  <div class="dash-banner dash-banner-{{ banner.kind }}" role="status">
+  <div class="dash-banner dash-banner-{{ banner.kind }}" role="status" id="dash-banner"
+       data-banner-key="{{ banner.kind }}:{{ banner.text|slice:":40" }}">
     <strong>{{ banner.title }}</strong>
     <span>{{ banner.text }}</span>
     <a class="btn btn-sm btn-primary" href="{% url banner.url_name %}">{{ banner.label }}</a>
+    {% if banner.secondary_url %}
+      <a class="btn btn-sm btn-outline" href="{% url banner.secondary_url %}">{{ banner.secondary_label }}</a>
+    {% endif %}
+    <button type="button" class="dash-banner-close" id="dash-banner-close"
+            aria-label="{% translate 'Dismiss this notice' %}">✕</button>
   </div>
 {% endif %}
 
-<nav class="dash-quick" aria-label="{% translate 'Quick links' %}">
-  <ul class="dash-quick-row">
-    {% for link in quick_links %}
-      <li>
-        <a class="dash-pill" href="{% url link.url_name %}">
-          <svg width="15" height="15" aria-hidden="true"><use href="#{{ link.icon }}"/></svg>
-          <span>{{ link.label }}</span>
-          {% if link.badge == 'exam' and new_exam_schedule %}
-            <span class="dash-chip" title="{% translate 'New date sheet' %}">{% translate "New" %}</span>
-          {% endif %}
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-</nav>
+{% if is_searching %}
+  <p class="dash-search-state">
+    {% blocktranslate with q=query %}Showing results for “{{ q }}”{% endblocktranslate %}
+    · <a href="{% url 'student_dashboard' %}">{% translate "Clear" %}</a>
+  </p>
+{% endif %}
+
+<div class="dash-quick-wrap">
+  <nav class="dash-quick" aria-label="{% translate 'Quick links' %}">
+    <ul class="dash-quick-row">
+      {% for link in quick_links %}
+        <li>
+          <a class="dash-pill" href="{% url link.url_name %}">
+            <svg width="15" height="15" aria-hidden="true"><use href="#{{ link.icon }}"/></svg>
+            <span>{{ link.label }}</span>
+            {% if link.badge == 'exam' and new_exam_schedule %}
+              <span class="dash-chip" title="{% translate 'New date sheet' %}">{% translate "New" %}</span>
+            {% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+  <details class="dash-quick-contact">
+    <summary class="dash-pill">
+      <svg width="15" height="15" aria-hidden="true"><use href="#i-message"/></svg>
+      <span>{% translate "Emergency contacts" %}</span>
+    </summary>
+    <div class="dash-contact-panel">
+      {% if COLLEGE_PHONE %}<p><b>{% translate "Office" %}</b> · <a href="tel:{{ COLLEGE_PHONE }}">{{ COLLEGE_PHONE }}</a></p>{% endif %}
+      {% if COLLEGE_EMAIL %}<p><b>{% translate "E-mail" %}</b> · <a href="mailto:{{ COLLEGE_EMAIL }}">{{ COLLEGE_EMAIL }}</a></p>{% endif %}
+      {% if COLLEGE_WEBSITE %}<p><b>{% translate "Website" %}</b> · <a href="{{ COLLEGE_WEBSITE }}" target="_blank" rel="noopener noreferrer">{{ COLLEGE_WEBSITE }}</a></p>{% endif %}
+      <p><b>{% translate "Help" %}</b> · <a href="{% url 'help_center' %}">{% translate "Help centre" %}</a></p>
+      <p><b>{% translate "Privacy" %}</b> · <a href="{% url 'privacy_policy' %}">{% translate "How we use your data" %}</a></p>
+    </div>
+  </details>
+</div>
 
 <div class="dash-skeleton" aria-hidden="true">
   <div class="dash-card"><div class="dash-card-body">
@@ -94,6 +122,9 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot">
+      <a class="dash-card-action" href="{% url 'student_notices' %}">{% translate "View all notices" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -127,6 +158,9 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot">
+      <a class="dash-card-action" href="{% url 'student_notices' %}">{% translate "All messages" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -164,9 +198,10 @@
                   {% if row.today %} · {% translate "today" %} {{ row.today.start_time|time:"H:i" }}{% if row.today.room %} ({{ row.today.room }}){% endif %}{% endif %}
                 </p>
                 <div class="dash-course-actions">
-                  <a href="{% url 'student_dashboard' %}#courses" class="dash-chip-link">{% translate "Timetable" %}</a>
-                  <a href="{% url 'doubt_list' %}" class="dash-chip-link">{% translate "Materials" %} ({{ row.material_count }})</a>
-                  <a href="{% url 'student_dashboard' %}#summary" class="dash-chip-link">{% translate "Marks" %}</a>
+                  <a href="{% url 'student_timetable' %}" class="dash-chip-link">{% translate "Timetable" %}</a>
+                  <a href="{% url 'student_materials' %}" class="dash-chip-link">{% translate "Materials" %} ({{ row.material_count }})</a>
+                  <a href="{% url 'student_results' %}" class="dash-chip-link">{% translate "Marks" %}</a>
+                  <a href="{% url 'student_attendance' %}" class="dash-chip-link">{% translate "Attendance" %}</a>
                 </div>
               </div>
             </li>
@@ -179,6 +214,19 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot dash-card-foot-split">
+      <span>
+        <b>{% translate "Overall attendance" %}:</b>
+        {% if attendance.percent is None %}—{% else %}{{ attendance.percent }}%{% endif %}
+        <span class="badge {% if attendance.ring == 'ok' %}badge-green{% elif attendance.ring == 'watch' %}badge-yellow{% else %}badge-red{% endif %}">
+          {% if attendance.held %}{{ attendance.attended }}/{{ attendance.held }}{% else %}0/0{% endif %}
+        </span>
+      </span>
+      <span>
+        <b>{% translate "CGPA" %}:</b>
+        {% if cgpa is not None %}<span class="badge badge-blue">{{ cgpa }}</span>{% else %}—{% endif %}
+      </span>
+    </footer>
   </section>
   {% endif %}
 
@@ -206,7 +254,22 @@
       {% elif fee_card.due > 0 %}
         <a class="btn btn-outline btn-sm" href="{% url 'student_fees' %}">{% translate "Contact accounts" %}</a>
       {% endif %}
+      {% if fee_card.receipts %}
+        <ul class="dash-list mt-3">
+          {% for receipt in fee_card.receipts %}
+            <li class="dash-item">
+              <div>
+                <p class="dash-item-title">{{ receipt.receipt_number }}</p>
+                <p class="dash-item-meta">{{ receipt.payment_date|date:"d M Y" }} · ₹{{ receipt.amount_paid|floatformat:0|intcomma }}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
+    <footer class="dash-card-foot">
+      <a class="dash-card-action" href="{% url 'student_fees' %}">{% translate "Fee details & receipts" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -238,6 +301,9 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot">
+      <a class="dash-card-action" href="{% url 'student_materials' %}">{% translate "Notes & assignments" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -270,6 +336,9 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot">
+      <a class="dash-card-action" href="{% url 'student_events' %}">{% translate "All events" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -301,6 +370,10 @@
         </div>
       {% endif %}
     </div>
+    <footer class="dash-card-foot dash-card-foot-split">
+      <a class="dash-card-action" href="{% url 'student_exam_schedule' %}">{% translate "Full date sheet" %}</a>
+      <a class="dash-card-action" href="{% url 'student_hall_ticket' %}">{% translate "Hall ticket (PDF)" %}</a>
+    </footer>
   </section>
   {% endif %}
 
@@ -335,6 +408,10 @@
         <p class="dash-item-meta">{% translate "No result published yet" %}</p>
       {% endif %}
     </div>
+    <footer class="dash-card-foot dash-card-foot-split">
+      <a class="dash-card-action" href="{% url 'student_results' %}">{% translate "All results" %}</a>
+      <a class="dash-card-action" href="{% url 'student_marksheet' %}">{% translate "Marksheet (PDF)" %}</a>
+    </footer>
   </section>
   {% endif %}
 

@@ -59,6 +59,11 @@ urlpatterns = [
 
     # ── Student Dashboard ──────────────────────────
     path('dashboard/', student_dashboard, name='student_dashboard'),
+    path('attendance/', views.student_attendance, name='student_attendance'),
+    path('results/', views.student_results, name='student_results'),
+    path('timetable/', views.student_timetable, name='student_timetable'),
+    path('notices/', views.student_notices, name='student_notices'),
+    path('materials/', views.student_materials, name='student_materials'),
     path('profile/edit/', student_profile_edit, name='student_profile_edit'),
     path('plane/', plane, name='plane_page'),
     path('college-website/', college_website, name='college_website'),

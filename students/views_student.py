@@ -200,10 +200,12 @@ def student_dashboard(request):
     settings_obj = DashboardSettings.load()
     cards = {key: settings_obj.is_card_visible(key)
              for key, _label in DashboardSettings.CARD_CHOICES}
+    query = (request.GET.get('q') or '').strip()[:60]
     context = dashboard_data.build(
         profile,
         gateway_configured=bool(getattr(settings, 'RAZORPAY_KEY_ID', '')),
         cards=cards,
+        query=query,
     )
     read_state = profile.dashboard_seen_at     # computed before marking, for the dots
     dashboard_data.mark_seen(profile)

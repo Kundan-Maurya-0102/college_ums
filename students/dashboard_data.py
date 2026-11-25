@@ -45,11 +45,15 @@ DEFAULT_QUICK_LINKS = [
 ]
 
 
-def _subjects(profile):
+def _subjects(profile, query=''):
     if not (profile.branch and profile.semester):
         return Subject.objects.none()
-    return Subject.objects.filter(
+    subjects = Subject.objects.filter(
         branch=profile.branch, semester=profile.semester, is_active=True)
+    if query:
+        subjects = subjects.filter(
+            Q(subject_name__icontains=query) | Q(subject_code__icontains=query))
+    return subjects
 
 
 def _ring_state(percent):
@@ -62,9 +66,9 @@ def _ring_state(percent):
     return "low"
 
 
-def courses(profile):
+def courses(profile, query=''):
     """Subjects + attendance % + today's class, in two queries."""
-    subjects = list(_subjects(profile).order_by("subject_code"))
+    subjects = list(_subjects(profile, query).order_by("subject_code"))
     if not subjects:
         return []
 
@@ -120,7 +124,7 @@ def attendance_summary(profile, course_rows):
             "ring": _ring_state(percent)}
 
 
-def notices_and_messages(profile, course_rows, limit=5):
+def notices_and_messages(profile, course_rows, limit=5, query=''):
     """Announcements for everyone, plus messages aimed at this student.
 
     A notice is a "message" when it targets a branch/semester (i.e. it was written for
@@ -133,8 +137,12 @@ def notices_and_messages(profile, course_rows, limit=5):
 
     announcements, messages = [], []
     # Bounded scan: recent notices only, so a big college does not load the table.
+    needle = (query or '').lower()
     for notice in queryset[:60]:
         if not notice.is_for_student(profile):
+            continue
+        if needle and needle not in (notice.title or '').lower() \
+                and needle not in (notice.content or '').lower():
             continue
         entry = {"notice": notice, "unread": _is_unread(notice, profile)}
         targeted = bool(notice.target_branches or notice.target_semesters)
@@ -276,11 +284,12 @@ def banner(profile, fee_card):
     return None
 
 
-def build(profile, gateway_configured=False, cards=None):
-    """Assemble the whole dashboard context."""
-    course_rows = courses(profile)
+def build(profile, gateway_configured=False, cards=None, query=''):
+    """Assemble the whole dashboard context. `query` is the navbar search."""
+    query = (query or '').strip()
+    course_rows = courses(profile, query)
     attendance = attendance_summary(profile, course_rows)
-    notice_block = notices_and_messages(profile, course_rows)
+    notice_block = notices_and_messages(profile, course_rows, query=query)
     fee_card = fees(profile, gateway_configured)
     result = latest_result(profile)
 
@@ -296,12 +305,25 @@ def build(profile, gateway_configured=False, cards=None):
         "exams": upcoming_exams(profile),
         "new_exam_schedule": has_new_exam_schedule(profile),
         "latest_result": result,
+        "cgpa": cgpa(profile),
         "banner": banner(profile, fee_card),
         "cards": cards,
+        "query": query,
+        "is_searching": bool(query),
         "has_any_data": bool(course_rows or notice_block["announcements"]
                              or notice_block["messages"] or result
                              or fee_card["total"] or fee_card["paid"]),
     }
+
+
+def cgpa(profile):
+    """Credit-weighted CGPA across every published semester (None if none)."""
+    from .exams import gpa, grade_point
+
+    rows = [{"credits": row.subject.credits or 0, "point": grade_point(row.grade),
+             "is_pass": row.is_pass}
+            for row in SemesterResult.objects.filter(student=profile).select_related("subject")]
+    return gpa(rows)
 
 
 def mark_seen(profile):
