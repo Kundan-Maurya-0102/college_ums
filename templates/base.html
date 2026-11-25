@@ -103,6 +103,7 @@
         {% url 'banner_upload' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'banner_upload' 'banner_delete' %}"><span class="icon"><svg><use href="#i-folder"/></svg></span> {% translate "Banners" %}</a>
         {% url 'admin_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'admin_list' 'admin_create' 'admin_edit' 'admin_delete' %}"><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "Manage Admins" %}</a>
         {% url 'upload_history' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'upload_history' %}"><span class="icon"><svg><use href="#i-history"/></svg></span> {% translate "Upload History" %}</a>
+        {% url 'system_status' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'system_status' %}"><span class="icon"><svg><use href="#i-shield"/></svg></span> {% translate "System status" %}</a>
         {% url 'bug_report_list' as u %}<a href="{{ u }}" class="sidebar-link {% nav_active 'bug_report_list' %}"><span class="icon"><svg><use href="#i-message"/></svg></span> {% translate "Bug Reports" %}</a>
         <a href="/admin/" class="sidebar-link" target="_blank" rel="noopener"><span class="icon"><svg><use href="#i-external"/></svg></span> Django Admin</a>
       {% endif %}

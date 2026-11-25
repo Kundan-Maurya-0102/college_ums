@@ -31,6 +31,7 @@ urlpatterns = [
     # ── Parent / guardian portal (read-only) ──────
     path('parent/', views.parent_dashboard, name='parent_dashboard'),
     path('parent/child/<int:pk>/', views.parent_child, name='parent_child'),
+    path('admin-panel/system-status/', views.system_status, name='system_status'),
     path('admin-panel/bug-reports/', views.bug_report_list, name='bug_report_list'),
     path('admin-panel/bug-reports/<int:pk>/', views.bug_report_update, name='bug_report_update'),
 

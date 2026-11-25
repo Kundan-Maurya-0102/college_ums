@@ -18,8 +18,35 @@ env_get() {
   printf '%s' "${line#*=}" | sed -e 's/^["'"'"']//' -e 's/["'"'"'][[:space:]]*$//'
 }
 
-DB_ENGINE="${DB_ENGINE:-$(env_get DB_ENGINE || echo postgres)}"
+# Own name on purpose: exporting DB_ENGINE would shadow Django's setting
+# (django.db.backends.*) and break management commands run from here.
+BACKUP_DB_ENGINE="${BACKUP_DB_ENGINE:-${DB_ENGINE:-$(env_get BACKUP_DB_ENGINE || env_get DB_ENGINE || echo postgres)}}"
+# Accept the Django backend path as well: the same .env serves both.
+case "$BACKUP_DB_ENGINE" in
+  *postgresql*|*postgres*) BACKUP_DB_ENGINE=postgres ;;
+  *sqlite*)                BACKUP_DB_ENGINE=sqlite ;;
+esac
+# Hand Django the full backend path (never the short name) for the helper calls below.
+if [[ "$BACKUP_DB_ENGINE" == "postgres" ]]; then
+  export DB_ENGINE="django.db.backends.postgresql"
+else
+  export DB_ENGINE="django.db.backends.sqlite3"
+fi
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+# Some hosts keep psql outside PATH (e.g. /usr/lib/postgresql/16/bin).
+PG_BIN_DIR="${PG_BIN_DIR:-$(env_get PG_BIN_DIR || true)}"
+if [[ -n "$PG_BIN_DIR" ]]; then
+  export PATH="$PG_BIN_DIR:$PATH"
+fi
+
+require_binary() {
+  command -v "$1" >/dev/null 2>&1 && return 0
+  {
+    echo "ERROR: '$1' not found on this host."
+    echo "       Install the postgres client tools, or set PG_BIN_DIR=/usr/lib/postgresql/16/bin"
+  } >&2
+  exit 1
+}
 FILE=""
 ASSUME_YES=0
 
@@ -58,7 +85,7 @@ SQL="$TMP_DIR/dump.sql"
 gunzip -c "$SQL_GZ" > "$SQL"
 log "backup decrypted and verified: $(wc -l < "$SQL") lines"
 
-if [[ "$DB_ENGINE" == "sqlite" || "$DB_ENGINE" == "sqlite3" ]]; then
+if [[ "$BACKUP_DB_ENGINE" == "sqlite" || "$BACKUP_DB_ENGINE" == "sqlite3" ]]; then
   DB_PATH="${DB_PATH:-$(env_get DB_PATH || echo db.sqlite3)}"
   if [[ "$ASSUME_YES" != "1" ]]; then
     echo "Refusing to overwrite $DB_PATH without --yes" >&2
@@ -90,8 +117,16 @@ else
     docker compose exec -T -e PGPASSWORD="${DB_PASSWORD:-}" db \
       psql -U "$DB_USER" -d "$DB_NAME" < "$SQL"
   else
-    PGPASSWORD="${DB_PASSWORD:-}" psql -U "$DB_USER" -h "${DB_HOST:-localhost}" \
-      -p "${DB_PORT:-5432}" -d "$DB_NAME" < "$SQL"
+    require_binary psql "psql is needed to restore a postgres dump"
+    PGARGS=(-U "$DB_USER" -h "${DB_HOST:-localhost}" -p "${DB_PORT:-5432}")
+    # A brand-new server has no database yet: create it instead of failing.
+    if ! PGPASSWORD="${DB_PASSWORD:-}" psql "${PGARGS[@]}" -d postgres -tAc \
+         "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+      log "database $DB_NAME does not exist — creating it"
+      PGPASSWORD="${DB_PASSWORD:-}" psql "${PGARGS[@]}" -d postgres \
+        -c "CREATE DATABASE \"$DB_NAME\"" >/dev/null
+    fi
+    PGPASSWORD="${DB_PASSWORD:-}" psql "${PGARGS[@]}" -d "$DB_NAME" < "$SQL"
   fi
   log "restore finished into $DB_NAME"
 fi

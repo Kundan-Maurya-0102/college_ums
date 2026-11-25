@@ -99,6 +99,7 @@ from .reports_feedback import (  # noqa: F401
                        bug_report_update,
                        report_problem,
 )
+from .system_status import system_status  # noqa: F401
 from .teacher import (  # noqa: F401
                        teacher_assignments,
                        teacher_marks,

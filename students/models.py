@@ -697,3 +697,59 @@ class GuardianProfile(models.Model):
 
     def children(self):
         return self.students.select_related('user').order_by('name')
+
+
+class ErrorEvent(models.Model):
+    """One row per distinct server error (same logger+message+path = one row).
+
+    Source for the daily digest to the super admin and for the System status page.
+    Only ERROR/CRITICAL records are stored, and messages are truncated, so this never
+    becomes a second copy of the logs.
+    """
+
+    LEVELS = [('ERROR', 'Error'), ('CRITICAL', 'Critical')]
+
+    level = models.CharField(max_length=10, choices=LEVELS, default='ERROR')
+    logger_name = models.CharField(max_length=120, blank=True)
+    message = models.TextField()
+    path = models.CharField(max_length=300, blank=True)
+    fingerprint = models.CharField(max_length=40, unique=True)
+    count = models.PositiveIntegerField(default=1)
+    first_seen = models.DateTimeField(default=timezone.now)
+    last_seen = models.DateTimeField(default=timezone.now)
+    is_resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-last_seen']
+        indexes = [
+            models.Index(fields=['-last_seen'], name='errorevent_seen_idx'),
+            models.Index(fields=['is_resolved', '-last_seen'], name='errorevent_open_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.level} {self.message[:60]} (x{self.count})"
+
+
+class BackupRecord(models.Model):
+    """What the backup script actually wrote, so the admin panel can show it."""
+
+    KINDS = [('database', 'Database'), ('media', 'Media'), ('manual', 'Manual')]
+
+    path = models.CharField(max_length=400)
+    kind = models.CharField(max_length=12, choices=KINDS, default='database')
+    size_bytes = models.BigIntegerField(default=0)
+    encrypted = models.BooleanField(default=True)
+    checksum = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    note = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['-created_at'], name='backuprec_created_idx')]
+
+    def __str__(self):
+        return f"{self.kind} {self.path} ({self.size_bytes} bytes)"
+
+    @property
+    def size_mb(self):
+        return round(self.size_bytes / (1024 * 1024), 2)

@@ -135,9 +135,23 @@ if not DEBUG:
 
 WSGI_APPLICATION = 'college_ums.wsgi.application'
 
+# Accept short names ("postgres", "postgresql", "sqlite") as well as full backend
+# paths. The backup scripts use DB_ENGINE=postgres, and a stray export of that value
+# used to break every management command with "isn't an available database backend".
+_DB_ENGINE_ALIASES = {
+    'postgres': 'django.db.backends.postgresql',
+    'postgresql': 'django.db.backends.postgresql',
+    'psql': 'django.db.backends.postgresql',
+    'sqlite': 'django.db.backends.sqlite3',
+    'sqlite3': 'django.db.backends.sqlite3',
+    'mysql': 'django.db.backends.mysql',
+}
+_raw_db_engine = env('DB_ENGINE', default='django.db.backends.sqlite3').strip()
+DB_ENGINE = _DB_ENGINE_ALIASES.get(_raw_db_engine.lower(), _raw_db_engine)
+
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'ENGINE': DB_ENGINE,
         'NAME': env('DB_NAME', default=str(BASE_DIR / 'db.sqlite3')),
         'USER': env('DB_USER', default=''),
         'PASSWORD': env('DB_PASSWORD', default=''),
@@ -249,6 +263,8 @@ COLLEGE_NAME = env('COLLEGE_NAME', default='College UMS')
 COLLEGE_LOGO = env('COLLEGE_LOGO', default='images/college_logo.jpg')
 PRIMARY_COLOR = env('PRIMARY_COLOR', default='#000080')
 COLLEGE_EMAIL = env('COLLEGE_EMAIL', default='')
+# Where error digests and platform alerts go (defaults to superuser e-mails).
+SUPPORT_EMAIL = env('SUPPORT_EMAIL', default='')
 COLLEGE_PHONE = env('COLLEGE_PHONE', default='')
 # Optional public-page details; blank values are hidden in templates.
 COLLEGE_ADDRESS = env('COLLEGE_ADDRESS', default='')
@@ -362,6 +378,14 @@ LOG_REDACT_EXTRA_PATTERNS = env.list('LOG_REDACT_EXTRA_PATTERNS', default=[])
 
 logger = logging.getLogger(__name__)
 
+# ERROR/CRITICAL records are also kept in the database (System status + digest).
+ERROR_TRACKING_ENABLED = env.bool('ERROR_TRACKING_ENABLED', default=True)
+
+# Where scripts/backup_db.sh writes dumps, and how old a backup may get before the
+# System status page flags it. Keep BACKUP_DIR outside the repo in production.
+BACKUP_DIR = env('BACKUP_DIR', default=str(BASE_DIR / 'backups'))
+BACKUP_MAX_AGE_HOURS = env.int('BACKUP_MAX_AGE_HOURS', default=48)
+
 SENTRY_DSN = env('SENTRY_DSN', default='')
 if SENTRY_DSN:
     try:
@@ -431,14 +455,24 @@ LOGGING = {
             "filters": ["redact", "context"],
             "formatter": "json" if LOG_FORMAT == "json" else "plain",
         },
+        # ERROR/CRITICAL -> students.ErrorEvent (System status page + daily digest).
+        "errors_db": {
+            "class": "students.error_tracking.DatabaseErrorHandler",
+            "level": "ERROR",
+            "filters": ["redact"],
+        },
     },
     "root": {
-        "handlers": ["console"],
+        "handlers": ["console", "errors_db"],
         "level": env("LOG_LEVEL", default="INFO"),
     },
     "loggers": {
         # Django's own request log already carries status codes; keep it terse.
-        "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "django.request": {"handlers": ["console", "errors_db"], "level": "WARNING",
+                           "propagate": False},
+        "django.security": {"handlers": ["console", "errors_db"], "level": "WARNING",
+                            "propagate": False},
+        "django.db.backends": {"handlers": ["console"], "level": "WARNING", "propagate": False},
     },
 }
 

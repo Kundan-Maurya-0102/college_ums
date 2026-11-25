@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}System status — {{ COLLEGE_NAME }} UMS{% endblock %}
+{% block page_title %}System status{% endblock %}
+{% block breadcrumb %}System status{% endblock %}
+{% block content %}
+<h1 class="page-title">System status</h1>
+<p class="muted">
+  Measured at {{ now|date:"d M Y, H:i" }} · environment <b>{{ environment|default:"development" }}</b>
+  {% if version %}· release <b>{{ version }}</b>{% endif %}
+  · database <b>{{ db.engine }}</b>
+</p>
+
+<div class="stats-grid mb-24">
+  <div class="stat-card">
+    <div class="stat-label">Database</div>
+    <div class="stat-value" style="color:{% if db.ok %}var(--success, #15803d){% else %}var(--danger, #b91c1c){% endif %}">
+      {% if db.ok %}OK{% else %}DOWN{% endif %}
+    </div>
+    <div class="muted small">
+      {% if db.size_mb %}{{ db.size_mb }} MB ·{% endif %}
+      {% if db.latency_ms %}{{ db.latency_ms }} ms ·{% endif %}
+      {{ students }} students
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Last backup</div>
+    <div class="stat-value">
+      {% if backup.age_hours is not None %}{{ backup.age_hours }}h ago{% else %}never{% endif %}
+    </div>
+    <div class="muted small">
+      {% if backup.stale %}<b style="color:var(--danger, #b91c1c)">older than expected</b> · {% endif %}
+      {% if backup.record %}{{ backup.record.size_mb }} MB{% elif backup.newest_file %}{{ backup.newest_file }}{% else %}no file found{% endif %}
+      · {{ backup.files }} file(s) in {{ backup.dir }}
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Background jobs</div>
+    <div class="stat-value">{{ jobs.queued }} queued</div>
+    <div class="muted small">
+      last 24h: {{ jobs.success_24h }} ok · {{ jobs.failed_24h }} failed
+      {% if jobs.last_failure %}· last failure {{ jobs.last_failure|date:"d M H:i" }}{% endif %}
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Disk</div>
+    <div class="stat-value">{{ storage.disk_used_pct }}% used</div>
+    <div class="muted small">
+      {{ storage.disk_free_gb }} GB free of {{ storage.disk_total_gb }} GB
+      {% if storage.disk_low %}· <b style="color:var(--danger, #b91c1c)">running low</b>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Errors</span></div>
+    <div class="card-body">
+      <p>
+        <b>{{ errors.last_24h }}</b> distinct error(s) in the last 24 h
+        ({{ errors.occurrences_24h }} occurrences) · <b>{{ errors.open }}</b> unresolved.
+      </p>
+      {% if errors.recent %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>When</th><th>Level</th><th>Where</th><th>Message</th></tr></thead>
+            <tbody>
+            {% for event in errors.recent %}
+              <tr>
+                <td>{{ event.last_seen|date:"d M H:i" }}</td>
+                <td>{{ event.level }}</td>
+                <td>{{ event.logger_name }}{% if event.path %}<br><span class="muted small">{{ event.path|truncatechars:40 }}</span>{% endif %}</td>
+                <td>{{ event.message|truncatechars:80 }} <span class="muted">×{{ event.count }}</span></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">A daily summary is e-mailed to the platform owner
+          (<code>manage.py send_error_digest</code>).</p>
+      {% else %}
+        <div class="empty-state"><p>No errors recorded. 🎉</p></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Notifications</span></div>
+    <div class="card-body">
+      <ul class="plain-list">
+        <li>E-mail backend: <b>{{ notifications.email_backend }}</b>
+          {% if not notifications.email_delivers %}
+            <span class="badge badge-amber">not configured — mail is only printed, never sent</span>
+          {% elif notifications.email_configured %}
+            <span class="badge badge-green">configured</span>
+          {% else %}
+            <span class="badge badge-amber">no SMTP credentials</span>
+          {% endif %}</li>
+        <li>WhatsApp: {% if notifications.whatsapp_configured %}<span class="badge badge-green">keys present</span>
+          {% else %}<span class="badge badge-amber">no keys (messages skipped)</span>{% endif %}</li>
+        <li>SMS sender: {% if notifications.sms_configured %}<span class="badge badge-green">set</span>
+          {% else %}<span class="badge badge-amber">not set</span>{% endif %}</li>
+      </ul>
+
+      <h3 class="h3-small">Recent deliveries</h3>
+      {% if notifications.last_success %}
+        <p class="muted small">Last successes</p>
+        <ul class="plain-list">
+          {% for row in notifications.last_success %}
+            <li><code>{{ row.func }}</code> — {{ row.stopped|date:"d M H:i" }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state"><p>No notification sent yet.</p></div>
+      {% endif %}
+
+      {% if notifications.last_failure %}
+        <p class="muted small" style="margin-top:12px">Last failures</p>
+        <ul class="plain-list">
+          {% for row in notifications.last_failure %}
+            <li><code>{{ row.func }}</code> — {{ row.stopped|date:"d M H:i" }}
+              <br><span class="muted small">{{ row.result|truncatechars:120 }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-24">
+  <div class="card-header"><span class="card-title">Storage</span></div>
+  <div class="card-body">
+    <p>Uploaded files: <b>{{ storage.media_mb }} MB</b> in {{ storage.media_files }} file(s)
+      {% if storage.truncated %}<span class="muted">(count stopped early — very large media folder)</span>{% endif %}</p>
+    <p class="muted small">{{ storage.media_root }}</p>
+    <p class="muted small">Queued jobs: {{ jobs.queued }} · open database connections: {{ db_connections }}</p>
+    {% if jobs.failures %}
+      <table class="data-table">
+        <thead><tr><th>Job</th><th>When</th><th>Result</th></tr></thead>
+        <tbody>
+        {% for row in jobs.failures %}
+          <tr><td><code>{{ row.func }}</code></td><td>{{ row.stopped|date:"d M H:i" }}</td>
+              <td>{{ row.result|truncatechars:100 }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>
+
+<p class="mt-24 muted small">
+  Deep checks: <code>python manage.py diagnose_college {{ COLLEGE_DOMAIN|default:"&lt;domain&gt;" }}</code>
+  · backups: <code>./scripts/backup_db.sh</code> · runbook: <code>docs/RUNBOOK.md</code>
+</p>
+{% endblock %}

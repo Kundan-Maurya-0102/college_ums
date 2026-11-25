@@ -4,8 +4,8 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
-from django.urls import reverse
 from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 
 from platform_admin.models import (
