@@ -1,99 +1,260 @@
-{% extends 'base.html' %}
-{% block title %}Teacher Dashboard - {{ COLLEGE_NAME }} UMS{% endblock %}
-{% block page_title %}Teacher Dashboard{% endblock %}
+{% extends 'teacher/shell.html' %}
+{% load i18n humanize %}
+
+{% block title %}{% translate "Teacher dashboard" %} — {{ COLLEGE_NAME }}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Teacher Dashboard</h1>
-
-<div class="profile-hero">
-  <div class="profile-hero-inner">
-    <div class="profile-avatar"><span class="profile-avatar-text">{{ faculty.name|first|upper }}</span></div>
-    <div class="profile-hero-info">
-      <div class="profile-hero-title">
-        <h2 class="profile-name">{{ faculty.name }}</h2>
-        <span class="profile-pill">{{ faculty.designation }}</span>
-      </div>
-      <div class="profile-subtitle">{{ faculty.department }}{% if faculty.email %} · {{ faculty.email }}{% endif %}</div>
+<div class="dash-hero">
+  <div>
+    <h1 class="dash-title">{% blocktranslate with name=faculty.name %}Hello, {{ name }}{% endblocktranslate %}</h1>
+    <p class="dash-sub">
+      {% if faculty.department %}{{ faculty.get_department_display|default:faculty.department }} · {% endif %}
+      {{ weekday }}, {{ today|date:"d M Y" }}
+    </p>
+  </div>
+  <div class="dash-hero-stats">
+    <div class="dash-mini">
+      <span class="dash-mini-label">{% translate "My students" %}</span>
+      <span class="dash-mini-value">{{ student_count }}</span>
+    </div>
+    <div class="dash-mini">
+      <span class="dash-mini-label">{% translate "Subjects" %}</span>
+      <span class="dash-mini-value">{{ subject_count }}</span>
+    </div>
+    <div class="dash-mini">
+      <span class="dash-mini-label">{% translate "Avg attendance" %}</span>
+      <span class="dash-mini-value">{{ avg_attendance }}%</span>
     </div>
   </div>
 </div>
 
+{# ── quick actions ─────────────────────────────────────────────────── #}
+<nav class="dash-quick" aria-label="{% translate 'Quick actions' %}">
+  <ul class="dash-quick-row">
+    <li><a class="dash-pill" href="{% url 'teacher_take_attendance' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Take attendance" %}</span></a></li>
+    <li><a class="dash-pill" href="{% url 'teacher_marks' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Enter marks" %}</span></a></li>
+    <li><a class="dash-pill" href="{% url 'teacher_materials' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-upload"/></svg><span>{% translate "Upload material" %}</span></a></li>
+    <li><a class="dash-pill" href="{% url 'teacher_assignments' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-clipboard"/></svg><span>{% translate "Add assignment" %}</span></a></li>
+    <li><a class="dash-pill" href="{% url 'teacher_notices' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-bell"/></svg><span>{% translate "Post notice" %}</span></a></li>
+    <li><a class="dash-pill" href="{% url 'teacher_students' %}"><svg width="15" height="15" aria-hidden="true"><use href="#i-users"/></svg><span>{% translate "My students" %}</span></a></li>
+  </ul>
+</nav>
 
-<div class="quick-actions">
-  <a class="quick-action" href="{% url 'teacher_take_attendance' %}"><span class="qa-icon" aria-hidden="true">✅</span><span>Take Attendance</span></a>
-  <a class="quick-action" href="{% url 'teacher_marks' %}"><span class="qa-icon" aria-hidden="true">📝</span><span>Enter Marks</span></a>
-  <a class="quick-action" href="{% url 'teacher_materials' %}"><span class="qa-icon" aria-hidden="true">📚</span><span>Upload Material</span></a>
-  <a class="quick-action" href="{% url 'teacher_notices' %}"><span class="qa-icon" aria-hidden="true">📢</span><span>Send Notice</span></a>
-</div>
+<div class="dash-grid">
 
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-label">Assigned Subjects</div><div class="stat-value">{{ subjects|length }}</div></div>
-  <div class="stat-card"><div class="stat-label">Students Under You</div><div class="stat-value">{{ student_count }}</div></div>
-  <div class="stat-card"><div class="stat-label">Classes Taken</div><div class="stat-value">{{ classes_taken }}</div></div>
-  <div class="stat-card"><div class="stat-label">Average Attendance</div><div class="stat-value">{{ avg_attendance }}%</div></div>
-</div>
-
-<div class="responsive-grid" style="margin-bottom:24px;">
-  <div class="card">
-    <div class="card-header"><span class="card-title">Assigned Classes</span></div>
-    <div class="card-body">
-      {% for subject in subjects %}
-        <div class="notice-card">
-          <div class="notice-title">{{ subject.subject_name }} ({{ subject.subject_code }})</div>
-          <div class="notice-date">Sem {{ subject.semester }} · {{ subject.get_branch_display }} · {{ subject.credits }} credits</div>
-        </div>
-      {% empty %}
-        <div class="empty-state"><span class="empty-icon" aria-hidden="true">📚</span><p>No subject assigned yet. HOD can assign subjects from Teacher Management.</p></div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header"><span class="card-title">Upcoming Schedule</span></div>
-    <div class="card-body">
-      {% for schedule in schedules %}
-        <div class="notice-card">
-          <div class="notice-title">{{ schedule.subject.subject_code }} · {{ schedule.get_weekday_display }}</div>
-          <div class="notice-date">{{ schedule.start_time }} - {{ schedule.end_time }}{% if schedule.room %} · Room {{ schedule.room }}{% endif %}</div>
-        </div>
-      {% empty %}
-        <div class="empty-state"><span class="empty-icon" aria-hidden="true">🗓️</span><p>No class schedule added yet.</p></div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
-<div class="responsive-grid">
-  <div class="card">
-    <div class="card-header"><span class="card-title">Low Attendance Watchlist</span></div>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead><tr><th>Student</th><th>Subject</th><th>Attendance</th></tr></thead>
-        <tbody>
-          {% for row in low_attendance %}
-          <tr><td>{{ row.student.name }}</td><td>{{ row.subject.subject_code }}</td><td><span class="badge badge-red">{{ row.percentage }}%</span></td></tr>
-          {% empty %}
-          <tr><td colspan="3"><div class="empty-state"><span class="empty-icon" aria-hidden="true">👍</span><p>No low attendance cases found.</p></div></td></tr>
+  {# ── today's classes ─────────────────────────────────────────────── #}
+  <section class="dash-card dash-card-wide" aria-labelledby="h-today">
+    <header class="dash-card-head">
+      <h2 id="h-today">{% translate "Today's classes" %} <span class="badge badge-blue">{{ classes_today|length }}</span></h2>
+      <a class="dash-card-link" href="{% url 'teacher_schedule' %}">{% translate "Weekly schedule" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if classes_today %}
+        <ul class="dash-list">
+          {% for item in classes_today %}
+            <li class="dash-item">
+              <span class="dash-time">{{ item.slot.start_time|time:"H:i" }}</span>
+              <div class="dash-item-grow">
+                <p class="dash-item-title">{{ item.slot.subject.subject_code }} — {{ item.slot.subject.subject_name }}</p>
+                <p class="dash-item-meta">
+                  {% if item.slot.room %}{% translate "Room" %} {{ item.slot.room }} · {% endif %}
+                  {{ item.slot.start_time|time:"H:i" }}–{{ item.slot.end_time|time:"H:i" }}
+                  · {{ item.slot.subject.get_branch_display }} {% translate "Sem" %} {{ item.slot.subject.semester }}
+                </p>
+              </div>
+              {% if item.attendance_taken %}
+                <span class="badge badge-green">{% translate "Attendance done" %}</span>
+              {% else %}
+                <a class="btn btn-primary btn-sm" href="{% url 'teacher_take_attendance' %}?subject={{ item.slot.subject_id }}">{% translate "Take attendance" %}</a>
+              {% endif %}
+            </li>
           {% endfor %}
-        </tbody>
-      </table>
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-calendar"/></svg>
+          <p>{% translate "No classes on the timetable today." %}</p>
+        </div>
+      {% endif %}
     </div>
-  </div>
+  </section>
 
-  <div class="card">
-    <div class="card-header"><span class="card-title">High Marks</span></div>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead><tr><th>Student</th><th>Subject</th><th>Marks</th></tr></thead>
-        <tbody>
-          {% for mark in high_marks %}
-          <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject.subject_code }}</td><td><span class="badge badge-green">{{ mark.marks_obtained }}/{{ mark.max_marks }}</span></td></tr>
-          {% empty %}
-          <tr><td colspan="3"><div class="empty-state"><span class="empty-icon" aria-hidden="true">📝</span><p>No marks entered yet.</p></div></td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  {# ── pending work ────────────────────────────────────────────────── #}
+  <section class="dash-card" aria-labelledby="h-pending">
+    <header class="dash-card-head"><h2 id="h-pending">{% translate "Pending work" %}</h2></header>
+    <div class="dash-card-body">
+      <ul class="dash-list">
+        {% for item in pending %}
+          <li class="dash-item">
+            <span class="dash-dot{% if item.count %} is-unread{% endif %}" aria-hidden="true"></span>
+            <div class="dash-item-grow">
+              <p class="dash-item-title">{{ item.label }}</p>
+              <p class="dash-item-meta">{{ item.count }}</p>
+            </div>
+            {% if item.url and item.count %}<a class="dash-card-action" href="{{ item.url }}">{% translate "Open" %}</a>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
     </div>
-  </div>
+  </section>
+
+  {# ── my subjects ─────────────────────────────────────────────────── #}
+  <section class="dash-card dash-card-wide" aria-labelledby="h-subjects">
+    <header class="dash-card-head">
+      <h2 id="h-subjects">{% translate "My subjects" %}</h2>
+      <a class="dash-card-link" href="{% url 'teacher_students' %}">{% translate "Students" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if subject_rows %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{% translate "Subject" %}</th><th>{% translate "Class" %}</th>
+                <th>{% translate "Students" %}</th><th>{% translate "Classes" %}</th>
+                <th>{% translate "Avg attendance" %}</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in subject_rows %}
+                <tr>
+                  <td>{{ row.subject.subject_code }} — {{ row.subject.subject_name }}</td>
+                  <td>{{ row.subject.get_branch_display }} / {{ row.subject.semester }}</td>
+                  <td>{{ row.students }}</td>
+                  <td>{{ row.classes }}</td>
+                  <td>
+                    {% if row.percent is None %}<span class="muted">—</span>
+                    {% else %}
+                      <span class="badge {% if row.state == 'ok' %}badge-green{% elif row.state == 'watch' %}badge-yellow{% else %}badge-red{% endif %}">{{ row.percent }}%</span>
+                    {% endif %}
+                  </td>
+                  <td class="row-actions">
+                    <a class="dash-card-action" href="{% url 'teacher_take_attendance' %}?subject={{ row.subject.id }}">{% translate "Attendance" %}</a>
+                    <a class="dash-card-action" href="{% url 'teacher_marks' %}?subject={{ row.subject.id }}">{% translate "Marks" %}</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="dash-empty"><p>{% translate "No subjects assigned to you yet." %}</p></div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── at risk ─────────────────────────────────────────────────────── #}
+  <section class="dash-card" aria-labelledby="h-risk">
+    <header class="dash-card-head">
+      <h2 id="h-risk">{% translate "Low attendance" %}</h2>
+      <span class="muted small">{% translate "below 75%" %}</span>
+    </header>
+    <div class="dash-card-body">
+      {% if at_risk %}
+        <ul class="dash-list">
+          {% for item in at_risk %}
+            <li class="dash-item">
+              <div class="dash-item-grow">
+                <p class="dash-item-title">{{ item.student.name }}</p>
+                <p class="dash-item-meta">{{ item.student.registration_number }} · {{ item.subject.subject_code }} · {{ item.held }} {% translate "classes" %}</p>
+              </div>
+              <span class="badge {% if item.state == 'low' %}badge-red{% else %}badge-yellow{% endif %}">{{ item.percent }}%</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-user-check"/></svg>
+          <p>{% translate "Nobody is below 75% right now." %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── doubts waiting ──────────────────────────────────────────────── #}
+  <section class="dash-card" aria-labelledby="h-doubts">
+    <header class="dash-card-head">
+      <h2 id="h-doubts">{% translate "Doubts to answer" %}</h2>
+      <a class="dash-card-link" href="{% url 'doubt_list' %}">{% translate "Forum" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      {% if doubts %}
+        <ul class="dash-list">
+          {% for item in doubts %}
+            <li class="dash-item">
+              <div class="dash-item-grow">
+                <p class="dash-item-title"><a href="{% url 'doubt_detail' item.doubt.pk %}">{{ item.doubt.title|truncatechars:60 }}</a></p>
+                <p class="dash-item-meta">{{ item.doubt.student.name }} · {{ item.doubt.created_at|timesince }} {% translate "ago" %} · {{ item.replies }} {% translate "replies" %}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="dash-empty"><p>{% translate "No open doubts from your classes." %}</p></div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── notices & uploads ───────────────────────────────────────────── #}
+  <section class="dash-card" aria-labelledby="h-notices">
+    <header class="dash-card-head">
+      <h2 id="h-notices">{% translate "Notices & uploads" %}</h2>
+      <a class="dash-card-link" href="{% url 'teacher_notices' %}">{% translate "All" %} →</a>
+    </header>
+    <div class="dash-card-body">
+      <ul class="dash-list">
+        {% for notice in notices %}
+          <li class="dash-item">
+            <div class="dash-item-grow">
+              <p class="dash-item-title">{{ notice.title|truncatechars:50 }}</p>
+              <p class="dash-item-meta">{{ notice.created_at|date:"d M Y" }}{% if notice.created_by %} · {{ notice.created_by.name }}{% endif %}</p>
+            </div>
+          </li>
+        {% endfor %}
+        {% for material in materials %}
+          <li class="dash-item">
+            <div class="dash-item-grow">
+              <p class="dash-item-title">{{ material.title|truncatechars:50 }}</p>
+              <p class="dash-item-meta">{% translate "Material" %} · {{ material.subject.subject_code }} · {{ material.created_at|date:"d M" }}</p>
+            </div>
+          </li>
+        {% endfor %}
+        {% if not notices and not materials %}
+          <li class="dash-empty small">{% translate "Nothing posted yet." %}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </section>
+
+  {# ── exams & events ──────────────────────────────────────────────── #}
+  <section class="dash-card" aria-labelledby="h-exams">
+    <header class="dash-card-head"><h2 id="h-exams">{% translate "Exams & events" %}</h2></header>
+    <div class="dash-card-body">
+      <ul class="dash-list">
+        {% for exam in exams %}
+          <li class="dash-item">
+            <span class="dash-time">{{ exam.exam_date|date:"d M" }}</span>
+            <div class="dash-item-grow">
+              <p class="dash-item-title">{{ exam.subject.subject_code }} — {{ exam.get_exam_type_display }}</p>
+              <p class="dash-item-meta">{{ exam.start_time|time:"H:i" }}–{{ exam.end_time|time:"H:i" }}{% if exam.room %} · {{ exam.room }}{% endif %}</p>
+            </div>
+          </li>
+        {% endfor %}
+        {% for event in events %}
+          <li class="dash-item">
+            <span class="dash-time">{{ event.event_date|date:"d M" }}</span>
+            <div class="dash-item-grow">
+              <p class="dash-item-title">{{ event.title }}</p>
+              <p class="dash-item-meta">{{ event.get_event_type_display }}{% if event.venue %} · {{ event.venue }}{% endif %}</p>
+            </div>
+          </li>
+        {% endfor %}
+        {% if not exams and not events %}
+          <li class="dash-empty small">{% translate "Nothing scheduled." %}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </section>
+
 </div>
 {% endblock %}

@@ -1,7 +1,8 @@
 """Teacher panel: own students, attendance, marks, notices, materials, schedule."""
 
+from django.conf import settings
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import (
@@ -28,11 +29,35 @@ def teacher_students(request):
     subjects = _faculty_subjects(request.user)
     selected_subject_id = _int_or_none(request.GET.get("subject"))
     selected_subject = subjects.filter(pk=selected_subject_id).first() if selected_subject_id else subjects.first()
-    students = _subject_class_students(selected_subject) if selected_subject else StudentProfile.objects.none()
-    return render(request, "teacher/students.html", {
+    students = (_subject_class_students(selected_subject) if selected_subject
+                else StudentProfile.objects.none())
+
+    query = (request.GET.get("q") or "").strip()[:60]
+    if query:
+        students = students.filter(Q(name__icontains=query) |
+                                   Q(registration_number__icontains=query))
+
+    # One grouped query instead of two per student (the row used to call
+    # get_attendance_percentage(), which is 2 queries x every student).
+    stats = {}
+    if selected_subject:
+        for row in (Attendance.objects.filter(subject=selected_subject,
+                                             student__in=students)
+                    .values("student_id")
+                    .annotate(total=Count("id"),
+                              present=Count("id", filter=Q(is_present=True)))):
+            total = row["total"]
+            stats[row["student_id"]] = (round(row["present"] / total * 100, 1) if total else 0)
+
+    rows = [{"student": student, "percent": stats.get(student.id)}
+            for student in students.order_by("registration_number")]
+
+    return render(request, "teacher/students.html", {"show_dark_toggle": True,
         "subjects": subjects,
         "selected_subject": selected_subject,
-        "students": students,
+        "rows": rows,
+        "student_total": len(rows),
+        "query": query,
     })
 
 
@@ -68,7 +93,7 @@ def teacher_take_attendance(request):
         messages.success(request, f"Attendance saved for {subject.subject_code}.")
         return redirect(f"/teacher/attendance/?subject={subject.id}&date={selected_date}")
 
-    return render(request, "teacher/take_attendance.html", {
+    return render(request, "teacher/take_attendance.html", {"show_dark_toggle": True,
         "subjects": subjects,
         "selected_subject": subject,
         "selected_date": selected_date,
@@ -144,7 +169,7 @@ def teacher_marks(request):
             return redirect("teacher_marks")
 
     recent_marks = InternalExam.objects.filter(subject__in=subjects).select_related("student", "subject").order_by("-id")[:25]
-    return render(request, "teacher/marks.html", {
+    return render(request, "teacher/marks.html", {"show_dark_toggle": True,
         "form": form,
         "recent_marks": recent_marks,
         "subjects": subjects,
@@ -182,7 +207,14 @@ def _teacher_owned_form(request, form_class, model, template, title):
         else:
             messages.error(request, "Please fix the errors below.")
     items = model.objects.filter(subject__in=subjects).select_related("subject").order_by("-id")[:50]
-    return render(request, template, {"form": form, "items": items, "title": title})
+    return render(request, template, {
+        "show_dark_toggle": True,
+        "form": form,
+        "items": items,
+        "title": title,
+        # optional per-deployment link, never a hardcoded drive id
+        "DRIVE_FOLDER_URL": (getattr(settings, "MATERIAL_SHARED_FOLDER_URL", "") or "").strip(),
+    })
 
 
 @teacher_required
@@ -234,7 +266,7 @@ def teacher_notices(request):
         branch_filters |= Q(target_branches__icontains=subject.branch)
         semester_filters |= Q(target_semesters__icontains=str(subject.semester))
     notices = Notice.objects.filter(branch_filters, semester_filters).select_related("created_by").order_by("-created_at")[:50]
-    return render(request, "teacher/notices.html", {"form": form, "notices": notices, "subjects": subjects})
+    return render(request, "teacher/notices.html", {"show_dark_toggle": True, "form": form, "notices": notices, "subjects": subjects})
 
 
 @teacher_required
@@ -260,7 +292,7 @@ def teacher_notice_edit(request, pk):
             messages.success(request, "Notice updated.")
             return redirect("teacher_notices")
 
-    return render(request, "teacher/notice_form.html", {
+    return render(request, "teacher/notice_form.html", {"show_dark_toggle": True,
         "form": form,
         "notice": notice,
         "action": "Edit",
@@ -276,5 +308,5 @@ def teacher_notice_delete(request, pk):
         notice.delete()
         messages.success(request, f"Notice '{title}' deleted.")
         return redirect("teacher_notices")
-    return render(request, "teacher/notice_delete_confirm.html", {"notice": notice})
+    return render(request, "teacher/notice_delete_confirm.html", {"show_dark_toggle": True, "notice": notice})
 

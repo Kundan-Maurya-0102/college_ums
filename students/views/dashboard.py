@@ -7,20 +7,19 @@ from django.core.cache import cache
 from django.db.models import Count, Q, Sum
 from django.shortcuts import render
 
+from .. import teacher_data
 from ..models import (
     Attendance,
-    ClassSchedule,
     CSVUpload,
     FacultyProfile,
     FeePayment,
-    InternalExam,
     LeaveApplication,
     Notice,
     StudentProfile,
     Subject,
     WebsiteVisit,
 )
-from .common import _faculty_subjects, admin_required, teacher_required
+from .common import admin_required, teacher_required
 
 
 @admin_required
@@ -98,57 +97,33 @@ def admin_dashboard(request):
 
 @teacher_required
 def teacher_dashboard(request):
+    """What needs the teacher today — aggregated in teacher_data, not per student."""
     faculty = request.user.facultyprofile
-    subjects = list(_faculty_subjects(request.user))
-    attendance_qs = Attendance.objects.filter(subject__in=subjects)
-    classes_taken = attendance_qs.values("subject_id", "date").distinct().count()
-    total_marks = InternalExam.objects.filter(subject__in=subjects).count()
+    data = teacher_data.build(faculty)
 
-    total_records = attendance_qs.count()
-    present_records = attendance_qs.filter(is_present=True).count()
-    avg_attendance = round((present_records / total_records) * 100, 1) if total_records else 0
-
-    class_filter = Q()
-    for subject in subjects:
-        class_filter |= Q(branch=subject.branch, semester=subject.semester)
-    class_students = (StudentProfile.objects.filter(class_filter) if subjects
-                      else StudentProfile.objects.none())
-    student_ids = set(class_students.values_list("id", flat=True))
-
-    # Single grouped query for subject-wise attendance instead of N+1 lookups.
-    pair_stats = (attendance_qs.values("student_id", "subject_id")
-                  .annotate(total=Count("id"), present=Count("id", filter=Q(is_present=True))))
-    risky = []
-    for row in pair_stats:
-        if not row["total"]:
-            continue
-        pct = round(row["present"] / row["total"] * 100, 1)
-        if pct < 75:
-            risky.append((row["student_id"], row["subject_id"], pct))
-    risky.sort(key=lambda item: item[2])
-    risky = risky[:8]
-    students_by_id = StudentProfile.objects.in_bulk({item[0] for item in risky})
-    subjects_by_id = {subject.id: subject for subject in subjects}
-    low_attendance = [
-        {"student": students_by_id[sid], "subject": subjects_by_id[sub_id], "percentage": pct}
-        for sid, sub_id, pct in risky
-        if sid in students_by_id and sub_id in subjects_by_id
-    ]
-
-    high_marks = InternalExam.objects.filter(subject__in=subjects).select_related("student", "subject").order_by("-marks_obtained")[:8]
-    schedules = ClassSchedule.objects.filter(faculty=faculty, is_active=True).select_related("subject")[:8]
-
-    return render(request, "teacher/dashboard.html", {
+    notice_rows = [{"notice": notice, "unread": False} for notice in data["notices"]]
+    context = {
         "faculty": faculty,
-        "subjects": subjects,
-        "classes_taken": classes_taken,
-        "student_count": len(student_ids),
-        "avg_attendance": avg_attendance,
-        "total_marks": total_marks,
-        "low_attendance": low_attendance,
-        "high_marks": high_marks,
-        "schedules": schedules,
-    })
+        # role-agnostic keys the shared shell reads
+        "announcements": notice_rows,
+        "messages": [],
+        "unread_count": 0,
+        "show_dark_toggle": True,
+        "query": (request.GET.get("q") or "").strip()[:60],
+        # the dashboard itself
+        **data,
+        "subjects": [row["subject"] for row in data["subject_rows"]],
+        "student_count": data["student_count"],
+        "classes_taken": data["classes_held"],
+        "avg_attendance": (round(sum(row["percent"] for row in data["subject_rows"]
+                                     if row["percent"] is not None)
+                                 / len([row for row in data["subject_rows"]
+                                        if row["percent"] is not None]), 1)
+                           if any(row["percent"] is not None for row in data["subject_rows"]) else 0),
+        "low_attendance": [{"student": item["student"], "subject": item["subject"],
+                            "percentage": item["percent"]} for item in data["at_risk"]],
+    }
+    return render(request, "teacher/dashboard.html", context)
 
 
 @admin_required

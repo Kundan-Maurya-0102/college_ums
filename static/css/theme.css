@@ -1220,3 +1220,15 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 .is-overdue { color: var(--danger); font-weight: 600; }
 .w-50 { width: 50%; } .w-60 { width: 60%; } .w-70 { width: 70%; } .w-80 { width: 80%; } .w-85 { width: 85%; }
 .p-2 { padding: var(--s2); }
+
+/* filter row used by the teacher/admin list pages */
+.filter-row { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: flex-end; }
+.filter-grow { flex: 1 1 220px; min-width: 0; }
+.cell-strong { font-weight: 600; }
+
+.split-2 { display: grid; grid-template-columns: minmax(280px, 420px) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+@media (max-width: 1000px) { .split-2 { grid-template-columns: minmax(0, 1fr); } }
+.stack { display: grid; gap: var(--s3); }
+.narrow-block { max-width: 720px; }
+
+

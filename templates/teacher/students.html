@@ -1,49 +1,74 @@
-{% extends 'base.html' %}
-{% block title %}My Students - {{ COLLEGE_NAME }} UMS{% endblock %}
-{% block page_title %}My Students{% endblock %}
+{% extends 'teacher/shell.html' %}
+{% load i18n %}
+{% block title %}{% translate "My students" %} — {{ COLLEGE_NAME }}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">My Students</h1>
+<h1 class="page-title">{% translate "My students" %}</h1>
+<p class="muted">{% translate "Every student of the classes you teach." %}</p>
 
-<div class="card mb-24">
-  <div class="card-header"><span class="card-title">Select Subject</span></div>
+<section class="card mt-16">
+  <div class="card-header"><span class="card-title">{% translate "Class" %}</span></div>
   <div class="card-body">
-    <form method="get" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-      <div style="flex:1;min-width:260px;">
-        <label class="form-label">Class</label>
-        <select name="subject" class="form-select">
+    <form method="get" class="filter-row" role="search">
+      <div class="filter-grow">
+        <label class="form-label" for="f-subject">{% translate "Subject" %}</label>
+        <select name="subject" id="f-subject" class="form-select">
           {% for subject in subjects %}
-          <option value="{{ subject.id }}" {% if selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_name }} ({{ subject.subject_code }}) - Sem {{ subject.semester }} {{ subject.get_branch_display }}</option>
+            <option value="{{ subject.id }}" {% if selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_name }} ({{ subject.subject_code }}) — {% translate "Sem" %} {{ subject.semester }} {{ subject.get_branch_display }}</option>
           {% endfor %}
         </select>
       </div>
-      <button class="btn btn-primary" type="submit">View Students</button>
+      <div class="filter-grow">
+        <label class="form-label" for="f-q">{% translate "Search" %}</label>
+        <input id="f-q" type="search" name="q" value="{{ query }}" class="form-control"
+               placeholder="{% translate 'Name or registration number' %}">
+      </div>
+      <button class="btn btn-primary" type="submit">{% translate "Show" %}</button>
     </form>
   </div>
-</div>
+</section>
 
-<div class="card">
+<section class="card mt-16">
   <div class="card-header">
-    <span class="card-title">{% if selected_subject %}{{ selected_subject.subject_code }} Student List{% else %}Student List{% endif %}</span>
-    <span class="badge badge-blue">{{ students|length }}</span>
+    <span class="card-title">
+      {% if selected_subject %}{{ selected_subject.subject_code }} {% translate "students" %}{% else %}{% translate "Students" %}{% endif %}
+    </span>
+    <span class="badge badge-blue">{{ student_total }}</span>
   </div>
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead><tr><th>Reg. No.</th><th>Name</th><th>Phone</th><th>Email</th><th>Attendance</th></tr></thead>
-      <tbody>
-        {% for student in students %}
-        <tr>
-          <td>{{ student.registration_number }}</td>
-          <td style="font-weight:600;">{{ student.name }}</td>
-          <td>{{ student.phone }}</td>
-          <td>{{ student.email|default:"-" }}</td>
-          <td>{{ student.get_attendance_percentage }}%</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5"><div class="empty-state"><span class="empty-icon" aria-hidden="true">📋</span><p>No students found for this class. Pick another subject above.</p></div></td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+  {% if rows %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{% translate "Reg. No." %}</th><th>{% translate "Name" %}</th>
+            <th>{% translate "Phone" %}</th><th>{% translate "E-mail" %}</th>
+            <th>{% translate "Attendance" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.student.registration_number }}</td>
+              <td class="cell-strong">{{ row.student.name }}</td>
+              <td>{{ row.student.phone|default:"—" }}</td>
+              <td>{{ row.student.email|default:"—" }}</td>
+              <td>
+                {% if row.percent is None %}<span class="muted">—</span>
+                {% else %}
+                  <span class="badge {% if row.percent >= 75 %}badge-green{% elif row.percent >= 60 %}badge-yellow{% else %}badge-red{% endif %}">{{ row.percent }}%</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card-body">
+      <div class="empty-state">
+        <p>{% if query %}{% translate "No student matches that search." %}{% else %}{% translate "No students in this class yet." %}{% endif %}</p>
+      </div>
+    </div>
+  {% endif %}
+</section>
 {% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'partials/dash_shell.html' %}
+{% load i18n ui %}
+{# Teacher panel: the same shell as the student portal, only the navigation differs. #}
+
+{% block brand_url %}{% url 'teacher_dashboard' %}{% endblock %}
+{% block portal_label %}{% translate "Teacher panel" %}{% endblock %}
+{% block search_action %}{% url 'teacher_students' %}{% endblock %}
+{% block search_placeholder %}{% translate "Search my students…" %}{% endblock %}
+
+{% block dash_menus %}
+<nav class="dash-nav-menus" aria-label="{% translate 'Main sections' %}">
+  <details class="dash-menu">
+    <summary>{% translate "Teaching" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'teacher_take_attendance' %}">{% translate "Take attendance" %}</a>
+      <a href="{% url 'teacher_marks' %}">{% translate "Marks entry" %}</a>
+      <a href="{% url 'teacher_assignments' %}">{% translate "Assignments" %}</a>
+      <a href="{% url 'teacher_materials' %}">{% translate "Study material" %}</a>
+      <a href="{% url 'teacher_schedule' %}">{% translate "My schedule" %}</a>
+    </div>
+  </details>
+  <details class="dash-menu">
+    <summary>{% translate "Students" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'teacher_students' %}">{% translate "My students" %}</a>
+      <a href="{% url 'doubt_list' %}">{% translate "Doubt forum" %}</a>
+      <a href="{% url 'teacher_notices' %}">{% translate "Notices" %}</a>
+    </div>
+  </details>
+  <details class="dash-menu">
+    <summary>{% translate "Links" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'help_center' %}">{% translate "Help & guide" %}</a>
+      <a href="{% url 'privacy_policy' %}">{% translate "Privacy policy" %}</a>
+      <a href="{% url 'terms_of_use' %}">{% translate "Terms of use" %}</a>
+      {% if COLLEGE_WEBSITE %}<a href="{{ COLLEGE_WEBSITE }}" target="_blank" rel="noopener noreferrer">{% translate "College website" %}</a>{% endif %}
+    </div>
+  </details>
+</nav>
+{% endblock %}
+
+{% block bell_items %}
+  {% for notice in notices|slice:":4" %}
+    <a href="{% url 'teacher_notices' %}" class="dash-bell-item">
+      <span>
+        <b>{{ notice.title|truncatechars:44 }}</b>
+        <small>{{ notice.created_at|date:"d M" }}</small>
+      </span>
+    </a>
+  {% empty %}
+    <p class="dash-empty small p-2">{% translate "No notifications yet" %}</p>
+  {% endfor %}
+{% endblock %}
+{% block bell_all_url %}{% url 'teacher_notices' %}{% endblock %}
+{% block bell_all_label %}{% translate "All notices" %}{% endblock %}
+
+{% block profile_menu %}
+{% with teacher=faculty|default:request.user.facultyprofile %}
+  <summary aria-label="{% translate 'Account menu' %}">
+    <span class="dash-avatar" aria-hidden="true">{{ teacher.name|slice:":1"|upper }}</span>
+    <span class="dash-profile-name">{{ teacher.name|truncatechars:18 }}</span>
+  </summary>
+  <div class="dash-menu-panel dash-menu-right dash-profile-card">
+    <div class="dash-profile-head">
+      <b>{{ teacher.name }}</b>
+      <small>{{ teacher.get_department_display|default:teacher.department }}{% if teacher.designation %} · {{ teacher.designation }}{% endif %}</small>
+    </div>
+    <a href="{% url 'teacher_schedule' %}">{% translate "My schedule" %}</a>
+    <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
+    <a href="{% url 'student_logout' %}">{% translate "Logout" %}</a>
+  </div>
+{% endwith %}
+{% endblock %}
+
+{% block dash_sidebar %}
+<aside class="dash-sidebar" id="dash-sidebar" aria-label="{% translate 'Sidebar' %}">
+  <nav class="dash-side-nav">
+    <a href="{% url 'teacher_dashboard' %}" class="dash-side-link {% nav_active 'teacher_dashboard' %}" {% if request.resolver_match.url_name == 'teacher_dashboard' %}aria-current="page"{% endif %}><svg aria-hidden="true"><use href="#i-grid"/></svg><span>{% translate "Dashboard" %}</span></a>
+    <a href="{% url 'teacher_take_attendance' %}" class="dash-side-link {% nav_active 'teacher_take_attendance' 'attendance_entry' 'take_attendance_bulk' %}"><svg aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Attendance" %}</span></a>
+    <a href="{% url 'teacher_marks' %}" class="dash-side-link {% nav_active 'teacher_marks' 'marks_entry' %}"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Marks entry" %}</span></a>
+    <a href="{% url 'teacher_students' %}" class="dash-side-link {% nav_active 'teacher_students' %}"><svg aria-hidden="true"><use href="#i-users"/></svg><span>{% translate "My students" %}</span></a>
+    <a href="{% url 'teacher_assignments' %}" class="dash-side-link {% nav_active 'teacher_assignments' %}"><svg aria-hidden="true"><use href="#i-clipboard"/></svg><span>{% translate "Assignments" %}</span></a>
+    <a href="{% url 'teacher_materials' %}" class="dash-side-link {% nav_active 'teacher_materials' %}"><svg aria-hidden="true"><use href="#i-book"/></svg><span>{% translate "Materials" %}</span></a>
+    <a href="{% url 'teacher_schedule' %}" class="dash-side-link {% nav_active 'teacher_schedule' %}"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Schedule" %}</span></a>
+    <a href="{% url 'teacher_notices' %}" class="dash-side-link {% nav_active 'teacher_notices' %}"><svg aria-hidden="true"><use href="#i-bell"/></svg><span>{% translate "Notices" %}</span></a>
+    <a href="{% url 'doubt_list' %}" class="dash-side-link {% nav_active 'doubt_list' %}"><svg aria-hidden="true"><use href="#i-message"/></svg><span>{% translate "Doubt forum" %}</span></a>
+  </nav>
+  <div class="dash-side-foot">
+    <a href="{% url 'student_logout' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-logout"/></svg><span>{% translate "Logout" %}</span></a>
+  </div>
+</aside>
+{% endblock %}

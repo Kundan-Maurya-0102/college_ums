@@ -21,7 +21,8 @@ class HeadingHierarchyTests(TestCase):
     def test_every_app_template_has_one_h1(self):
         offenders = []
         for path in sorted(TEMPLATES_DIR.rglob("*.html")):
-            if path.name in ("base.html", "public_page.html", "offline.html"):
+            # shells wrap pages; the page itself owns the single <h1>
+            if path.name in ("base.html", "public_page.html", "offline.html", "shell.html"):
                 continue
             if "partials" in path.parts:
                 continue

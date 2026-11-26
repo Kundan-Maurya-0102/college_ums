@@ -146,8 +146,9 @@
   gap: var(--s1);
   position: sticky;
   top: 60px;
-  align-self: start;
-  max-height: calc(100vh - 60px);
+  /* stretch to the viewport so the white column never stops mid-page */
+  height: calc(100vh - 60px);
+  min-height: calc(100vh - 60px);
   overflow-y: auto;
 }
 .dash-side-nav { display: grid; gap: 2px; }
@@ -582,4 +583,54 @@
 @media (max-width: 620px) {
   .dash-quick-wrap { flex-wrap: wrap; }
   .dash-quick-wrap .dash-quick { flex-basis: 100%; }
+}
+
+/* teacher dashboard bits that the shared cards needed */
+.dash-item-grow { flex: 1 1 auto; min-width: 0; }
+.dash-time {
+  flex: 0 0 auto;
+  min-width: 46px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.row-actions { white-space: nowrap; }
+.row-actions .dash-card-action + .dash-card-action { margin-left: var(--s2); }
+.dash-card-body .data-table { background: transparent; }
+
+/* a long teacher/student name must not push the navbar past the viewport */
+.dash-profile > summary { min-width: 0; }
+.dash-profile-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── attendance sheet ─────────────────────────────────────────────────── */
+.att-tools { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.att-table .att-num { width: 48px; color: var(--muted); }
+.att-table .att-state { width: 96px; text-align: right; }
+.att-toggle { display: inline-flex; align-items: center; cursor: pointer; }
+.att-check { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.att-pill {
+  width: 44px; height: 26px; border-radius: 999px;
+  background: var(--line); position: relative; display: inline-block;
+  transition: background .15s ease;
+}
+.att-pill::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--surface); box-shadow: var(--shadow-sm);
+  transition: transform .15s ease;
+}
+.att-check:checked + .att-pill { background: var(--ok); }
+.att-check:checked + .att-pill::after { transform: translateX(18px); }
+.att-check:focus-visible + .att-pill { outline: 2px solid var(--primary); outline-offset: 2px; }
+.att-save {
+  display: flex; align-items: center; justify-content: flex-end; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--line);
+  position: sticky; bottom: 0;
+  background: var(--surface);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+@media (max-width: 620px) {
+  .att-save { flex-direction: column-reverse; align-items: stretch; text-align: center; }
 }

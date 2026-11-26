@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'teacher/shell.html' %}
 {% block title %}Marks Entry - {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Marks Entry{% endblock %}
 
@@ -8,7 +8,7 @@
 <div class="card mb-24">
   <div class="card-header"><span class="card-title">Select Class</span></div>
   <div class="card-body">
-    <form method="get" style="display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:14px;align-items:end;">
+    <form method="get" class="filter-row">
       <div>
         <label class="form-label">Semester</label>
         <select name="semester" class="form-select" required>
@@ -41,18 +41,18 @@
       <button class="btn btn-primary" type="submit">Load Students</button>
     </form>
     {% if selected_semester and selected_branch %}
-      <div class="text-muted mt-16" style="font-size:13px;">Loaded {{ students|length }} students for Sem {{ selected_semester }} {{ selected_branch }}{% if selected_subject %} · {{ selected_subject.subject_code }}{% endif %}</div>
+      <div class="muted small mt-16">Loaded {{ students|length }} students for Sem {{ selected_semester }} {{ selected_branch }}{% if selected_subject %} · {{ selected_subject.subject_code }}{% endif %}</div>
     {% else %}
-      <div class="text-muted mt-16" style="font-size:13px;">Choose semester and branch first, then marks entry will show only that class.</div>
+      <div class="muted small mt-16">Choose semester and branch first, then marks entry will show only that class.</div>
     {% endif %}
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:24px;">
+<div class="split-2">
   <div class="card">
     <div class="card-header"><span class="card-title">Add / Update Marks</span></div>
     <div class="card-body">
-      <form method="post" style="display:grid;gap:14px;">
+      <form method="post" class="stack">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
         <input type="hidden" name="semester" value="{{ selected_semester }}">
@@ -61,8 +61,8 @@
           <div>
             <label class="form-label">{{ field.label }}</label>
             {{ field }}
-            {% if field.help_text %}<div class="text-muted" style="font-size:12px;margin-top:4px;">{{ field.help_text }}</div>{% endif %}
-            {% for error in field.errors %}<div class="text-danger" style="font-size:12px;">{{ error }}</div>{% endfor %}
+            {% if field.help_text %}<div class="muted small mt-3">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<p class="field-errors">{{ error }}</p>{% endfor %}
           </div>
         {% endfor %}
         {% if selected_semester and selected_branch and students %}

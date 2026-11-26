@@ -271,6 +271,8 @@ COLLEGE_PHONE = env('COLLEGE_PHONE', default='')
 # Optional public-page details; blank values are hidden in templates.
 COLLEGE_ADDRESS = env('COLLEGE_ADDRESS', default='')
 COLLEGE_WEBSITE = env('COLLEGE_WEBSITE', default='')
+# Optional shared folder for study material; blank means the button is hidden.
+MATERIAL_SHARED_FOLDER_URL = env('MATERIAL_SHARED_FOLDER_URL', default='')
 COLLEGE_AFFILIATION = env('COLLEGE_AFFILIATION', default='')
 COLLEGE_ESTABLISHED = env('COLLEGE_ESTABLISHED', default='')
 COLLEGE_PRINCIPAL_NAME = env('COLLEGE_PRINCIPAL_NAME', default='')

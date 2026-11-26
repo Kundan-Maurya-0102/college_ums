@@ -1,22 +1,23 @@
-{% extends 'base.html' %}
+{% extends "teacher/shell.html" %}
+{% load i18n %}
 {% block title %}{{ title }} - {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
 <h1 class="page-title">{{ title }}</h1>
 
-<div style="display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:24px;">
+<div class="split-2">
   <div class="card">
     <div class="card-header"><span class="card-title">Create {{ title }}</span></div>
     <div class="card-body">
-      <form method="post" enctype="multipart/form-data" style="display:grid;gap:14px;">
+      <form method="post" enctype="multipart/form-data" class="stack">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
         {% for field in form %}
         <div>
           <label class="form-label">{{ field.label }}</label>
           {{ field }}
-          {% for error in field.errors %}<div class="text-danger" style="font-size:12px;">{{ error }}</div>{% endfor %}
+          {% for error in field.errors %}<p class="field-errors">{{ error }}</p>{% endfor %}
         </div>
         {% endfor %}
         <button class="btn btn-primary" type="submit">Save {{ title }}</button>
@@ -25,12 +26,12 @@
   </div>
 
   <div class="card">
-    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="card-header">
       <span class="card-title">Recent {{ title }}</span>
-      {% if title == "Note / PDF" %}
-      <a href="https://drive.google.com/drive/folders/130qPv6oC5MA8H32QkHPCPJDseNrzvTSy" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="background: #f1f5f9; color: #1e293b; border-color: #cbd5e1;">
-        📂 Google Drive Folder
-      </a>
+      {% if DRIVE_FOLDER_URL %}
+        <a href="{{ DRIVE_FOLDER_URL }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+          {% translate "Shared folder" %}
+        </a>
       {% endif %}
     </div>
     <div class="table-responsive">
@@ -45,7 +46,7 @@
         <tbody>
           {% for item in items %}
           <tr>
-            <td style="font-weight:600;">
+            <td class="cell-strong">
               {{ item.title|default:item.subject.subject_code }}
               <br>
               <small class="text-muted">{{ item.subject.subject_code }} · Sem {{ item.subject.semester }} {{ item.subject.branch }}</small>
@@ -65,7 +66,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="3" class="text-muted" style="text-align: center; padding: 20px;">Nothing added yet.</td>
+            <td colspan="3"><div class="empty-state"><p>{% translate "Nothing added yet." %}</p></div></td>
           </tr>
           {% endfor %}
         </tbody>

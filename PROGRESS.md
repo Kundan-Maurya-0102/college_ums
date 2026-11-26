@@ -262,6 +262,36 @@
   `test_student_pages.py::StudentPageQueryBudgetTests` (13 subjects par bhi query
   count +2 se zyada nahi). **418 tests OK**, ruff clean.
 
+- **Teacher panel: same design system as the student portal**: `templates/student/shell.html`
+  ko `templates/partials/dash_shell.html` me toda (blocks: brand/portal label/menus/search/
+  bell/profile/sidebar) — student shell ab 2 line ka override, teacher shell
+  (`templates/teacher/shell.html`) sirf navigation badalta hai; isliye render output
+  pehle jaisa hi rehta hai (37 dashboard tests OK). Naya teacher dashboard
+  (`students/teacher_data.py`, aggregate queries only): aaj ki classes + "attendance done"
+  badge, pending work (attendance/marks/assignments/leave), meri subjects (class size,
+  classes, avg attendance), low attendance top-5 (colour coded), doubts to answer,
+  notices+uploads, exams+events, aur 6 quick actions. Teacher ke **saare pages** ab isi
+  shell par (`take_attendance`, `marks`, `students`, `notices`, `notice_form`,
+  `notice_delete_confirm`, `content_form` = assignments/materials/schedule) — pehle in
+  pages par shell `faculty` variable maangta tha jo sirf dashboard deta tha → **500**;
+  ab `faculty|default:request.user.facultyprofile`. Attendance page naya: All present /
+  All absent / Invert, live "x present / y absent" counter (`aria-live`), sticky save
+  bar, per-student aria-label, double-submit guard (`static/js/teacher-attendance.js`),
+  bina JS bhi chalta hai. Students list: pehle **per row 2 queries**
+  (`get_attendance_percentage`) → ek grouped query, plus search (naam/reg no, sirf apni
+  class), aur "no data" par `0%` ki jagah `—`. Marks page ka fixed 4-column inline grid
+  (360px par overflow) → responsive filter row, real `<label for>`, `field-errors`.
+  **Real bug hataya**: `content_form.html` me ek college ka **hardcoded Google Drive
+  folder ID** tha (product me kisi aur college ka link) → ab `MATERIAL_SHARED_FOLDER_URL`
+  env, blank ho to button hi nahi. Sidebar ka safed column page ke beech me khatam ho
+  raha tha → `height: calc(100vh - 60px)` + sticky. Tests:
+  `students/tests/test_teacher_panel.py` (13) — own classes only, doosre teacher ka data
+  kabhi nahi, student/anonymous redirect, 12 students badhane par query count flat,
+  attendance POST + "doosre teacher ka subject" blocked, students search + query budget.
+  **431 tests OK**, ruff clean, 360/768/1280 par teacher ke 8 pages par overflowX 0.
+  `TEACHER_UI_REPORT.md` me jo manual chahiye wo likha hai (marks spreadsheet/CSV,
+  pagination, keyboard walk).
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

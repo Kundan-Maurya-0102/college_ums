@@ -1,63 +1,96 @@
-{% extends 'base.html' %}
-{% block title %}Attendance - {{ COLLEGE_NAME }} UMS{% endblock %}
-{% block page_title %}Take Attendance{% endblock %}
+{% extends 'teacher/shell.html' %}
+{% load static i18n %}
+{% block title %}{% translate "Take attendance" %} — {{ COLLEGE_NAME }}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Take Attendance</h1>
+<h1 class="page-title">{% translate "Take attendance" %}</h1>
+<p class="muted">{% translate "Everyone starts marked present — untick the absentees and save." %}</p>
 
-<div class="card mb-24">
-  <div class="card-header"><span class="card-title">Class and Date</span></div>
+<section class="card mt-16">
+  <div class="card-header"><span class="card-title">{% translate "Class and date" %}</span></div>
   <div class="card-body">
-    <form method="get" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-      <div><label class="form-label">Date</label><input type="date" name="date" class="form-control" value="{{ selected_date }}" required></div>
-      <div style="flex:1;min-width:280px;">
-        <label class="form-label">Subject</label>
-        <select name="subject" class="form-select" required>
-          <option value="">Select subject</option>
+    <form method="get" class="filter-row">
+      <div>
+        <label class="form-label" for="f-date">{% translate "Date" %}</label>
+        <input id="f-date" type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+      </div>
+      <div class="filter-grow">
+        <label class="form-label" for="f-subject">{% translate "Subject" %}</label>
+        <select id="f-subject" name="subject" class="form-select" required>
+          <option value="">{% translate "Select subject" %}</option>
           {% for subject in subjects %}
-          <option value="{{ subject.id }}" {% if selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_name }} ({{ subject.subject_code }}) - Sem {{ subject.semester }} {{ subject.get_branch_display }}</option>
+            <option value="{{ subject.id }}" {% if selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_name }} ({{ subject.subject_code }}) — {% translate "Sem" %} {{ subject.semester }} {{ subject.get_branch_display }}</option>
           {% endfor %}
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Fetch Students</button>
+      <button type="submit" class="btn btn-primary">{% translate "Load students" %}</button>
     </form>
   </div>
-</div>
+</section>
 
 {% if selected_subject %}
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">{{ selected_subject.subject_code }} - {{ selected_date }}</span>
-    <span class="badge badge-blue">{{ students|length }} students</span>
-  </div>
-  <form method="post">
-    {% csrf_token %}
-{% include 'partials/form_errors.html' %}
-    <input type="hidden" name="subject" value="{{ selected_subject.id }}">
-    <input type="hidden" name="date" value="{{ selected_date }}">
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead><tr><th>S.No.</th><th>Reg. No.</th><th>Name</th><th style="text-align:right;">Present</th></tr></thead>
-        <tbody>
-          {% for student in students %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ student.registration_number }}</td>
-            <td style="font-weight:600;">{{ student.name }}</td>
-            <td style="text-align:right;">
-              <input type="checkbox" name="present_student_ids" value="{{ student.id }}" style="width:18px;height:18px;accent-color:var(--accent-blue);" {% if has_attendance %}{% if student.id in present_ids %}checked{% endif %}{% else %}checked{% endif %}>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4"><div class="empty-state"><span class="empty-icon" aria-hidden="true">📋</span><p>No students found for this class.</p></div></td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <section class="card mt-16" id="attendance-card">
+    <div class="card-header">
+      <span class="card-title">{{ selected_subject.subject_code }} — {{ selected_date }}</span>
+      <span class="badge badge-blue" data-attendance-count aria-live="polite"></span>
     </div>
-    <div class="card-body" style="display:flex;justify-content:flex-end;">
-      <button type="submit" class="btn btn-success">Save Attendance</button>
+
+    <div class="card-body att-tools">
+      <button type="button" class="btn btn-outline btn-sm" data-mark="all-present">{% translate "All present" %}</button>
+      <button type="button" class="btn btn-outline btn-sm" data-mark="all-absent">{% translate "All absent" %}</button>
+      <button type="button" class="btn btn-outline btn-sm" data-mark="invert">{% translate "Invert" %}</button>
+      <span class="muted small">{% translate "Tab moves between students, Space toggles." %}</span>
     </div>
-  </form>
-</div>
+
+    <form method="post" id="attendance-form">
+      {% csrf_token %}
+      {% include 'partials/form_errors.html' %}
+      <input type="hidden" name="subject" value="{{ selected_subject.id }}">
+      <input type="hidden" name="date" value="{{ selected_date }}">
+      <div class="table-responsive">
+        <table class="data-table att-table">
+          <thead>
+            <tr>
+              <th scope="col" class="att-num">#</th>
+              <th scope="col">{% translate "Reg. No." %}</th>
+              <th scope="col">{% translate "Name" %}</th>
+              <th scope="col" class="att-state">{% translate "Present" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+              <tr>
+                <td class="att-num">{{ forloop.counter }}</td>
+                <td>{{ student.registration_number }}</td>
+                <td class="cell-strong">{{ student.name }}</td>
+                <td class="att-state">
+                  <label class="att-toggle">
+                    <input type="checkbox" class="att-check" name="present_student_ids"
+                           value="{{ student.id }}" data-student="{{ student.name }}"
+                           {% if has_attendance %}{% if student.id in present_ids %}checked{% endif %}{% else %}checked{% endif %}>
+                    <span class="att-pill" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% blocktranslate with name=student.name %}Present: {{ name }}{% endblocktranslate %}</span>
+                  </label>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4">
+                <div class="empty-state"><p>{% translate "No students found for this class." %}</p></div>
+              </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="att-save">
+        <span class="muted small" data-attendance-count aria-live="polite"></span>
+        <button type="submit" class="btn btn-success">{% translate "Save attendance" %}</button>
+      </div>
+    </form>
+  </section>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/teacher-attendance.js' %}" defer></script>
 {% endblock %}
