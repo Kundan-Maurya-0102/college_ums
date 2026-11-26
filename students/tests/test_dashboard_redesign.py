@@ -363,7 +363,8 @@ class DashboardA11yAndChromeTests(TestCase):
         client = self.login()
         client.cookies['ums_theme'] = 'dark'
         body = client.get(reverse('student_dashboard')).content.decode()
-        self.assertIn('dash-dark', body)
+        # one dark-mode switch for every panel: data-theme on <html>
+        self.assertIn('data-theme="dark"', body)
 
     def test_dashboard_assets_are_referenced_and_shipped(self):
         from pathlib import Path

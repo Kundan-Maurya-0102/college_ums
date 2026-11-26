@@ -240,6 +240,28 @@
   se match, unread flag logic. Total: **417 tests OK**, `ruff` clean.
 
 
+- **Student UI QA (all student pages, three widths)**: link crawl (21 pages, 35 links,
+  0 broken) + real-Chrome sweep at **360/768/1280** (63 combos) + WCAG contrast maths.
+  Final: **overflowX 0 sab par, koi JS error nahi, light+dark me text/badges >= 4.5:1**.
+  Asli bugs jo mile aur fix hue (`STUDENT_UI_REPORT.md` me poori table):
+  purana `static/css/style.css` (hardcoded hex, Tahoma, 3D borders) har page par
+  theme.css ke baad load ho raha tha — delete; uske jaane par pata chala theme.css me
+  `box-sizing` hi nahi tha → sab pages padding bhar overflow; ~30 class naam
+  (`.muted`, `.small`, `.page-title`, `.mt-24`, `.field`, `.plain-list`, `.stat-*`,
+  `.pagination*`, `.fieldset-student` …) bina kisi CSS ke use ho rahe the → ek jagah
+  define; fee/leave badges `success/warning/danger` class bana rahe the jo exist nahi
+  karte (1.3:1 contrast) → asli `badge-green/yellow/red`; dark mode ke **do switch**
+  (`data-theme` aur `.dash-dark` with duplicate hex palette) → ek switch; dark me badges
+  light-mode foreground par 2.9:1 → dark tokens lighter; dark me active sidebar
+  dark-on-dark → `--ink` on `--primary-100` (15.4:1); `.muted` 4.34:1 → 5.66:1;
+  bug-report dialog (har page par 9 inline style), certificate/ID card (18 inline,
+  hardcoded `#000`, undefined `var(--highlight)`), forum ke 6 templates (Bootstrap
+  classes, `background:#fff` jo dark me safed card, inline `onclick`/`onmouseover`) —
+  sab design system par; 4 money/exam/event tables phone par bahar nikal rahe the →
+  `.table-responsive` + `min-width:0`. Perf: naya
+  `test_student_pages.py::StudentPageQueryBudgetTests` (13 subjects par bhi query
+  count +2 se zyada nahi). **418 tests OK**, ruff clean.
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

@@ -1,2 +1,1 @@
-{% comment %}College logo from COLLEGE_LOGO / COLLEGE_LOGO_URL, with a neutral fallback.{% endcomment %}
-{% if COLLEGE_LOGO_URL %}<img src="{{ COLLEGE_LOGO_URL }}" alt="{{ COLLEGE_NAME|default:'College' }} logo" class="college-logo" style="max-width:100%;max-height:100%;object-fit:contain;">{% else %}<span class="college-logo-fallback" aria-hidden="true" style="font-size:22px;line-height:1;">&#127891;</span>{% endif %}
+{% if COLLEGE_LOGO_URL %}<img src="{{ COLLEGE_LOGO_URL }}" alt="{{ COLLEGE_NAME|default:'College' }} logo" class="college-logo">{% else %}<span class="college-logo-fallback" aria-hidden="true">&#127891;</span>{% endif %}

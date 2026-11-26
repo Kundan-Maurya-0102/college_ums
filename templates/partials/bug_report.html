@@ -14,11 +14,11 @@
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
     <input type="hidden" name="page_url" value="{{ request.get_full_path }}" data-report-page>
-    <h2 id="report-title" style="margin:0 0 6px;font-size:17px;">{% translate "Report a problem" %}</h2>
-    <p style="margin:0 0 14px;font-size:13px;color:var(--text-muted);">
+    <h2 id="report-title" class="report-title">{% translate "Report a problem" %}</h2>
+    <p class="report-hint">
       {% translate "Tell us what went wrong. The page address is attached automatically." %}
     </p>
-    <div class="field" style="margin-bottom:12px;">
+    <div class="field">
       <label class="form-label" for="report-category">{% translate "Type" %}</label>
       <select name="category" id="report-category" class="form-control">
         <option value="BUG">{% translate "Something is broken" %}</option>
@@ -28,12 +28,12 @@
         <option value="OTHER">{% translate "Other" %}</option>
       </select>
     </div>
-    <div class="field" style="margin-bottom:14px;">
+    <div class="field">
       <label class="form-label" for="report-message">{% translate "What happened?" %} *</label>
       <textarea name="message" id="report-message" class="form-control" rows="4" required
                 placeholder="{% translate 'e.g. I clicked Save on the fees form and the page went blank.' %}"></textarea>
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
+    <div class="report-actions">
       <button type="button" class="btn btn-outline" data-report-close>{% translate "Cancel" %}</button>
       <button type="submit" class="btn btn-primary">{% translate "Send report" %}</button>
     </div>

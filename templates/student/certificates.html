@@ -26,7 +26,7 @@
             {% if cert_type == 'bonafide' %}
             <div class="card-student certificate-page">
               <h2>{{ COLLEGE_NAME|upper }}</h2>
-              {% if COLLEGE_AFFILIATION %}<p style="font-size:12px;">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
+              {% if COLLEGE_AFFILIATION %}<p class="cert-meta">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
               <hr>
               <h2 class="cert-heading">BONAFIDE CERTIFICATE</h2>
               <div class="cert-body">
@@ -38,12 +38,12 @@
                 Year of Admission: <b>{{ profile.year_of_admission }}</b></p>
                 <p>This certificate is issued for official purposes upon the request of the student.</p>
               </div>
-              <div style="display:flex;justify-content:space-between;margin-top:30px;">
+              <div class="cert-foot">
                 <div>Date: _______________</div>
                 <div>Principal's Signature<br>{{ COLLEGE_NAME }}</div>
               </div>
             </div>
-            <div class="no-print" style="text-align:center;margin:20px 0;">
+            <div class="no-print cert-actions">
               <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>
@@ -53,7 +53,7 @@
             {% if cert_type == 'character' %}
             <div class="card-student certificate-page">
               <h2>{{ COLLEGE_NAME|upper }}</h2>
-              {% if COLLEGE_AFFILIATION %}<p style="font-size:12px;">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
+              {% if COLLEGE_AFFILIATION %}<p class="cert-meta">Affiliated to {{ COLLEGE_AFFILIATION }}</p>{% endif %}
               <hr>
               <h2 class="cert-heading">CHARACTER CERTIFICATE</h2>
               <div class="cert-body">
@@ -64,12 +64,12 @@
                 <p>During their stay at this institution, their character and conduct have been found to be <b>GOOD</b>.</p>
                 <p>This certificate is issued on the request of the student for necessary purposes.</p>
               </div>
-              <div style="display:flex;justify-content:space-between;margin-top:30px;">
+              <div class="cert-foot">
                 <div>Date: _______________</div>
                 <div>Principal's Signature<br>{{ COLLEGE_NAME }}</div>
               </div>
             </div>
-            <div class="no-print" style="text-align:center;margin:20px 0;">
+            <div class="no-print cert-actions">
               <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>
@@ -77,24 +77,24 @@
 
             <!-- STUDENT ID CARD -->
             {% if cert_type == 'idcard' %}
-            <div class="card-student certificate-page" style="max-width:420px;text-align:center;">
-              <h2 style="font-size:14px;">{{ COLLEGE_NAME }}</h2>
+            <div class="card-student certificate-page cert-idcard">
+              <h2 class="cert-college">{{ COLLEGE_NAME }}</h2>
               <hr>
-              <h2 class="cert-heading" style="font-size:16px;">STUDENT IDENTITY CARD</h2>
-              <div style="width:80px;height:80px;background:var(--highlight);color:var(--highlight-text);margin:15px auto 20px auto;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;border:2px solid #000;">
+              <h2 class="cert-heading cert-role">STUDENT IDENTITY CARD</h2>
+              <div class="cert-seal">
                 {{ profile.name|first|upper }}
               </div>
-              <table class="table-student" style="text-align:left;margin:0 auto 20px auto;max-width:350px;">
-                <tr><td style="font-weight:bold;">Name</td><td>{{ profile.name }}</td></tr>
-                <tr><td style="font-weight:bold;">Reg. No.</td><td>{{ profile.registration_number }}</td></tr>
-                <tr><td style="font-weight:bold;">Branch</td><td>{{ profile.get_branch_display }}</td></tr>
-                <tr><td style="font-weight:bold;">Semester</td><td>{{ profile.semester }}</td></tr>
-                <tr><td style="font-weight:bold;">Phone</td><td>{{ profile.phone|default:"—" }}</td></tr>
-                <tr><td style="font-weight:bold;">DOB</td><td>{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
+              <table class="table-student table-narrow">
+                <tr><td class="cert-field-name">Name</td><td>{{ profile.name }}</td></tr>
+                <tr><td class="cert-field-name">Reg. No.</td><td>{{ profile.registration_number }}</td></tr>
+                <tr><td class="cert-field-name">Branch</td><td>{{ profile.get_branch_display }}</td></tr>
+                <tr><td class="cert-field-name">Semester</td><td>{{ profile.semester }}</td></tr>
+                <tr><td class="cert-field-name">Phone</td><td>{{ profile.phone|default:"—" }}</td></tr>
+                <tr><td class="cert-field-name">DOB</td><td>{{ profile.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
               </table>
-              <p style="font-size:10px;margin-top:10px;">Valid for the academic session only.</p>
+              <p class="cert-note">Valid for the academic session only.</p>
             </div>
-            <div class="no-print" style="text-align:center;margin:20px 0;">
+            <div class="no-print cert-actions">
               <button onclick="window.print()" class="btn btn-primary">&#128424; Print / save as PDF</button>
               <a href="{% url 'student_certificates' %}" class="btn">&#9668; Back</a>
             </div>

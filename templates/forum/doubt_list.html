@@ -1,94 +1,87 @@
 {% extends 'base.html' %}
-{% block title %}Doubt Forum — {{ COLLEGE_NAME }}{% endblock %}
-{% block page_title %}❓ Community Doubt Forum{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Doubt forum" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Doubt forum" %}{% endblock %}
+{% block breadcrumb %}{% translate "Doubts" %}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">❓ Community Doubt Forum</h1>
+<h1 class="page-title">{% translate "Doubt forum" %}</h1>
+<p class="muted">{% translate "Ask your teachers and classmates. Everyone in the college can read and answer." %}</p>
 
-<div class="responsive-grid">
-    <!-- Doubts List -->
-    <div>
-        <div class="card mb-24">
-            <div class="card-header" style="justify-content: space-between;">
-                <span class="card-title">Recent Doubts</span>
-                <span class="badge badge-purple">{{ doubts|length }} Total</span>
+<div class="grid-2 mt-24">
+  <div>
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">{% translate "Recent doubts" %}</span>
+        <span class="badge badge-blue">{{ doubts|length }}</span>
+      </div>
+      <div class="card-body">
+        {% for doubt in doubts %}
+          <article class="doubt-row">
+            <div class="doubt-head">
+              <h2 class="doubt-title">
+                <a href="{% url 'doubt_detail' doubt.pk %}">{{ doubt.title }}</a>
+              </h2>
+              <div class="doubt-tags">
+                {% if doubt.is_resolved %}
+                  <span class="badge badge-green">{% translate "Resolved" %}</span>
+                {% else %}
+                  <span class="badge badge-yellow">{% translate "Open" %}</span>
+                {% endif %}
+              </div>
             </div>
-            <div class="card-body">
-                {% for doubt in doubts %}
-                <div style="padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 16px; background: #fff; transition: transform 0.2s; cursor: pointer;" onclick="window.location='{% url 'doubt_detail' doubt.pk %}'" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="margin:0; font-size: 18px; color: var(--primary-color);">{{ doubt.title }}</h3>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            {% if request.user.studentprofile == doubt.student or request.user.is_staff %}
-                            <div style="display: flex; gap: 8px; margin-right: 8px;">
-                                <a href="{% url 'doubt_edit' doubt.pk %}" onclick="event.stopPropagation();" title="Edit Doubt" style="text-decoration: none; font-size: 14px;">✏️</a>
-                                <a href="{% url 'doubt_delete' doubt.pk %}" onclick="event.stopPropagation();" title="Delete Doubt" style="text-decoration: none; font-size: 14px;">🗑️</a>
-                            </div>
-                            {% endif %}
-                            {% if doubt.is_resolved %}
-                            <span class="badge badge-green">Resolved</span>
-                            {% else %}
-                            <span class="badge badge-yellow">Open</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">{{ doubt.content|truncatechars:150 }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted);">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--gradient-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">{{ doubt.student.name|slice:":1" }}</div>
-                            <span>Asked by <strong>{{ doubt.student.name }}</strong> ({{ doubt.student.branch }})</span>
-                        </div>
-                        <span>{{ doubt.created_at|timesince }} ago · {{ doubt.replies.count }} replies</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 60px; color: var(--text-muted);">
-                    <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
-                    <h3>No doubts yet!</h3>
-                    <p>Be the first one to ask a doubt or help someone.</p>
-                </div>
-                {% endfor %}
+            <p class="doubt-snippet">{{ doubt.content|truncatechars:150 }}</p>
+            <div class="doubt-foot">
+              <span>{{ doubt.student.name }} · {{ doubt.student.get_branch_display }}</span>
+              <span>{{ doubt.created_at|timesince }} {% translate "ago" %} · {% blocktranslate count n=doubt.replies.count %}{{ n }} reply{% plural %}{{ n }} replies{% endblocktranslate %}</span>
             </div>
-        </div>
-    </div>
+            {% if request.user.studentprofile == doubt.student or request.user.is_staff %}
+              <div class="doubt-actions">
+                <a class="btn btn-outline btn-sm" href="{% url 'doubt_edit' doubt.pk %}">{% translate "Edit" %}</a>
+                <a class="btn btn-outline btn-sm" href="{% url 'doubt_delete' doubt.pk %}">{% translate "Delete" %}</a>
+              </div>
+            {% endif %}
+          </article>
+        {% empty %}
+          <div class="empty-state">
+            <p>{% translate "No doubts yet. Ask the first one." %}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
 
-    <!-- Ask Doubt Sidebar -->
-    <div>
-        {% if request.user.studentprofile %}
-        <div class="card" style="position: sticky; top: 24px;">
-            <div class="card-header">
-                <span class="card-title">🤔 Ask a Doubt</span>
+  <div>
+    {% if request.user.studentprofile %}
+      <section class="card doubt-ask">
+        <div class="card-header"><span class="card-title">{% translate "Ask a doubt" %}</span></div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% include 'partials/form_errors.html' %}
+            <div class="field">
+              <label class="form-label" for="{{ form.title.id_for_label }}">{% translate "Title" %} <span class="req" aria-hidden="true">*</span></label>
+              {{ form.title }}
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-{% include 'partials/form_errors.html' %}
-                    <div style="margin-bottom: 16px;">
-                        <label class="form-label">Doubt Title</label>
-                        {{ form.title }}
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <label class="form-label">Details</label>
-                        {{ form.content }}
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">🚀 Post Doubt</button>
-                </form>
-                <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
-                    Note: Your doubt will be visible to all students, teachers, and HODs.
-                </div>
+            <div class="field">
+              <label class="form-label" for="{{ form.content.id_for_label }}">{% translate "Details" %} <span class="req" aria-hidden="true">*</span></label>
+              {{ form.content }}
             </div>
+            <button type="submit" class="btn btn-primary w-100">{% translate "Post doubt" %}</button>
+          </form>
+          <p class="form-help mt-3">{% translate "Your doubt is visible to all students, teachers and HODs." %}</p>
         </div>
-        {% else %}
-        <div class="card" style="position: sticky; top: 24px; background: rgba(37, 99, 235, 0.05); border: 1px dashed var(--primary-color);">
-            <div class="card-body" style="text-align: center; padding: 30px;">
-                <div style="font-size: 32px; margin-bottom: 12px;">👨‍🏫</div>
-                <h4 style="margin-bottom: 8px;">Teacher/Admin Mode</h4>
-                <p style="font-size: 13px; color: var(--text-secondary);">Browse doubts and provide answers to help students.</p>
-            </div>
+      </section>
+    {% else %}
+      <section class="card">
+        <div class="card-body">
+          <p class="section-title">{% translate "Teacher mode" %}</p>
+          <p class="muted small">{% translate "Browse the doubts and answer the ones you can help with." %}</p>
         </div>
-        {% endif %}
-    </div>
+      </section>
+    {% endif %}
+  </div>
 </div>
-{% include 'partials/pagination.html' with page_obj=doubts %}
 
+{% include 'partials/pagination.html' with page_obj=doubts %}
 {% endblock %}

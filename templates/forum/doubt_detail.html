@@ -1,103 +1,81 @@
 {% extends 'base.html' %}
-{% block title %}Doubt: {{ doubt.title }} — {{ COLLEGE_NAME }}{% endblock %}
-{% block page_title %}💬 Doubt Discussion{% endblock %}
+{% load i18n %}
+{% block title %}{{ doubt.title }} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Doubt discussion" %}{% endblock %}
+{% block breadcrumb %}{% translate "Doubts" %}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">💬 Doubt Discussion</h1>
+<a class="btn-back" href="{% url 'doubt_list' %}">&larr; {% translate "Back to forum" %}</a>
+<h1 class="page-title mt-8">{{ doubt.title }}</h1>
 
-<div style="max-width: 900px; margin: 0 auto;">
-    <a href="{% url 'doubt_list' %}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; margin-bottom: 20px; font-size: 14px; font-weight: 500;">
-        ← Back to Forum
-    </a>
-
-    <!-- Original Doubt -->
-    <div class="card mb-24" style="border-left: 4px solid var(--primary-color);">
-        <div class="card-body">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                <div>
-                    <h2 style="margin: 0 0 8px 0; font-size: 24px; color: #1e293b;">{{ doubt.title }}</h2>
-                    <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-muted);">
-                        <span style="background: rgba(37,99,235,0.1); color: var(--primary-color); padding: 2px 8px; border-radius: 4px; font-weight: 600;">
-                            {{ doubt.student.branch }} · Semester {{ doubt.student.semester }}
-                        </span>
-                        <span>Asked by <strong>{{ doubt.student.name }}</strong></span>
-                        <span>{{ doubt.created_at|date:"d M Y, H:i" }}</span>
-                    </div>
-                </div>
-                {% if doubt.is_resolved %}
-                <span class="badge badge-green">Resolved</span>
-                {% endif %}
-            </div>
-            <div style="font-size: 16px; line-height: 1.6; color: #334155; white-space: pre-line;">
-                {{ doubt.content }}
-            </div>
-            {% if request.user.studentprofile == doubt.student or request.user.is_staff %}
-            <div style="display: flex; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
-                <a href="{% url 'doubt_edit' doubt.pk %}" style="text-decoration: none; font-size: 13px; color: var(--primary-color); font-weight: 600;">✏️ Edit Doubt</a>
-                <a href="{% url 'doubt_delete' doubt.pk %}" style="text-decoration: none; font-size: 13px; color: #ef4444; font-weight: 600;">🗑️ Delete Doubt</a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Replies Section -->
-    <h3 style="margin-bottom: 16px; font-size: 18px;">Replies ({{ replies|length }})</h3>
-    
-    {% for reply in replies %}
-    <div class="card mb-16" style="{% if reply.user.facultyprofile %}background: #f8fafc; border: 1px solid #e2e8f0;{% endif %}">
-        <div class="card-body">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: {% if reply.user.facultyprofile %}var(--gradient-purple){% else %}var(--gradient-blue){% endif %}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                        {{ reply.user.username|slice:":1"|upper }}
-                    </div>
-                    <div>
-                        <div style="font-size: 14px; font-weight: 700;">
-                            {{ reply.user.get_full_name|default:reply.user.username }}
-                            {% if reply.user.facultyprofile %}
-                            <span class="badge badge-purple" style="font-size: 10px; padding: 1px 6px;">Teacher</span>
-                            {% elif reply.user.is_superuser %}
-                            <span class="badge badge-blue" style="font-size: 10px; padding: 1px 6px;">Admin</span>
-                            {% endif %}
-                        </div>
-                        <div style="font-size: 11px; color: var(--text-muted);">{{ reply.created_at|timesince }} ago</div>
-                    </div>
-                </div>
-                {% if reply.user == request.user or request.user.is_staff %}
-                <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'reply_edit' reply.pk %}" title="Edit Reply" style="text-decoration: none; font-size: 13px;">✏️</a>
-                    <a href="{% url 'reply_delete' reply.pk %}" title="Delete Reply" style="text-decoration: none; font-size: 13px;">🗑️</a>
-                </div>
-                {% endif %}
-            </div>
-            <div style="font-size: 15px; color: #334155; line-height: 1.5;">
-                {{ reply.content }}
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div style="text-align: center; padding: 40px; background: white; border-radius: var(--radius); border: 1px dashed var(--border-color); color: var(--text-muted); margin-bottom: 24px;">
-        No replies yet. Be the first one to help!
-    </div>
-    {% endfor %}
-
-    <!-- Post a Reply -->
-    <div class="card">
-        <div class="card-header">
-            <span class="card-title">✍️ Your Answer</span>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-{% include 'partials/form_errors.html' %}
-                <div style="margin-bottom: 16px;">
-                    {{ form.content }}
-                </div>
-                <div style="display: flex; justify-content: flex-end;">
-                    <button type="submit" class="btn btn-primary" style="padding-left: 30px; padding-right: 30px;">🚀 Post Answer</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="thread-jump">
+  <span class="badge badge-blue">{{ doubt.student.get_branch_display }} · {% blocktranslate with s=doubt.student.semester %}Semester {{ s }}{% endblocktranslate %}</span>
+  <span class="muted small">{{ doubt.student.name }} · {{ doubt.created_at|date:"d M Y, H:i" }}</span>
+  {% if doubt.is_resolved %}<span class="badge badge-green">{% translate "Resolved" %}</span>{% endif %}
 </div>
+
+<article class="card mt-16 doubt-open">
+  <div class="card-body">
+    <div class="reply-body">{{ doubt.content }}</div>
+    {% if request.user.studentprofile == doubt.student or request.user.is_staff %}
+      <div class="doubt-actions">
+        <a class="btn btn-outline btn-sm" href="{% url 'doubt_edit' doubt.pk %}">{% translate "Edit doubt" %}</a>
+        <a class="btn btn-outline btn-sm" href="{% url 'doubt_delete' doubt.pk %}">{% translate "Delete doubt" %}</a>
+      </div>
+    {% endif %}
+  </div>
+</article>
+
+<h2 class="h3-small mt-24">
+  {% blocktranslate count n=replies|length %}{{ n }} reply{% plural %}{{ n }} replies{% endblocktranslate %}
+</h2>
+
+{% for reply in replies %}
+  <article class="card mb-8{% if reply.user.facultyprofile %} reply-teacher{% endif %}">
+    <div class="card-body">
+      <div class="reply-head">
+        <span class="reply-who">
+          <span class="reply-avatar{% if reply.user.facultyprofile %} is-teacher{% endif %}" aria-hidden="true">{{ reply.user.username|slice:":1"|upper }}</span>
+          <span>
+            <b>{{ reply.user.get_full_name|default:reply.user.username }}</b>
+            {% if reply.user.facultyprofile %}
+              <span class="badge badge-purple">{% translate "Teacher" %}</span>
+            {% elif reply.user.is_superuser %}
+              <span class="badge badge-blue">{% translate "Admin" %}</span>
+            {% endif %}
+            <small class="muted">{{ reply.created_at|timesince }} {% translate "ago" %}</small>
+          </span>
+        </span>
+        {% if reply.user == request.user or request.user.is_staff %}
+          <span class="doubt-actions is-flush">
+            <a class="btn btn-outline btn-sm" href="{% url 'reply_edit' reply.pk %}">{% translate "Edit" %}</a>
+            <a class="btn btn-outline btn-sm" href="{% url 'reply_delete' reply.pk %}">{% translate "Delete" %}</a>
+          </span>
+        {% endif %}
+      </div>
+      <p class="reply-body">{{ reply.content }}</p>
+    </div>
+  </article>
+{% empty %}
+  <div class="empty-state">
+    <p>{% translate "No replies yet. Be the first one to help." %}</p>
+  </div>
+{% endfor %}
+
+<section class="card mt-24">
+  <div class="card-header"><span class="card-title">{% translate "Your answer" %}</span></div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include 'partials/form_errors.html' %}
+      <div class="field">
+        <label class="visually-hidden" for="{{ form.content.id_for_label }}">{% translate "Your answer" %}</label>
+        {{ form.content }}
+      </div>
+      <div class="btn-row is-right">
+        <button type="submit" class="btn btn-primary">{% translate "Post answer" %}</button>
+      </div>
+    </form>
+  </div>
+</section>
 {% endblock %}

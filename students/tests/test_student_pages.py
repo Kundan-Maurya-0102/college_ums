@@ -264,3 +264,46 @@ class StudyMaterialIsolationTests(TestCase):
         body = client.get(reverse('student_materials')).content.decode()
         self.assertNotIn('Sem five notes', body)
         self.assertIn('My notes', body)
+
+
+class StudentPageQueryBudgetTests(TestCase):
+    """More subjects must not mean more queries on any of the new pages."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = DashboardFixture.seed()
+
+    def login(self):
+        client = Client(HTTP_HOST='localhost')
+        client.force_login(self.data['mine'].user)
+        return client
+
+    def count(self, client, url):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+        return len(ctx.captured_queries)
+
+    def test_query_count_is_flat_as_subjects_grow(self):
+        from students.models import ClassSchedule, StudyMaterial, Subject
+
+        client = self.login()
+        urls = [reverse('student_attendance'), reverse('student_results'),
+                reverse('student_timetable'), reverse('student_materials'),
+                reverse('student_dashboard')]
+        before = {url: self.count(client, url) for url in urls}
+
+        for i in range(12):
+            extra = Subject.objects.create(branch='CS', semester=3,
+                                           subject_code=f'CS3{90 + i}', subject_name=f'Extra {i}')
+            StudyMaterial.objects.create(title=f'Notes {i}', subject=extra)
+            ClassSchedule.objects.create(subject=extra, faculty=self.data['faculty'],
+                                         weekday=i % 6, start_time='09:00', end_time='10:00')
+
+        after = {url: self.count(client, url) for url in urls}
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertLessEqual(after[url], before[url] + 2,
+                                     f'{url}: {before[url]} -> {after[url]} queries for 12 more subjects')

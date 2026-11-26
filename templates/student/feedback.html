@@ -37,7 +37,8 @@
             {% if existing %}
             <fieldset class="fieldset-student mt-3">
               <legend>&#9632; Your Feedback (Sem {{ profile.semester }})</legend>
-              <table class="table-student">
+              <div class="table-responsive">
+<table class="table-student">
                 <thead>
                   <tr><th>Subject</th><th>Rating</th><th>Comments</th><th>Date</th></tr>
                 </thead>
@@ -52,6 +53,7 @@
                   {% endfor %}
                 </tbody>
               </table>
+</div>
             </fieldset>
             {% endif %}
 

@@ -55,7 +55,7 @@
               <li>
                 <b>{{ assignment.title }}</b>
                 {% if assignment.due_date %}
-                  <span class="muted small {% if assignment.due_date < today %}" style="color:var(--danger)"{% endif %}>
+                  <span class="muted small{% if assignment.due_date < today %} is-overdue{% endif %}">
                     — {% translate "due" %} {{ assignment.due_date|date:"d M Y" }}
                   </span>
                 {% endif %}

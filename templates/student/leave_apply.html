@@ -36,7 +36,8 @@
             <!-- MY LEAVE HISTORY -->
             <fieldset class="fieldset-student">
               <legend>&#9632; My Leave History</legend>
-              <table class="table-student">
+              <div class="table-responsive">
+<table class="table-student">
                 <thead>
                   <tr><th>Type</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Remarks</th></tr>
                 </thead>
@@ -48,7 +49,7 @@
                     <td>{{ l.to_date }}</td>
                     <td>{{ l.reason|truncatewords:8 }}</td>
                     <td>
-                      <span class="badge badge-student {% if l.status == 'APPROVED' %}success{% elif l.status == 'REJECTED' %}danger{% else %}warning{% endif %}">
+                      <span class="badge {% if l.status == 'APPROVED' %}badge-green{% elif l.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">
                         {{ l.status }}
                       </span>
                     </td>
@@ -59,6 +60,7 @@
                   {% endfor %}
                 </tbody>
               </table>
+</div>
             </fieldset>
 
 

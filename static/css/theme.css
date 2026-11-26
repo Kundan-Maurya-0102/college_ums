@@ -16,7 +16,7 @@
   /* neutrals */
   --ink: #0f172a;
   --ink-2: #334155;
-  --muted: #64748b;
+  --muted: #556274;  /* was #64748b: 4.34:1 on --canvas, just under AA */
   --line: #e2e8f0;
   --line-strong: #cbd5e1;
   --surface: #ffffff;
@@ -37,6 +37,7 @@
   --radius-sm: 6px;
   --radius: 10px;
   --radius-lg: 14px;
+  --on-primary: #ffffff;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06), 0 1px 3px rgba(15, 23, 42, .08);
   --shadow: 0 4px 12px rgba(15, 23, 42, .07);
   --shadow-lg: 0 16px 40px rgba(15, 23, 42, .14);
@@ -110,6 +111,12 @@
   --surface: #111a2b;
   --surface-2: #0d1524;
   --canvas: #080e19;
+  /* lighter foregrounds: the tinted backgrounds are dark, so the light-mode
+     greens/reds sat at ~2.9:1 and were hard to read */
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
   --ok-bg: #0f2e1d;
   --warn-bg: #33240a;
   --danger-bg: #361313;
@@ -120,6 +127,10 @@
 }
 
 /* ── BASE ──────────────────────────────────────────────────────────────── */
+/* The border-box reset used to live in the old style.css; without it every
+   `width:100%` block with padding overflowed its parent by exactly the padding. */
+*, *::before, *::after { box-sizing: border-box; }
+
 html { font-size: 15px; }
 
 body {
@@ -256,6 +267,10 @@ a:hover { color: var(--primary-600); text-decoration: underline; }
   box-shadow: inset 3px 0 0 var(--primary);
 }
 .sidebar-link.active .icon { color: var(--primary); }
+/* In dark mode the 050 tint is a dark blue and the primary text sank into it,
+   so the active row uses the light ink and a stronger tint instead. */
+[data-theme="dark"] .sidebar-link.active { background: var(--primary-100); color: var(--ink); }
+[data-theme="dark"] .sidebar-link.active .icon { color: var(--primary); }
 
 .sidebar-footer { border-top: 1px solid var(--line); padding: var(--s2); }
 .sidebar-footer .sidebar-link { color: var(--danger); }
@@ -489,12 +504,15 @@ textarea { min-height: 90px; resize: vertical; }
 /* ── TABLES ────────────────────────────────────────────────────────────── */
 .table-responsive {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;  /* let it shrink inside a flex column, then scroll the table */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-sm);
 }
 .table, .data-table, .table-student {
   width: 100%;
+  min-width: 0;
   border-collapse: collapse;
   font-size: 13px;
   background: var(--surface);
@@ -546,7 +564,7 @@ textarea { min-height: 90px; resize: vertical; }
 .badge-red, .badge-danger { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
 .badge-yellow, .badge-warning { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
 .badge-blue, .badge-info { background: var(--info-bg); color: var(--info); border-color: transparent; }
-.badge-purple { background: color-mix(in srgb, #7c3aed 12%, white); color: #6d28d9; border-color: transparent; }
+.badge-purple { background: color-mix(in srgb, #7c3aed 12%, white); color: #5b21b6; border-color: transparent; }
 [data-theme="dark"] .badge-purple { background: #241436; color: #c4b5fd; }
 
 /* ── ALERTS / TOASTS ───────────────────────────────────────────────────── */
@@ -998,3 +1016,207 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
   .report-fab-text { display: none; }
   .report-fab { padding: 12px; border-radius: 50%; }
 }
+
+/* ── inline-style replacements (report dialog, logo, theme toggle) ─────── */
+.college-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
+.college-logo-fallback { font-size: 22px; line-height: 1; }
+.icon-static { pointer-events: none; }
+.theme-toggle { display: inline-grid; place-items: center; }
+.report-title { margin: 0 0 6px; font-size: 17px; }
+.report-hint { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+.report-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── small shared helpers used by forms and quote blocks ───────────────── */
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; margin-top: var(--s4); }
+.req { color: var(--danger); }
+.quote {
+  margin: 0 0 var(--s3);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--primary);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+}
+.table-narrow { max-width: 350px; margin: 0 auto var(--s4); text-align: left; }
+
+/* ── the last few helpers the old style.css provided ───────────────────── */
+.text-center { text-align: center; }
+
+/* ── group boxes used by the student pages (had no rule at all) ────────── */
+.fieldset-student {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: var(--s4);
+  margin: 0 0 var(--s4);
+}
+.fieldset-student > legend {
+  padding: 0 var(--s2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── shared page components ────────────────────────────────────────────── */
+/* These class names were used across the student pages but had no rule at
+   all, so each page fell back to browser defaults (inconsistent spacing,
+   grey text that stayed black, lists with bullets, no margins). */
+.page-title { margin: 0 0 var(--s2); font-size: 20px; font-weight: 700; line-height: 1.3; }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+.h3-small { margin: var(--s3) 0 var(--s2); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.w-100 { width: 100%; }
+
+.mt-3 { margin-top: var(--s1); }
+.mt-8 { margin-top: var(--s2); }
+.mt-16 { margin-top: var(--s4); }
+.mt-24 { margin-top: var(--s5); }
+.mb-8 { margin-bottom: var(--s2); }
+.mb-16 { margin-bottom: var(--s4); }
+.mb-24 { margin-bottom: var(--s5); }
+.ml-2 { margin-left: var(--s1); }
+
+.plain-list { list-style: none; margin: 0; padding: 0; }
+.plain-list > li {
+  padding: var(--s2) 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s1) var(--s2);
+}
+.plain-list > li:last-child { border-bottom: 0; }
+.plain-list > li > p { flex: 1 1 100%; margin: 0; color: var(--ink-2); }
+
+.field { display: grid; gap: 6px; margin-bottom: var(--s4); }
+
+.stats-row { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: var(--s5); }
+.stat-box {
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.stat-num { font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.stat-desc { font-size: 12px; color: var(--muted); }
+
+.section-title { font-size: 15px; font-weight: 700; margin: 0 0 var(--s2); }
+.section-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.section-body { font-size: 13.5px; color: var(--ink-2); }
+
+.card-student {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.badge-student {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600;
+  background: var(--primary-050); color: var(--primary);
+}
+.btn-back { font-size: 13px; color: var(--muted); text-decoration: none; }
+.btn-back:hover { color: var(--primary); text-decoration: underline; }
+.form-student .form-control, .form-student select, .form-student textarea { width: 100%; }
+.form-help { font-size: 12px; color: var(--muted); }
+
+.tag {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+/* pagination lives in partials/pagination.html but had no styling */
+.pagination {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2);
+  margin-top: var(--s4);
+  font-size: 12.5px; color: var(--muted);
+}
+.pagination-summary { margin-right: auto; }
+.pagination-links { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pagination-links a, .pagination-current {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.pagination-links a:hover { border-color: var(--primary); color: var(--primary); }
+.pagination-current { background: var(--primary-050); color: var(--primary); font-weight: 600; }
+
+/* ── printable certificates / ID card (was 18 inline styles) ───────────── */
+.cert-meta { font-size: 12px; color: var(--muted); }
+.cert-foot { display: flex; justify-content: space-between; margin-top: var(--s5); gap: var(--s4); }
+.cert-actions { text-align: center; margin: var(--s5) 0; }
+.cert-idcard { max-width: 420px; text-align: center; }
+.cert-college { font-size: 14px; margin: 0 0 var(--s1); }
+.cert-role { font-size: 16px; margin: 0 0 var(--s2); }
+.cert-seal {
+  width: 80px; height: 80px;
+  margin: 15px auto 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; font-weight: 700;
+  background: var(--primary);
+  color: var(--on-primary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-sm);
+}
+.cert-note { font-size: 10px; margin-top: 10px; color: var(--muted); }
+.cert-field-name { font-weight: 700; }
+
+/* ── doubt forum rows ──────────────────────────────────────────────────── */
+.doubt-row {
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.doubt-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.doubt-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s2); }
+.doubt-title { margin: 0; font-size: 14.5px; font-weight: 650; }
+.doubt-title a { color: var(--ink); text-decoration: none; }
+.doubt-title a:hover { color: var(--primary); text-decoration: underline; }
+.doubt-tags { display: flex; gap: 6px; flex: 0 0 auto; }
+.doubt-snippet { margin: 4px 0 var(--s2); font-size: 13px; color: var(--ink-2); }
+.doubt-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s2); font-size: 12px; color: var(--muted); }
+.doubt-actions { display: flex; gap: 6px; margin-top: var(--s2); }
+.doubt-ask { position: sticky; top: calc(var(--topbar-h) + var(--s3)); }
+@media (max-width: 900px) { .doubt-ask { position: static; } }
+
+/* ── doubt thread ──────────────────────────────────────────────────────── */
+.thread-jump { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.doubt-open { border-left: 3px solid var(--primary); }
+.reply-teacher { background: var(--surface-2); }
+.reply-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2); margin-bottom: var(--s2); }
+.reply-who { display: flex; align-items: center; gap: var(--s2); font-size: 13.5px; }
+.reply-who small { display: block; font-size: 11.5px; }
+.reply-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 13px;
+  background: var(--primary-100); color: var(--primary);
+}
+.reply-avatar.is-teacher { background: color-mix(in srgb, #7c3aed 16%, var(--surface)); color: #5b21b6; }
+[data-theme="dark"] .reply-avatar.is-teacher { color: #c4b5fd; }
+.reply-body { margin: 0; font-size: 14px; color: var(--ink-2); white-space: pre-line; }
+.doubt-actions.is-flush { margin: 0; }
+.btn-row.is-right { justify-content: flex-end; }
+.profile-card { max-width: 600px; margin: 0 auto; }
+.field-full { grid-column: 1 / -1; }
+/* password page and small layout helpers */
+.pw-layout { grid-template-columns: minmax(0, 520px); }
+.pw-submit { padding: 11px; }
+.pw-tips { font-size: 13px; color: var(--muted); }
+.pw-tips-list { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.is-overdue { color: var(--danger); font-weight: 600; }
+.w-50 { width: 50%; } .w-60 { width: 60%; } .w-70 { width: 70%; } .w-80 { width: 80%; } .w-85 { width: 85%; }
+.p-2 { padding: var(--s2); }

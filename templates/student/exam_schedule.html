@@ -13,7 +13,8 @@
 
             <fieldset class="fieldset-student">
               <legend>&#9632; Exam Schedule ({{ profile.get_branch_display }} Sem {{ profile.semester }})</legend>
-              <table class="table-student">
+              <div class="table-responsive">
+<table class="table-student">
                 <thead>
                   <tr><th>Subject</th><th>Exam Type</th><th>Date</th><th>Time</th><th>Room</th></tr>
                 </thead>
@@ -31,6 +32,7 @@
                   {% endfor %}
                 </tbody>
               </table>
+</div>
             </fieldset>
 
 

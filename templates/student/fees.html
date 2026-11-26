@@ -22,7 +22,8 @@
             <!-- FEE STRUCTURE -->
             <fieldset class="fieldset-student">
               <legend>&#9632; Fee Structure ({{ profile.get_branch_display }})</legend>
-              <table class="table-student">
+              <div class="table-responsive">
+<table class="table-student">
                 <thead>
                   <tr><th>Semester</th><th>Fee Type</th><th>Amount (₹)</th><th>Academic Year</th></tr>
                 </thead>
@@ -39,12 +40,14 @@
                   {% endfor %}
                 </tbody>
               </table>
+</div>
             </fieldset>
 
             <!-- PAYMENT HISTORY -->
             <fieldset class="fieldset-student">
               <legend>&#9632; Payment History</legend>
-              <table class="table-student">
+              <div class="table-responsive">
+<table class="table-student">
                 <thead>
                   <tr><th>Receipt #</th><th>Fee Type</th><th>Amount</th><th>Mode</th><th>Date</th><th>Status</th></tr>
                 </thead>
@@ -57,7 +60,7 @@
                     <td>{{ p.get_payment_mode_display }}</td>
                     <td>{{ p.payment_date }}</td>
                     <td>
-                      <span class="badge badge-student {% if p.status == 'PAID' %}success{% elif p.status == 'PARTIAL' %}warning{% else %}danger{% endif %}">
+                      <span class="badge {% if p.status == 'PAID' %}badge-green{% elif p.status == 'PARTIAL' %}badge-yellow{% else %}badge-red{% endif %}">
                         {{ p.status }}
                       </span>
                     </td>
@@ -67,6 +70,7 @@
                   {% endfor %}
                 </tbody>
               </table>
+</div>
             </fieldset>
 
 

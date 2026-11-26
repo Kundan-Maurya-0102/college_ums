@@ -81,7 +81,7 @@
 
   function applyTheme(mode) {
     var dark = mode === 'dark';
-    body.classList.toggle('dash-dark', dark);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     if (themeButton) themeButton.setAttribute('aria-pressed', dark ? 'true' : 'false');
     try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch (e) { /* private mode */ }
     // Server-side hint for the next full page load (no flash of light theme).
@@ -94,7 +94,7 @@
 
   if (themeButton) {
     themeButton.addEventListener('click', function () {
-      applyTheme(body.classList.contains('dash-dark') ? 'light' : 'dark');
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   }
 

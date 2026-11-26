@@ -1,5 +1,5 @@
 {% load static i18n ui %}{% get_current_language as CURRENT_LANG %}<!DOCTYPE html>
-<html lang="{{ CURRENT_LANG|default:'en' }}">
+<html lang="{{ CURRENT_LANG|default:'en' }}"{% if request.COOKIES.ums_theme == 'dark' %} data-theme="dark"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,13 +12,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
   {% include 'partials/college_colors.html' %}
   {% block extra_css %}{% endblock %}
 </head>
-<body class="dash-body dash-loading{% if request.COOKIES.ums_theme == 'dark' %} dash-dark{% endif %}">
+<body class="dash-body dash-loading">
 
 {% include 'partials/icons.html' %}
 <a class="skip-link" href="#main-content">{% translate "Skip to content" %}</a>
