@@ -354,6 +354,21 @@
   par hain kyunki ye **teeno roles** ke liye same page hain — inhe shell par laane ke liye
   menus ko role-wise partials me todna padega (follow-up).
 
+- **Teacher marks entry ab spreadsheet jaisa**: `/teacher/marks/` (same URL/permission)
+  ab poora class ek POST me leta hai. Grid: har student ek row, "Marks / max" input,
+  row-wise error note; **Tab/Enter/↑/↓ se cell navigation**; max se upar ki value turant
+  red + **save button disabled** (server bhi 0–max validate karta hai aur line-wise error
+  deta hai); **unsaved-changes warning** (`beforeunload`); live "x/y filled" + average;
+  **CSV export** (`?export=csv` → `registration_number,name,marks`) aur **CSV import**
+  (client-side parse jo grid bhar deta hai, unmatched rows ginta hai); blank rows skip,
+  `update_or_create` se dobara save par duplicate nahi. Naya `static/js/marks-grid.js` +
+  `dashboard.css` ke `.marks-grid/.marks-foot` rules. Tests:
+  `students/tests/test_marks_grid.py` (12) — own class only, max validation (server),
+  bulk save + update, doosre teacher ka subject block, CSV export/download headers,
+  student/anonymous 302, 12 extra students par query count flat, script shipped aur usme
+  `ArrowDown`/`beforeunload`/`data-csv-input` maujood. **459 tests OK**, `ci.sh` green,
+  `rc_flows.py` 111/111.
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

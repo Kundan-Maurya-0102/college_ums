@@ -1,93 +1,168 @@
 {% extends 'teacher/shell.html' %}
-{% block title %}Marks Entry - {{ COLLEGE_NAME }} UMS{% endblock %}
-{% block page_title %}Marks Entry{% endblock %}
+{% load static i18n %}
+{% block title %}{% translate "Marks entry" %} — {{ COLLEGE_NAME }}{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Marks Entry</h1>
+<h1 class="page-title">{% translate "Marks entry" %}</h1>
+<p class="muted">{% translate "Pick the class and the exam, then type the marks straight into the grid. Tab and Enter move between students." %}</p>
 
-<div class="card mb-24">
-  <div class="card-header"><span class="card-title">Select Class</span></div>
+<section class="card mt-16">
+  <div class="card-header"><span class="card-title">{% translate "Class and exam" %}</span></div>
   <div class="card-body">
     <form method="get" class="filter-row">
       <div>
-        <label class="form-label">Semester</label>
-        <select name="semester" class="form-select" required>
-          <option value="">Select semester</option>
+        <label class="form-label" for="f-sem">{% translate "Semester" %}</label>
+        <select name="semester" id="f-sem" class="form-select">
+          <option value="">{% translate "All" %}</option>
           {% for sem in available_semesters %}
-          <option value="{{ sem }}" {% if selected_semester|stringformat:"s" == sem|stringformat:"s" %}selected{% endif %}>Sem {{ sem }}</option>
+            <option value="{{ sem }}" {% if selected_semester|stringformat:"s" == sem|stringformat:"s" %}selected{% endif %}>{% translate "Sem" %} {{ sem }}</option>
           {% endfor %}
         </select>
       </div>
       <div>
-        <label class="form-label">Branch</label>
-        <select name="branch" class="form-select" required>
-          <option value="">Select branch</option>
+        <label class="form-label" for="f-branch">{% translate "Branch" %}</label>
+        <select name="branch" id="f-branch" class="form-select">
+          <option value="">{% translate "All" %}</option>
           {% for code, name in branch_choices %}
             {% if code in available_branches %}
-            <option value="{{ code }}" {% if selected_branch == code %}selected{% endif %}>{{ name }}</option>
+              <option value="{{ code }}" {% if selected_branch == code %}selected{% endif %}>{{ name }}</option>
             {% endif %}
           {% endfor %}
         </select>
       </div>
-      <div>
-        <label class="form-label">Subject</label>
-        <select name="subject" class="form-select">
-          <option value="">Auto / all assigned</option>
+      <div class="filter-grow">
+        <label class="form-label" for="f-subject">{% translate "Subject" %}</label>
+        <select name="subject" id="f-subject" class="form-select">
+          <option value="">{% translate "Auto / all my subjects" %}</option>
           {% for subject in filtered_subjects %}
-          <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_code }} - {{ subject.subject_name }}</option>
+            <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>{{ subject.subject_code }} — {{ subject.subject_name }}</option>
           {% endfor %}
         </select>
       </div>
-      <button class="btn btn-primary" type="submit">Load Students</button>
+      <div>
+        <label class="form-label" for="f-type">{% translate "Exam" %}</label>
+        <select name="exam_type" id="f-type" class="form-select">
+          {% for code, label in exam_types %}
+            <option value="{{ code }}" {% if exam_type == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="w-narrow">
+        <label class="form-label" for="f-max">{% translate "Max marks" %}</label>
+        <input id="f-max" type="number" name="max_marks" min="1" max="1000" class="form-control" value="{{ max_marks }}">
+      </div>
+      <div>
+        <label class="form-label" for="f-date">{% translate "Date" %}</label>
+        <input id="f-date" type="date" name="exam_date" class="form-control" value="{{ exam_date|date:'Y-m-d' }}">
+      </div>
+      <button type="submit" class="btn btn-primary">{% translate "Load class" %}</button>
     </form>
-    {% if selected_semester and selected_branch %}
-      <div class="muted small mt-16">Loaded {{ students|length }} students for Sem {{ selected_semester }} {{ selected_branch }}{% if selected_subject %} · {{ selected_subject.subject_code }}{% endif %}</div>
-    {% else %}
-      <div class="muted small mt-16">Choose semester and branch first, then marks entry will show only that class.</div>
-    {% endif %}
   </div>
-</div>
+</section>
 
-<div class="split-2">
-  <div class="card">
-    <div class="card-header"><span class="card-title">Add / Update Marks</span></div>
-    <div class="card-body">
-      <form method="post" class="stack">
-        {% csrf_token %}
-{% include 'partials/form_errors.html' %}
-        <input type="hidden" name="semester" value="{{ selected_semester }}">
-        <input type="hidden" name="branch" value="{{ selected_branch }}">
-        {% for field in form %}
-          <div>
-            <label class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<div class="muted small mt-3">{{ field.help_text }}</div>{% endif %}
-            {% for error in field.errors %}<p class="field-errors">{{ error }}</p>{% endfor %}
-          </div>
-        {% endfor %}
-        {% if selected_semester and selected_branch and students %}
-          <button class="btn btn-primary" type="submit">Save Marks</button>
-        {% else %}
-          <button class="btn btn-primary" type="submit" disabled>Select Class First</button>
-        {% endif %}
-      </form>
+{% if not selected_subject %}
+  <div class="card mt-16"><div class="card-body">
+    <div class="empty-state">
+      <p>{% translate "Choose a semester and branch, then pick a subject to start entering marks." %}</p>
     </div>
-  </div>
+  </div></div>
+{% elif not rows %}
+  <div class="card mt-16"><div class="card-body">
+    <div class="empty-state"><p>{% translate "No students in this class yet." %}</p></div>
+  </div></div>
+{% else %}
+  <form method="post" id="marks-form" class="card mt-16"
+        data-max-marks="{{ max_marks }}" data-student-count="{{ student_count }}">
+    {% csrf_token %}
+    {% include 'partials/form_errors.html' %}
+    <input type="hidden" name="semester" value="{{ selected_semester|default:'' }}">
+    <input type="hidden" name="branch" value="{{ selected_branch }}">
+    <input type="hidden" name="subject" value="{{ selected_subject.pk }}">
+    <input type="hidden" name="exam_type" value="{{ exam_type }}">
+    <input type="hidden" name="max_marks" value="{{ max_marks }}">
+    <input type="hidden" name="exam_date" value="{{ exam_date|date:'Y-m-d' }}">
 
-  <div class="card">
-    <div class="card-header"><span class="card-title">Recent Marks</span></div>
+    <div class="card-header">
+      <span class="card-title">{{ selected_subject.subject_code }} · {{ exam_type }} · {% translate "out of" %} {{ max_marks }}</span>
+      <span class="badge badge-blue" data-grid-count aria-live="polite">
+        {{ filled_count }}/{{ student_count }} {% translate "filled" %}
+      </span>
+    </div>
+
     <div class="table-responsive">
-      <table class="data-table">
-        <thead><tr><th>Student</th><th>Subject</th><th>Exam</th><th>Marks</th><th>Date</th></tr></thead>
+      <table class="data-table marks-grid">
+        <thead>
+          <tr>
+            <th scope="col" class="marks-num">#</th>
+            <th scope="col">{% translate "Reg. No." %}</th>
+            <th scope="col">{% translate "Student" %}</th>
+            <th scope="col" class="marks-cell">{% translate "Marks" %} / {{ max_marks }}</th>
+            <th scope="col" class="marks-note">{% translate "Note" %}</th>
+          </tr>
+        </thead>
         <tbody>
-          {% for mark in recent_marks %}
-          <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject.subject_code }}</td><td>{{ mark.exam_type }}</td><td>{{ mark.marks_obtained }}/{{ mark.max_marks }}</td><td>{{ mark.exam_date }}</td></tr>
-          {% empty %}
-          <tr><td colspan="5"><div class="empty-state"><span class="empty-icon" aria-hidden="true">📋</span><p>No marks entered yet. Add the first internal exam mark.</p></div></td></tr>
+          {% for row in rows %}
+            <tr>
+              <td class="marks-num">{{ forloop.counter }}</td>
+              <td>{{ row.student.registration_number }}</td>
+              <td class="cell-strong">{{ row.student.name }}</td>
+              <td class="marks-cell">
+                <label class="visually-hidden" for="marks-{{ row.student.pk }}">
+                  {% blocktranslate with name=row.student.name %}Marks for {{ name }}{% endblocktranslate %}
+                </label>
+                <input id="marks-{{ row.student.pk }}" type="number" inputmode="numeric"
+                       class="form-control marks-input" name="marks_{{ row.student.pk }}"
+                       min="0" max="{{ max_marks }}" step="1"
+                       value="{% if row.is_set %}{{ row.marks }}{% endif %}"
+                       placeholder="—">
+              </td>
+              <td class="marks-note muted small" data-row-error></td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </div>
-</div>
+
+    <div class="marks-foot">
+      <span class="muted small" data-grid-summary aria-live="polite"></span>
+      <div class="row-inline">
+        <a class="btn btn-outline btn-sm"
+           href="?semester={{ selected_semester|default:'' }}&branch={{ selected_branch }}&subject={{ selected_subject.pk }}&exam_type={{ exam_type }}&max_marks={{ max_marks }}&export=csv">
+          {% translate "Export CSV" %}
+        </a>
+        <label class="btn btn-outline btn-sm file-btn">
+          {% translate "Import CSV" %}
+          <input type="file" accept=".csv,text/csv" data-csv-input hidden>
+        </label>
+        <button type="submit" class="btn btn-primary" data-save>{% translate "Save marks" %}</button>
+      </div>
+    </div>
+  </form>
+{% endif %}
+
+{% if recent_marks %}
+  <section class="card mt-24">
+    <div class="card-header"><span class="card-title">{% translate "Recent marks" %}</span></div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>{% translate "Student" %}</th><th>{% translate "Subject" %}</th><th>{% translate "Exam" %}</th><th>{% translate "Marks" %}</th><th>{% translate "Date" %}</th></tr></thead>
+        <tbody>
+          {% for mark in recent_marks %}
+            <tr>
+              <td>{{ mark.student.name }}</td>
+              <td>{{ mark.subject.subject_code }}</td>
+              <td>{{ mark.get_exam_type_display }}</td>
+              <td>{{ mark.marks_obtained }}/{{ mark.max_marks }}</td>
+              <td>{{ mark.exam_date|date:"d M Y" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/marks-grid.js' %}" defer></script>
 {% endblock %}

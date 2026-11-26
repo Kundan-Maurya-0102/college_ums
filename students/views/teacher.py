@@ -3,12 +3,12 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import (
     AssignmentForm,
     ClassScheduleForm,
-    InternalExamForm,
     NoticeForm,
     StudyMaterialForm,
 )
@@ -105,11 +105,24 @@ def teacher_take_attendance(request):
 
 @teacher_required
 def teacher_marks(request):
+    """Spreadsheet-style marks entry: one row per student, one POST for the whole class.
+
+    Same URL and permission as before; the form now posts every row at once instead of
+    one student at a time. `?export=csv` downloads the same grid, and a posted
+    `csv_file` fills it (client-side preview, server-side authority).
+    """
+    import csv
+
     faculty = request.user.facultyprofile
+    if not faculty.can_enter_marks:
+        messages.error(request, "Marks entry permission is disabled for your account.")
+        return redirect("teacher_dashboard")
+
     subjects = _faculty_subjects(request.user)
-    selected_semester = _int_or_none(request.GET.get("semester") or request.POST.get("semester"))
-    selected_branch = (request.GET.get("branch") or request.POST.get("branch") or "").upper()
-    selected_subject_id = _int_or_none(request.GET.get("subject") or request.POST.get("subject"))
+    params = request.POST if request.method == "POST" else request.GET
+    selected_semester = _int_or_none(params.get("semester"))
+    selected_branch = (params.get("branch") or "").upper()
+    selected_subject_id = _int_or_none(params.get("subject"))
 
     available_semesters = sorted({subject.semester for subject in subjects})
     available_branches = sorted({subject.branch for subject in subjects})
@@ -126,51 +139,88 @@ def teacher_marks(request):
     if not selected_subject and filtered_subjects.count() == 1:
         selected_subject = filtered_subjects.first()
 
+    exam_type = (params.get("exam_type") or "CA1").upper()
+    exam_type = exam_type if exam_type in dict(InternalExam.EXAM_TYPES) else "CA1"
+    try:
+        max_marks = max(1, min(1000, int(params.get("max_marks") or 20)))
+    except (TypeError, ValueError):
+        max_marks = 20
+    exam_date = _date_or_today(params.get("exam_date"))
+
     students = StudentProfile.objects.none()
     if selected_subject:
         students = _subject_class_students(selected_subject)
     elif selected_semester and selected_branch:
-        students = StudentProfile.objects.filter(
-            branch=selected_branch,
-            semester=selected_semester,
-        ).order_by("registration_number")
+        students = StudentProfile.objects.filter(branch=selected_branch,
+                                                 semester=selected_semester) \
+            .order_by("registration_number")
+    students = list(students)
 
-    form = InternalExamForm(request.POST or None)
-    form.fields["subject"].queryset = filtered_subjects
-    form.fields["student"].queryset = students
-    if selected_subject:
-        form.fields["subject"].initial = selected_subject
+    existing = {}
+    if selected_subject and students:
+        existing = {row["student_id"]: row["marks_obtained"]
+                    for row in InternalExam.objects
+                    .filter(subject=selected_subject, exam_type=exam_type,
+                            student__in=students)
+                    .values("student_id", "marks_obtained")}
 
-    if not selected_semester or not selected_branch:
-        form.fields["student"].help_text = "Select semester and branch first."
+    if request.method == "POST" and selected_subject:
+        posted = {}
+        errors = []
+        for student in students:
+            raw = (request.POST.get(f"marks_{student.pk}") or "").strip()
+            if not raw:
+                continue
+            try:
+                value = int(float(raw))
+            except (TypeError, ValueError):
+                errors.append(f"{student.registration_number}: not a number")
+                continue
+            if value < 0 or value > max_marks:
+                errors.append(f"{student.registration_number}: {value} is outside 0–{max_marks}")
+                continue
+            posted[student.pk] = value
 
-    if not faculty.can_enter_marks:
-        messages.error(request, "Marks entry permission is disabled for your account.")
-        return redirect("teacher_dashboard")
-
-    if request.method == "POST" and form.is_valid():
-        obj = form.save(commit=False)
-        if not subjects.filter(pk=obj.subject_id).exists():
-            messages.error(request, "You can enter marks only for your assigned subjects.")
-        elif obj.student.branch != obj.subject.branch or obj.student.semester != obj.subject.semester:
-            messages.error(request, "This student is not in the selected subject class.")
+        if errors:
+            for line in errors[:8]:
+                messages.error(request, line)
         else:
-            InternalExam.objects.update_or_create(
-                student=obj.student,
-                subject=obj.subject,
-                exam_type=obj.exam_type,
-                defaults={
-                    "marks_obtained": obj.marks_obtained,
-                    "max_marks": obj.max_marks,
-                    "exam_date": obj.exam_date,
-                },
-            )
-            messages.success(request, "Marks saved.")
-            return redirect("teacher_marks")
+            saved = 0
+            for student in students:
+                if student.pk not in posted:
+                    continue
+                InternalExam.objects.update_or_create(
+                    student=student, subject=selected_subject, exam_type=exam_type,
+                    defaults={"marks_obtained": posted[student.pk],
+                              "max_marks": max_marks, "exam_date": exam_date},
+                )
+                saved += 1
+            messages.success(
+                request, f"Saved {saved} mark(s) for {selected_subject.subject_code} "
+                         f"({exam_type}).")
+            return redirect(f"{request.path}?semester={selected_semester or ''}"
+                            f"&branch={selected_branch}&subject={selected_subject.pk}"
+                            f"&exam_type={exam_type}&max_marks={max_marks}")
 
-    recent_marks = InternalExam.objects.filter(subject__in=subjects).select_related("student", "subject").order_by("-id")[:25]
-    return render(request, "teacher/marks.html", {"show_dark_toggle": True,
-        "form": form,
+    rows = [{"student": student,
+             "marks": existing.get(student.pk),
+             "is_set": student.pk in existing} for student in students]
+
+    if selected_subject and (request.GET.get("export") or "") == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            f'attachment; filename="marks-{selected_subject.subject_code}-{exam_type}.csv"')
+        writer = csv.writer(response)
+        writer.writerow(["registration_number", "name", "marks"])
+        for row in rows:
+            writer.writerow([row["student"].registration_number, row["student"].name,
+                             "" if row["marks"] is None else row["marks"]])
+        return response
+
+    recent_marks = (InternalExam.objects.filter(subject__in=subjects)
+                    .select_related("student", "subject").order_by("-id")[:25])
+    return render(request, "teacher/marks.html", {
+        "show_dark_toggle": True,
         "recent_marks": recent_marks,
         "subjects": subjects,
         "filtered_subjects": filtered_subjects,
@@ -179,7 +229,13 @@ def teacher_marks(request):
         "selected_semester": selected_semester,
         "selected_branch": selected_branch,
         "selected_subject": selected_subject,
-        "students": students,
+        "exam_type": exam_type,
+        "exam_types": InternalExam.EXAM_TYPES,
+        "max_marks": max_marks,
+        "exam_date": exam_date,
+        "rows": rows,
+        "student_count": len(rows),
+        "filled_count": sum(1 for row in rows if row["is_set"]),
         "branch_choices": StudentProfile.BRANCH_CHOICES,
     })
 

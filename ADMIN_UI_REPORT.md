@@ -54,9 +54,11 @@ groups, that every sidebar link resolves, and that student-only pages
 
 ## Still open (needs a decision, not a fix)
 
-* Only the **dashboard** moved onto the new shell so far. The other ~25 admin templates
-  still extend `base.html` (same design tokens, older topbar/sidebar). Moving them is a
-  mechanical follow-up and was left out to keep this change reviewable.
+* ~~Only the dashboard moved onto the new shell~~ — **done**: all 41 admin templates now
+  extend `admin_dashboard/shell.html` and carry **zero inline styles** (236 replaced with
+  reusable classes). The multi-role pages (`/forum/`, `/help/`, `/privacy/`) still use
+  `base.html` because they are shared by all three roles and need role-aware menu
+  partials first.
 * Data tables on the remaining admin pages have search + pagination where the views
   already provided them; **bulk actions, sortable headers and a row actions menu do not
   exist** anywhere in the admin panel yet — that is a feature, not a restyle.

@@ -82,11 +82,10 @@ button.
 
 - Keyboard-only walk of the attendance sheet (Tab order across 60 students, Space to
   toggle) on a real browser + screen reader.
-- The marks "spreadsheet" asked for in the brief is **not** built as Tab/Enter cell
-  grid; the page still posts one student at a time through the existing
-  `InternalExamForm`. Changing that means changing the form/view contract, which this
-  task had to leave alone. Listed as follow-up.
-- CSV import/export of marks does not exist yet (never did) — follow-up.
+- ~~Marks spreadsheet / CSV~~ — **done later** (see PROGRESS): the grid posts the whole
+  class at once, Tab/Enter/arrow keys move between cells, values above the maximum are
+  blocked client- and server-side, unsaved changes ask before leaving, and CSV
+  import/export works. `tests/test_marks_grid.py` covers it.
 - Students list has search but no sort/pagination controls; classes are small in the
   demo, but a 200-student branch would need pagination.
 - Print layout of any teacher page (none was designed for print).

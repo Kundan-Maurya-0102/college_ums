@@ -669,3 +669,25 @@
 .stat-link-value { font-size: 21px; font-weight: 700; line-height: 1.2; }
 .chart-box { position: relative; width: 100%; min-height: 180px; }
 .chart-box canvas { width: 100% !important; }
+
+/* ── marks grid (spreadsheet entry) ───────────────────────────────────── */
+.marks-grid .marks-num { width: 44px; color: var(--muted); }
+.marks-grid .marks-cell { width: 130px; }
+.marks-grid .marks-note { width: 130px; }
+.marks-input { text-align: right; font-variant-numeric: tabular-nums; }
+.marks-input.is-invalid { border-color: var(--danger); background: var(--danger-bg); }
+.marks-grid td .field-errors { margin: 0; }
+.marks-foot {
+  display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center;
+  justify-content: space-between;
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--line);
+  position: sticky; bottom: 0; background: var(--surface);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.file-btn { position: relative; cursor: pointer; }
+.w-narrow { width: 110px; flex: 0 0 110px; }
+@media (max-width: 620px) {
+  .marks-foot { flex-direction: column; align-items: stretch; }
+  .marks-foot .row-inline { justify-content: space-between; }
+}
