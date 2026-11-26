@@ -145,7 +145,10 @@
           </div>
           <a href="{% url 'student_profile_edit' %}">{% translate "Profile" %}</a>
           <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
-          <a href="{% url 'student_logout' %}">{% translate "Logout" %}</a>
+          <form method="post" action="{% url 'student_logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="link-button">{% translate "Logout" %}</button>
+          </form>
         </div>
       </details>
         {% endblock %}
@@ -174,7 +177,10 @@
     </nav>
 
     <div class="dash-side-foot">
-      <a href="{% url 'student_logout' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-logout"/></svg><span>{% translate "Logout" %}</span></a>
+      <form method="post" action="{% url 'student_logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="dash-side-link"><svg aria-hidden="true"><use href="#i-logout"/></svg><span>{% translate "Logout" %}</span></button>
+      </form>
     </div>
   </aside>
   {% endblock %}

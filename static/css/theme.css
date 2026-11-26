@@ -1237,3 +1237,22 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 @media (max-width: 620px) {
   .filter-fixed, .filter-fixed-sm { width: 100%; flex: 1 1 100%; }
 }
+
+.card-narrow { max-width: 420px; }
+
+/* logout is a POST button, so it has to look like the link it replaced */
+.logout-form { margin: 0; padding: 0; display: contents; }
+.link-button {
+  background: none;
+  border: 0;
+  padding: 8px 10px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+.link-button:hover { color: var(--primary); }
+.link-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.logout-form .dash-side-link { width: 100%; border: 0; background: none; cursor: pointer; font: inherit; }

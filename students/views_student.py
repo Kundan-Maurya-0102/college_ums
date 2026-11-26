@@ -112,8 +112,15 @@ def student_login(request):
 
 
 def student_logout(request):
-    logout(request)
-    return redirect('student_login')
+    """Log out only on POST.
+
+    A GET used to sign the user out, which made any link or prefetch a logout button
+    and left the door open for CSRF logout. GET now just asks for confirmation.
+    """
+    if request.method == "POST":
+        logout(request)
+        return redirect("student_login")
+    return render(request, "student/logout_confirm.html")
 
 
 @login_required(login_url='/login/')

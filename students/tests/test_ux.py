@@ -96,8 +96,10 @@ class FeedbackTests(TestCase):
             if ("form_errors.html" not in src and "form_fields.html" not in src
                     and "errorlist" not in src):
                 # partials that are not standalone forms (csrf belongs to the caller)
+                # and the layout shells, whose only form is the one-button logout
                 if path.name in {"language_switch.html", "bug_report.html", "tour.html",
-                    "bug_reports.html"}:
+                                 "bug_reports.html", "base.html", "shell.html",
+                                 "dash_shell.html"}:
                     continue
                 missing.append(path.name)
         self.assertEqual(missing, [], f"forms without error feedback: {missing}")

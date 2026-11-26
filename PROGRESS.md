@@ -317,6 +317,18 @@
   `base.html` par, bulk actions/sort/row-menu feature nahi hai, branding settings page
   nahi hai, admission module nahi hai).
 
+- **Logout GET -> POST (CSRF-safe)**: `/logout/` ka GET ab **sirf confirm page** dikhata hai
+  (`templates/student/logout_confirm.html`, session intact), logout sirf **POST** par hota
+  hai. Pehle koi bhi link/prefetch user ko sign-out kar sakta tha aur CSRF-logout possible
+  tha. Saare shell/base templates (`partials/dash_shell.html`, `teacher/shell.html`,
+  `admin_dashboard/shell.html`, `base.html`) me logout ab
+  `<form method="post"> + csrf + <button class="link-button">` hai (dikhne me waisa hi),
+  koi `href="/logout/"` bacha nahi. Naye CSS helpers: `.logout-form`, `.link-button`,
+  `.card-narrow`. Tests: `students/tests/test_logout.py` (5) — GET session nahi todta,
+  POST todta hai + `/login/` par redirect, bina CSRF token ke POST 403, teeno roles ka
+  POST logout, aur har page par `href="/logout/"` = 0 / `action="/logout/"` maujood.
+  447 tests OK. (hi translation catalogue recompiled.)
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

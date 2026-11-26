@@ -111,7 +111,10 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="{% url 'student_logout' %}" class="sidebar-link"><span class="icon"><svg><use href="#i-logout"/></svg></span> {% translate "Logout" %}</a>
+      <form method="post" action="{% url 'student_logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="sidebar-link"><span class="icon"><svg><use href="#i-logout"/></svg></span> {% translate "Logout" %}</button>
+      </form>
     </div>
   </aside>
 

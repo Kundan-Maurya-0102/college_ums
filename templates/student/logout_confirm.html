@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% translate "Log out" %} — {{ COLLEGE_NAME }}{% endblock %}
+{% block page_title %}{% translate "Log out" %}{% endblock %}
+{% block breadcrumb %}{% translate "Log out" %}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{% translate "Log out?" %}</h1>
+<p class="muted">{% translate "You will need your username and password to sign in again." %}</p>
+
+<div class="card card-narrow mt-16">
+  <div class="card-body">
+    <form method="post" action="{% url 'student_logout' %}">
+      {% csrf_token %}
+      {% include 'partials/form_errors.html' %}
+      <div class="btn-row">
+        <button type="submit" class="btn btn-danger">{% translate "Yes, log out" %}</button>
+        <a class="btn btn-outline" href="{% url 'home' %}">{% translate "Stay signed in" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
