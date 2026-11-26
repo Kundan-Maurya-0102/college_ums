@@ -73,6 +73,8 @@ case "$FILE" in
     BACKUP_ENCRYPTION_KEY="${BACKUP_ENCRYPTION_KEY:-$(env_get BACKUP_ENCRYPTION_KEY || true)}"
     [[ -n "${BACKUP_ENCRYPTION_KEY:-}" ]] || {
       echo "ERROR: encrypted backup but BACKUP_ENCRYPTION_KEY is not set." >&2; exit 1; }
+    # openssl reads it from the environment: export it when it came from .env.
+    export BACKUP_ENCRYPTION_KEY
     openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
       -pass env:BACKUP_ENCRYPTION_KEY -in "$FILE" -out "$SQL_GZ"
     ;;
@@ -111,6 +113,8 @@ else
   DB_USER="${DB_USER:-$(env_get DB_USER || env_get POSTGRES_USER || echo ums)}"
   # Same fallback as backup_db.sh: a VPS role has a password, so psql needs it.
   DB_PASSWORD="${DB_PASSWORD:-$(env_get DB_PASSWORD || env_get POSTGRES_PASSWORD || true)}"
+  DB_HOST="${DB_HOST:-$(env_get DB_HOST || echo localhost)}"
+  DB_PORT="${DB_PORT:-$(env_get DB_PORT || echo 5432)}"
   export DB_PASSWORD
   if [[ "$ASSUME_YES" != "1" ]]; then
     echo "Refusing to restore into $DB_NAME without --yes" >&2
@@ -121,7 +125,7 @@ else
       psql -U "$DB_USER" -d "$DB_NAME" < "$SQL"
   else
     require_binary psql "psql is needed to restore a postgres dump"
-    PGARGS=(-U "$DB_USER" -h "${DB_HOST:-localhost}" -p "${DB_PORT:-5432}")
+    PGARGS=(-U "$DB_USER" -h "$DB_HOST" -p "$DB_PORT")
     # A brand-new server has no database yet: create it instead of failing.
     if ! PGPASSWORD="${DB_PASSWORD:-}" psql "${PGARGS[@]}" -d postgres -tAc \
          "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then

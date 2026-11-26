@@ -382,6 +382,16 @@
   `DB_PASSWORD` bhi `.env` se padhta hai (pehle sirf backup script padhta tha, isliye
   password-wale Postgres role par restore khud se fail hota) — backup→restore roundtrip
   SQLite par dobara verify kiya.
+- **Backup/restore script ke 2 asli bug (VPS doc likhte hue mile)**: (1) `backup_db.sh`
+  `BACKUP_ENCRYPTION_KEY` sirf `.env` se padhta tha par `openssl -pass env:` ke liye
+  **export** nahi karta tha — yaani wo cron entry jo script ke apne header me likhi hai,
+  raat ko fail hoti (aur pipeline ki wajah se exit 0 deti, yaani chup-chaap "backup nahi
+  bana"). Ab key export hoti hai, empty output par script exit 1 karta hai, aur decrypt
+  verify fail hone par file delete + exit 1. (2) `restore_db.sh` `DB_PASSWORD`/`DB_HOST`/
+  `DB_PORT` `.env` se nahi padhta tha (sirf shell env se), isliye `ENV_FILE=.env` wala
+  documented flow password-wale Postgres role par fail hota — ab teeno `.env` se, aur
+  encryption key bhi export hoti hai. Verify: asli Postgres par `.env`-only flow —
+  backup → scratch DB restore → live 20 students/560 attendance/25 users = restored same.
 
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.

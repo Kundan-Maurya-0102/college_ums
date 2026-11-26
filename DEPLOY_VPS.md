@@ -680,7 +680,8 @@ sudo systemctl restart ums-${UMS_SLUG}.service ums-${UMS_SLUG}-worker.service
 | Logout/login loop | cookies `Secure` hain par HTTP par test kar rahe ho | production me sirf HTTPS use karo (ya staging par `SESSION_COOKIE_SECURE=False`) |
 | Certificate issue nahi hua | DNS galat / port 80 band | `dig +short $DOMAIN`, `ufw status`, `journalctl -u caddy -n 50` |
 | `seed_demo` refuse | `DEBUG=False` | `--force` (provision `--demo` wahi karta hai) |
-| Backup script "required but not installed" | `pg_dump` missing | `sudo apt-get install -y postgresql-client` (server par installed hota hai; `PATH` me hona chahiye) |
+| Backup script "**pg_dump not found**" | client tools `PATH` me nahi | `sudo apt-get install -y postgresql-client`, ya `PG_BIN_DIR=/usr/lib/postgresql/16/bin ./scripts/backup_db.sh` |
+| Backup me "**No environment variable BACKUP_ENCRYPTION_KEY**" | key `.env` se aayi par export nahi hui thi | fix ho chuka (script khud export karta hai); phir bhi aaye to key `.env` me hai? `grep -c BACKUP_ENCRYPTION_KEY /opt/ums/$UMS_SLUG/.env` |
 | Backup file 0 bytes | `pg_dump` fail hua par purani script ne file bana di | naya script fail loudly karta hai — log dekho (`/var/log/ums-$UMS_SLUG-backup.log`) |
 | Restore "database does not exist" | scratch DB nahi banaya | pehle `CREATE DATABASE`, phir restore |
 | Emails nahi ja rahe | `EMAIL_BACKEND` khaali / SMTP galat | `.env` me `EMAIL_BACKEND`, `EMAIL_HOST*` set karo; `manage.py check_email` chalao |
@@ -699,8 +700,12 @@ sudo systemctl restart ums-${UMS_SLUG}.service ums-${UMS_SLUG}-worker.service
    hain, par fresh Ubuntu par end-to-end nahi chalaya.
 3. **HTTPS/Let's Encrypt**: asli domain + public IP ke bina possible nahi. Caddyfile
    ka syntax repo ke `deploy/Caddyfile` se liya hai, `caddy validate` bhi yahan nahi chala.
-4. **Postgres par app**: locally Postgres drill (`embedded-postgres`) me backup/restore
-   verify hua hai; yeh guide ka `DB_*` + `restore_db.sh` wala hissa usi par based hai.
+4. **Postgres par app**: guide ke exact `.env` keys (`DB_ENGINE/DB_NAME/DB_USER/
+   DB_PASSWORD/DB_HOST/DB_PORT`) ke saath ek **asli Postgres** par `migrate` →
+   `seed_plans` → `create_college` → `seed_demo --force` → `diagnose_college` →
+   `backup_db.sh` → `restore_db.sh` (scratch DB me) chalaya gaya — sab pass, row counts
+   match. Jo verify **nahi** hua: Ubuntu ke packaged Postgres 16 par (yahan PG 18 binaries),
+   aur password-auth ke saath `pg_hba.conf` ka default Ubuntu setup.
 5. **Phone se access**: browser test yahan desktop Chrome par hua; iOS Safari/Android Chrome
    par layout **manual check** chahiye.
 6. **2 GB RAM par load**: `PERFORMANCE.md` ke numbers Postgres par purane hain; pehle hafte

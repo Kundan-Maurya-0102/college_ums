@@ -140,13 +140,25 @@ OUT="$BASE"
 BACKUP_ENCRYPTION_KEY="${BACKUP_ENCRYPTION_KEY:-$(env_get BACKUP_ENCRYPTION_KEY || true)}"
 if [[ -n "${BACKUP_ENCRYPTION_KEY:-}" ]]; then
   OUT="${BASE}.enc"
+  # openssl reads the passphrase from the environment, so a key that came from
+  # .env (cron has no exported env) must be exported too.
+  export BACKUP_ENCRYPTION_KEY
   openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
     -pass env:BACKUP_ENCRYPTION_KEY -in "$BASE" -out "$OUT"
+  # openssl can fail after creating the file; never report an empty backup as good.
+  if [[ ! -s "$OUT" ]]; then
+    log "ERROR: encryption produced no output ($OUT is empty)"
+    exit 1
+  fi
   rm -f "$BASE"
   chmod 600 "$OUT"
   # Verify we can decrypt what we just wrote
-  openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
-    -pass env:BACKUP_ENCRYPTION_KEY -in "$OUT" | gzip -t
+  if ! openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+       -pass env:BACKUP_ENCRYPTION_KEY -in "$OUT" | gzip -t; then
+    log "ERROR: the encrypted backup cannot be decrypted; removing $OUT"
+    rm -f "$OUT"
+    exit 1
+  fi
   log "encrypted backup written: $OUT ($(du -h "$OUT" | cut -f1))"
 elif [[ "${ALLOW_UNENCRYPTED_BACKUP:-0}" == "1" ]]; then
   chmod 600 "$OUT"
