@@ -123,6 +123,8 @@
         </div>
       </details>
 
+      {% include 'partials/language_switch.html' %}
+
       {% if show_dark_toggle %}
       <button class="dash-icon-btn" id="dash-theme" type="button"
               aria-label="{% translate 'Toggle dark mode' %}" aria-pressed="false">
@@ -186,7 +188,15 @@
 </div>
 
 {% include 'partials/bug_report.html' %}
+{% include 'partials/tour.html' %}
 <script src="{% static 'js/dashboard.js' %}" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

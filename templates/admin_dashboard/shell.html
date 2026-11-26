@@ -1,0 +1,113 @@
+{% extends 'partials/dash_shell.html' %}
+{% load i18n ui %}
+{# Admin / principal panel: same dashboard shell, office-style navigation and groups. #}
+
+{% block brand_url %}{% url 'admin_dashboard' %}{% endblock %}
+{% block portal_label %}{% translate "Admin panel" %}{% endblock %}
+{% block search_action %}{% url 'student_list' %}{% endblock %}
+{% block search_placeholder %}{% translate "Search students by name or reg. no." %}{% endblock %}
+
+{% block dash_menus %}
+<nav class="dash-nav-menus" aria-label="{% translate 'Main sections' %}">
+  <details class="dash-menu">
+    <summary>{% translate "Students" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'student_list' %}">{% translate "All students" %}</a>
+      <a href="{% url 'student_create' %}">{% translate "Add student" %}</a>
+      <a href="{% url 'csv_upload' %}">{% translate "Upload CSV" %}</a>
+      <a href="{% url 'leave_applications' %}">{% translate "Leave requests" %}</a>
+    </div>
+  </details>
+  <details class="dash-menu">
+    <summary>{% translate "Academics" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'subject_list' %}">{% translate "Subjects" %}</a>
+      <a href="{% url 'marks_entry' %}">{% translate "Marks entry" %}</a>
+      <a href="{% url 'attendance_entry' %}">{% translate "Attendance" %}</a>
+      <a href="{% url 'exam_schedule_list' %}">{% translate "Exam schedule" %}</a>
+      <a href="{% url 'admin_exam_documents' %}">{% translate "Hall tickets / marksheets" %}</a>
+    </div>
+  </details>
+  <details class="dash-menu">
+    <summary>{% translate "Office" %}</summary>
+    <div class="dash-menu-panel">
+      <a href="{% url 'fee_payments' %}">{% translate "Fee payments" %}</a>
+      <a href="{% url 'fee_structure_list' %}">{% translate "Fee structure" %}</a>
+      <a href="{% url 'notice_list' %}">{% translate "Notices" %}</a>
+      <a href="{% url 'event_list' %}">{% translate "Events" %}</a>
+      <a href="{% url 'system_status' %}">{% translate "System status" %}</a>
+    </div>
+  </details>
+</nav>
+{% endblock %}
+
+{% block bell_items %}
+  <p class="dash-empty small p-2">
+    <a href="{% url 'leave_applications' %}">{{ attention.pending_leave }} {% translate "leave requests" %}</a>
+  </p>
+  {% if attention.unresolved_errors %}
+    <p class="dash-empty small p-2">
+      <a href="{% url 'system_status' %}">{{ attention.unresolved_errors }} {% translate "unresolved errors" %}</a>
+    </p>
+  {% endif %}
+{% endblock %}
+{% block bell_all_url %}{% url 'notice_list' %}{% endblock %}
+{% block bell_all_label %}{% translate "All notices" %}{% endblock %}
+
+{% block profile_menu %}
+  <summary aria-label="{% translate 'Account menu' %}">
+    <span class="dash-avatar" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</span>
+    <span class="dash-profile-name">{{ request.user.get_full_name|default:request.user.username|truncatechars:18 }}</span>
+  </summary>
+  <div class="dash-menu-panel dash-menu-right dash-profile-card">
+    <div class="dash-profile-head">
+      <b>{{ request.user.get_full_name|default:request.user.username }}</b>
+      <small>{% if request.user.is_superuser %}{% translate "Super admin" %}{% else %}{% translate "College staff" %}{% endif %}</small>
+    </div>
+    <a href="{% url 'reports_view' %}">{% translate "Reports" %}</a>
+    <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
+    <a href="{% url 'student_logout' %}">{% translate "Logout" %}</a>
+  </div>
+{% endblock %}
+
+{% block dash_sidebar %}
+<aside class="dash-sidebar" id="dash-sidebar" aria-label="{% translate 'Sidebar' %}">
+  <nav class="dash-side-nav">
+    <a href="{% url 'admin_dashboard' %}" class="dash-side-link {% nav_active 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}><svg aria-hidden="true"><use href="#i-grid"/></svg><span>{% translate "Dashboard" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Students" %}</p>
+    <a href="{% url 'student_list' %}" class="dash-side-link {% nav_active 'student_list' 'student_edit' 'student_create' %}"><svg aria-hidden="true"><use href="#i-users"/></svg><span>{% translate "Students" %}</span></a>
+    <a href="{% url 'csv_upload' %}" class="dash-side-link {% nav_active 'csv_upload' %}"><svg aria-hidden="true"><use href="#i-upload"/></svg><span>{% translate "CSV upload" %}</span></a>
+    <a href="{% url 'leave_applications' %}" class="dash-side-link {% nav_active 'leave_applications' 'leave_review' %}"><svg aria-hidden="true"><use href="#i-history"/></svg><span>{% translate "Leave" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Staff" %}</p>
+    <a href="{% url 'teacher_list' %}" class="dash-side-link {% nav_active 'teacher_list' 'teacher_create' 'teacher_edit' %}"><svg aria-hidden="true"><use href="#i-user-check"/></svg><span>{% translate "Teachers" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Academics" %}</p>
+    <a href="{% url 'subject_list' %}" class="dash-side-link {% nav_active 'subject_list' %}"><svg aria-hidden="true"><use href="#i-book"/></svg><span>{% translate "Subjects" %}</span></a>
+    <a href="{% url 'attendance_entry' %}" class="dash-side-link {% nav_active 'attendance_entry' 'take_attendance_bulk' %}"><svg aria-hidden="true"><use href="#i-check-square"/></svg><span>{% translate "Attendance" %}</span></a>
+    <a href="{% url 'marks_entry' %}" class="dash-side-link {% nav_active 'marks_entry' %}"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Marks" %}</span></a>
+    <a href="{% url 'exam_schedule_list' %}" class="dash-side-link {% nav_active 'exam_schedule_list' %}"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Exams" %}</span></a>
+    <a href="{% url 'admin_exam_documents' %}" class="dash-side-link {% nav_active 'admin_exam_documents' 'admin_exam_documents_bulk' %}"><svg aria-hidden="true"><use href="#i-download"/></svg><span>{% translate "Exam documents" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Money" %}</p>
+    <a href="{% url 'fee_payments' %}" class="dash-side-link {% nav_active 'fee_payments' 'fee_payment_create' %}"><svg aria-hidden="true"><use href="#i-rupee"/></svg><span>{% translate "Fee payments" %}</span></a>
+    <a href="{% url 'fee_structure_list' %}" class="dash-side-link {% nav_active 'fee_structure_list' %}"><svg aria-hidden="true"><use href="#i-clipboard"/></svg><span>{% translate "Fee structure" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Communication" %}</p>
+    <a href="{% url 'notice_list' %}" class="dash-side-link {% nav_active 'notice_list' 'notice_create' %}"><svg aria-hidden="true"><use href="#i-bell"/></svg><span>{% translate "Notices" %}</span></a>
+    <a href="{% url 'event_list' %}" class="dash-side-link {% nav_active 'event_list' %}"><svg aria-hidden="true"><use href="#i-calendar"/></svg><span>{% translate "Events" %}</span></a>
+    <a href="{% url 'bug_report_list' %}" class="dash-side-link {% nav_active 'bug_report_list' %}"><svg aria-hidden="true"><use href="#i-message"/></svg><span>{% translate "Problem reports" %}</span></a>
+
+    <p class="dash-side-group">{% translate "Reports" %}</p>
+    <a href="{% url 'reports_view' %}" class="dash-side-link {% nav_active 'reports_view' %}"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>{% translate "Reports" %}</span></a>
+    <a href="{% url 'feedback_report' %}" class="dash-side-link {% nav_active 'feedback_report' %}"><svg aria-hidden="true"><use href="#i-edit"/></svg><span>{% translate "Feedback" %}</span></a>
+
+    <p class="dash-side-group">{% translate "System" %}</p>
+    <a href="{% url 'system_status' %}" class="dash-side-link {% nav_active 'system_status' %}"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>{% translate "System status" %}</span></a>
+  </nav>
+  <div class="dash-side-foot">
+    <a href="{% url 'student_logout' %}" class="dash-side-link"><svg aria-hidden="true"><use href="#i-logout"/></svg><span>{% translate "Logout" %}</span></a>
+  </div>
+</aside>
+{% endblock %}

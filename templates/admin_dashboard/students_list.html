@@ -8,12 +8,12 @@
 <!-- Search & Filter -->
 <div class="card mb-24">
   <div class="card-body">
-    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-      <div style="flex:1;min-width:200px;">
+    <form method="get" class="filter-row">
+      <div class="filter-grow">
         <label class="form-label">🔍 Search</label>
         <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Name, Reg. No., Phone, Email...">
       </div>
-      <div style="width:160px;">
+      <div class="filter-fixed">
         <label class="form-label">Branch</label>
         <select name="branch" class="form-select">
           <option value="">All Branches</option>
@@ -22,7 +22,7 @@
           {% endfor %}
         </select>
       </div>
-      <div style="width:130px;">
+      <div class="filter-fixed-sm">
         <label class="form-label">Semester</label>
         <select name="semester" class="form-select">
           <option value="">All</option>
@@ -31,7 +31,7 @@
           {% endfor %}
         </select>
       </div>
-      <div style="display:flex;gap:8px;">
+      <div class="btn-row">
         <button type="submit" class="btn btn-primary">Filter</button>
         <a href="{% url 'student_list' %}" class="btn btn-outline">Reset</a>
       </div>
@@ -44,9 +44,9 @@
   <div class="card-header">
     <span class="card-title">
       Students
-      <span class="badge badge-blue" style="margin-left:8px;">{{ page_obj.paginator.count }}</span>
+      <span class="badge badge-blue">{{ page_obj.paginator.count }}</span>
     </span>
-    <div style="display:flex;gap:8px;">
+    <div class="btn-row">
       <a href="{% url 'student_create' %}" class="btn btn-primary btn-sm">➕ Add student</a>
       <a href="{% url 'csv_upload' %}" class="btn btn-outline btn-sm">📤 Upload CSV</a>
       <a href="{% url 'export_students_csv' %}" class="btn btn-outline btn-sm">⬇️ Export</a>

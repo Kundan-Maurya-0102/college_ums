@@ -292,6 +292,31 @@
   `TEACHER_UI_REPORT.md` me jo manual chahiye wo likha hai (marks spreadsheet/CSV,
   pagination, keyboard walk).
 
+- **Admin panel: dashboard same shell/cards par, asli aggregate data se**: naya
+  `students/admin_data.py` — 6 clickable stat cards (students, teachers, aaj ki
+  attendance %, is mahine ki fees, pending fees, leave), 3 Chart.js charts (branch-wise
+  students, month-wise fees, 30-din attendance trend; colours `--primary`/`--line`/
+  `--muted` se, isliye dark mode aur college ka PRIMARY_COLOR apne aap), "Dhyan do"
+  panel (low attendance top-5, fee defaulters, leave waiting, unresolved errors, last
+  backup ya red "never"), 6 quick actions, aur `AuditLog` se recent activity.
+  `templates/admin_dashboard/shell.html` — grouped sidebar (Students/Staff/Academics/
+  Money/Communication/Reports/System) + top menus; **role ke hisaab se menu**: test
+  assert karta hai ki admin ko student pages (`/dashboard/`, `/my-fees/`,
+  `/leave-apply/`) kabhi nahi dikhte aur har sidebar link resolve hota hai. Sab numbers
+  **GROUP BY aggregates** (10 extra students par query count same); do aggregates jo
+  pehle do baar chal rahe the (fee total, leave count, student lookup) ab ek baar.
+  Perf test ka budget 18 → 24 kiya **kyunki page me 3 charts + attention panel + audit
+  feed aa gaya** — count abhi bhi data size par constant hai. Saath me: 360px par
+  `/admin-panel/fee-payments/`, `/reports/`, `/attendance/`, `/students/` overflow ho
+  rahe the → table wrappers + wrapping filter rows; fee_payments ke bina-label input ko
+  label; `college_backup` link hataya (wo sirf super-admin URLconf me hai, college admin
+  ke liye 500 hota). Shell me language switch, onboarding tour aur service-worker
+  registration bhi add kiye (teeno panels me consistent). Tests:
+  `students/tests/test_admin_panel.py` (11). **442 tests OK**, ruff clean.
+  Kya baaki hai `ADMIN_UI_REPORT.md` me likha hai (baaki ~25 admin templates abhi
+  `base.html` par, bulk actions/sort/row-menu feature nahi hai, branding settings page
+  nahi hai, admission module nahi hai).
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

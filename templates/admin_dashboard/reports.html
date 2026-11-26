@@ -16,7 +16,8 @@
 <div class="responsive-grid">
   <fieldset>
     <legend>&#9632; Branch-wise Students</legend>
-    <table class="data-table">
+    <div class="table-responsive">
+<table class="data-table">
       <thead><tr><th>Branch</th><th>Count</th></tr></thead>
       <tbody>
         {% for branch, count in branch_data.items %}
@@ -26,12 +27,14 @@
         {% endfor %}
       </tbody>
     </table>
+</div>
   </fieldset>
 
   <fieldset>
     <legend>&#9632; Attendance Defaulters (&lt; 75%)</legend>
     {% if defaulters %}
-    <table class="data-table">
+    <div class="table-responsive">
+<table class="data-table">
       <thead><tr><th>Student</th><th>Reg No.</th><th>Attendance %</th></tr></thead>
       <tbody>
         {% for d in defaulters %}
@@ -43,6 +46,7 @@
         {% endfor %}
       </tbody>
     </table>
+</div>
     {% else %}
       <p class="text-muted">No defaulters found. &#10004;</p>
     {% endif %}

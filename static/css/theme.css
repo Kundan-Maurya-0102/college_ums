@@ -1232,3 +1232,8 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 .narrow-block { max-width: 720px; }
 
 
+.filter-fixed { width: 160px; flex: 0 0 160px; }
+.filter-fixed-sm { width: 130px; flex: 0 0 130px; }
+@media (max-width: 620px) {
+  .filter-fixed, .filter-fixed-sm { width: 100%; flex: 1 1 100%; }
+}

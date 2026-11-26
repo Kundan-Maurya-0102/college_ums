@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Fee Payments — UMS{% endblock %}
 {% block page_title %}&#9632; Fee Payments{% endblock %}
 {% block content %}
@@ -8,9 +9,11 @@
   <legend>Fee Payments</legend>
   <div class="mb-8 d-flex gap-8" style="align-items:center;">
     <a href="{% url 'fee_payment_create' %}" class="btn btn-primary">+ Record Payment</a>
-    <form method="get" style="display:flex;gap:4px;">
-      <input type="text" name="q" value="{{ q }}" placeholder="Search student/receipt..." style="width:200px;">
-      <input type="submit" value="Search" class="btn">
+    <form method="get" class="filter-row" role="search">
+      <label class="visually-hidden" for="fee-q">{% translate "Search student or receipt" %}</label>
+      <input id="fee-q" type="search" name="q" value="{{ q }}" class="form-control"
+             placeholder="{% translate 'Search student / receipt…' %}">
+      <input type="submit" value="{% translate 'Search' %}" class="btn btn-outline">
     </form>
   </div>
   <div class="table-responsive">

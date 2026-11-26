@@ -71,4 +71,7 @@ class QueryBudgetTests(TestCase):
         self.client.force_login(self.admin)
         with CaptureQueriesContext(connection) as ctx:
             self.client.get(reverse("admin_dashboard"))
-        self.assertLessEqual(len(ctx), 18, "admin dashboard query count regressed")
+        # The dashboard is O(1) in data size (every series is one GROUP BY); the
+        # budget grew when the redesigned page added charts, the attention panel
+        # and the audit feed. It must not grow with the number of rows.
+        self.assertLessEqual(len(ctx), 24, "admin dashboard query count regressed")
