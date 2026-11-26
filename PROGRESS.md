@@ -369,6 +369,20 @@
   `ArrowDown`/`beforeunload`/`data-csv-input` maujood. **459 tests OK**, `ci.sh` green,
   `rc_flows.py` 111/111.
 
+- **Deploy runbook (VPS)**: naya `DEPLOY_VPS.md` — fresh Ubuntu 24.04 (2 GB) par demo
+  college `demo.<domain>` live karne ka exact copy-paste guide: hardening (non-root user,
+  SSH key, password login + root login off, ufw 22/80/443, fail2ban, unattended-upgrades,
+  2 GB swap), packages + Postgres role/DB, private repo clone deploy key se, `.env`
+  (secrets `openssl` se, koi value doc me nahi), `provision_server.sh --demo`, systemd
+  units (gunicorn 2×2 + `qcluster`, `enable` taaki reboot ke baad chale), Caddy HTTPS,
+  daily backup cron + ek restore test, verification checklist (`/healthz/`, `/readyz/`,
+  `diagnose_college`, role-wise login, phone), update/rollback steps aur 20-row common
+  errors table. Jo verify nahi ho saka (apt/ufw/systemd/caddy/Let's Encrypt/2 GB load)
+  section 10 me alag likha hai. Saath me chhota fix: `scripts/restore_db.sh` ab
+  `DB_PASSWORD` bhi `.env` se padhta hai (pehle sirf backup script padhta tha, isliye
+  password-wale Postgres role par restore khud se fail hota) — backup→restore roundtrip
+  SQLite par dobara verify kiya.
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

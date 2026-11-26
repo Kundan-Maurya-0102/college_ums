@@ -109,6 +109,9 @@ PY
 else
   DB_NAME="${DB_NAME:-$(env_get DB_NAME || env_get POSTGRES_DB || echo ums)}"
   DB_USER="${DB_USER:-$(env_get DB_USER || env_get POSTGRES_USER || echo ums)}"
+  # Same fallback as backup_db.sh: a VPS role has a password, so psql needs it.
+  DB_PASSWORD="${DB_PASSWORD:-$(env_get DB_PASSWORD || env_get POSTGRES_PASSWORD || true)}"
+  export DB_PASSWORD
   if [[ "$ASSUME_YES" != "1" ]]; then
     echo "Refusing to restore into $DB_NAME without --yes" >&2
     exit 3
