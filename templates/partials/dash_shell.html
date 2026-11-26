@@ -188,7 +188,15 @@
   <div class="dash-scrim" id="dash-scrim" hidden></div>
 
   <main class="dash-main" id="main-content">
-    {# validation errors are rendered per-form; nothing to include here #}
+    {# Django messages ride along with every response; the shell shows them as toasts. #}
+    <div class="toast-stack" id="toast-stack" role="status" aria-live="polite">
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info'|cut:' ' }}" role="alert">
+          <span>{{ msg }}</span>
+          <button type="button" class="alert-close" aria-label="{% translate 'Dismiss' %}">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
     {% block content %}{% endblock %}
   </main>
 </div>

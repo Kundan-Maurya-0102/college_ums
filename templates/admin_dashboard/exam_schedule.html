@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Exam Schedule — UMS{% endblock %}
 {% block page_title %}&#9632; Exam Timetable{% endblock %}
 {% block content %}
@@ -6,9 +6,9 @@
 
 <fieldset>
   <legend>Exam Schedule</legend>
-  <div class="mb-8 d-flex gap-8" style="align-items:center;flex-wrap:wrap;">
+  <div class="mb-8 d-flex gap-8 row-inline">
     <a href="{% url 'exam_schedule_create' %}" class="btn btn-primary">+ Add Exam</a>
-    <form method="get" style="display:flex;gap:4px;">
+    <form class="row-inline" method="get">
       <select name="branch">
         <option value="">All Branches</option>
         {% for code, name in branch_choices %}

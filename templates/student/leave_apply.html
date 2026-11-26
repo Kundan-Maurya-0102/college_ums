@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'student/shell.html' %}
 {% load static %}
 {% block title %}Leave Application — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Leave Application{% endblock %}
@@ -26,7 +26,7 @@
                   </div>
                   {% endfor %}
                 </div>
-                <div style="margin-top:1rem;">
+                <div class="mt-16">
                   <button type="submit" class="btn btn-primary">Submit Application</button>
                   <a href="{% url 'student_dashboard' %}" class="btn btn-secondary ml-2">Cancel</a>
                 </div>

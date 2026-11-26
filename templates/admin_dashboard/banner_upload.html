@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Manage Banners — {{ COLLEGE_NAME }}{% endblock %}
 {% block page_title %}🖼️ Manage Banner Images{% endblock %}
 
 {% block content %}
 <h1 class="page-title">🖼️ Manage Banner Images</h1>
 
-<div class="grid-2" style="gap:24px;">
+<div class="grid-2 gap-24">
     <!-- Upload Section -->
     <div>
         <div class="card mb-24">
@@ -16,22 +16,22 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 {% include 'partials/form_errors.html' %}
-                    <div style="margin-bottom: 16px;">
+                    <div class="mb-16">
                         <label class="form-label">Banner Title (Optional)</label>
                         {{ form.title }}
                         {% if form.title.errors %}<div class="alert alert-danger mt-8">{{ form.title.errors }}</div>{% endif %}
                     </div>
-                    <div style="margin-bottom: 16px;">
+                    <div class="mb-16">
                         <label class="form-label">Select Image</label>
                         {{ form.image }}
                         {% if form.image.errors %}<div class="alert alert-danger mt-8">{{ form.image.errors }}</div>{% endif %}
-                        <div style="margin-top:8px; font-size: 11px; color: var(--text-muted);">
+                        <div class="muted small mt-8">
                             Recommened size: 1200x400 or similar aspect ratio.
                         </div>
                     </div>
-                    <div style="margin-bottom: 20px; display:flex; align-items:center; gap:8px;">
+                    <div class="row-inline mb-24">
                         {{ form.is_active }}
-                        <label class="form-label" style="margin-bottom:0;">Show on Dashboard immediately?</label>
+                        <label class="form-label mb-0">Show on Dashboard immediately?</label>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">🚀 Upload Banner</button>
                 </form>
@@ -43,7 +43,7 @@
                 <span class="card-title">💡 Info</span>
             </div>
             <div class="card-body">
-                <p style="font-size: 14px; color: var(--text-secondary);">
+                <p class="muted small">
                     Banners are shown at the top of the Student Dashboard as a slider.
                     Both Teachers and Admins can manage these images.
                 </p>
@@ -58,31 +58,31 @@
                 <span class="card-title">🖼️ Current Banners</span>
                 <span class="badge badge-blue">{{ banners|length }}</span>
             </div>
-            <div class="card-body" style="max-height: 700px; overflow-y: auto;">
+            <div class="card-body scroll-y maxh-700">
                 {% for banner in banners %}
-                <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 20px; background: #fff;">
-                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="width: 100%; height: 160px; object-fit: cover;">
-                    <div style="padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="card mb-24 banner-card">
+                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="banner-img">
+                    <div class="row-between p-3">
                         <div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">{{ banner.title|default:"Untitled Banner" }}</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Uploaded by: {{ banner.uploaded_by.username }} · {{ banner.created_at|date:"d M Y" }}</div>
+                            <div class="cell-strong">{{ banner.title|default:"Untitled Banner" }}</div>
+                            <div class="muted small">Uploaded by: {{ banner.uploaded_by.username }} · {{ banner.created_at|date:"d M Y" }}</div>
                         </div>
-                        <div style="display: flex; gap: 8px;">
+                        <div class="btn-row">
                              {% if banner.is_active %}
                                 <span class="badge badge-green">Active</span>
                              {% else %}
                                 <span class="badge badge-yellow">Inactive</span>
                              {% endif %}
-                             <form action="{% url 'banner_delete' banner.pk %}" method="post" onsubmit="return confirm('Delete this banner?');" style="display:inline;">
+                             <form class="inline-flex" action="{% url 'banner_delete' banner.pk %}" method="post" onsubmit="return confirm('Delete this banner?');">
                                  {% csrf_token %}
-                                 <button type="submit" class="btn btn-sm btn-outline" style="border-color:var(--accent-red); color:var(--accent-red); padding: 4px 8px;">🗑️</button>
+                                 <button type="submit" class="btn btn-sm btn-outline text-danger">🗑️</button>
                              </form>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                    <div style="font-size: 40px; margin-bottom: 10px;">🖼️</div>
+                <div class="empty-state">
+                    <div class="hero-emoji">🖼️</div>
                     <p>No banners found. Start by uploading one!</p>
                 </div>
                 {% endfor %}

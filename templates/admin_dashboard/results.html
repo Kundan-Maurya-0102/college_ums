@@ -1,16 +1,16 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Results — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}📈 Semester Results{% endblock %}
 
 {% block content %}
 <h1 class="page-title">📈 Semester Results</h1>
 
-<div style="display:grid;grid-template-columns:300px 1fr;gap:24px;">
-  <div class="card" style="height:fit-content;">
+<div class="split-2">
+  <div class="card fit-content">
     <div class="card-header"><span class="card-title">Filter</span></div>
     <div class="card-body">
       <form method="get">
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">Student</label>
           <select name="student_id" class="form-select">
             <option value="">-- Select Student --</option>
@@ -19,7 +19,7 @@
             {% endfor %}
           </select>
         </div>
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">Semester (optional)</label>
           <select name="semester" class="form-select">
             <option value="">All Semesters</option>
@@ -50,10 +50,10 @@
             {% for r in results %}
             <tr>
               <td>{{ r.semester }}</td>
-              <td style="font-weight:500;">{{ r.subject.subject_name }}</td>
+              <td class="">{{ r.subject.subject_name }}</td>
               <td>{{ r.internal_marks }}</td>
               <td>{{ r.external_marks }}</td>
-              <td style="font-weight:600;">{{ r.total_marks }}</td>
+              <td class="cell-strong">{{ r.total_marks }}</td>
               <td>
                 <span class="badge grade-{{ r.grade|slice:':1' }}">{{ r.grade }}</span>
               </td>
@@ -70,12 +70,12 @@
         </table>
       </div>
       {% else %}
-        <div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted);">No results found for selected filters.</div>
+        <div class="card-body empty-state">No results found for selected filters.</div>
       {% endif %}
     </div>
     {% else %}
-      <div class="card" style="text-align:center;padding:60px;color:var(--text-muted);">
-        <div style="font-size:48px;margin-bottom:12px;">📈</div>
+      <div class="card empty-state">
+        <div class="hero-emoji">📈</div>
         <p>Select a student to view their semester results.</p>
       </div>
     {% endif %}

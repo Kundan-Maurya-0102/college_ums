@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Marks Entry — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}✏️ Internal Marks Entry{% endblock %}
 
@@ -7,17 +7,17 @@
 
 <div class="grid-split">
 
-  <div class="card" style="height:fit-content;">
+  <div class="card fit-content">
     <div class="card-header"><span class="card-title">Enter Marks</span></div>
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
         {% for field in form %}
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">{{ field.label }}</label>
           {{ field }}
-          {% if field.errors %}<div style="color:var(--accent-red);font-size:12px;margin-top:4px;">{{ field.errors }}</div>{% endif %}
+          {% if field.errors %}<div class="field-errors mt-3">{{ field.errors }}</div>{% endif %}
         </div>
         {% endfor %}
         <button type="submit" class="btn btn-primary w-100">💾 Save Marks</button>
@@ -35,18 +35,18 @@
         <tbody>
           {% for m in recent_marks %}
           <tr>
-            <td style="font-weight:500;">{{ m.student.name }}</td>
+            <td class="">{{ m.student.name }}</td>
             <td>{{ m.subject.subject_code }}</td>
             <td><span class="badge badge-purple">{{ m.get_exam_type_display }}</span></td>
             <td>{{ m.marks_obtained }}/{{ m.max_marks }}</td>
             <td>
-              <span style="color:{% if m.percentage >= 75 %}var(--accent-green){% elif m.percentage >= 50 %}var(--accent-yellow){% else %}var(--accent-red){% endif %};">
+              <span class="{% if m.percentage >= 75 %}text-success{% elif m.percentage >= 50 %}text-warn{% else %}text-danger{% endif %}">
                 {{ m.percentage }}%
               </span>
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">No marks entered yet.</td></tr>
+          <tr><td class="empty-state" colspan="5">No marks entered yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}System status — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}System status{% endblock %}
 {% block breadcrumb %}System status{% endblock %}
@@ -13,7 +13,7 @@
 <div class="stats-grid mb-24">
   <div class="stat-card">
     <div class="stat-label">Database</div>
-    <div class="stat-value" style="color:{% if db.ok %}var(--success, #15803d){% else %}var(--danger, #b91c1c){% endif %}">
+    <div class="stat-value {% if db.ok %}text-success{% else %}text-danger{% endif %}">
       {% if db.ok %}OK{% else %}DOWN{% endif %}
     </div>
     <div class="muted small">
@@ -28,7 +28,7 @@
       {% if backup.age_hours is not None %}{{ backup.age_hours }}h ago{% else %}never{% endif %}
     </div>
     <div class="muted small">
-      {% if backup.stale %}<b style="color:var(--danger, #b91c1c)">older than expected</b> · {% endif %}
+      {% if backup.stale %}<b class="text-danger">older than expected</b> · {% endif %}
       {% if backup.record %}{{ backup.record.size_mb }} MB{% elif backup.newest_file %}{{ backup.newest_file }}{% else %}no file found{% endif %}
       · {{ backup.files }} file(s) in {{ backup.dir }}
     </div>
@@ -46,7 +46,7 @@
     <div class="stat-value">{{ storage.disk_used_pct }}% used</div>
     <div class="muted small">
       {{ storage.disk_free_gb }} GB free of {{ storage.disk_total_gb }} GB
-      {% if storage.disk_low %}· <b style="color:var(--danger, #b91c1c)">running low</b>{% endif %}
+      {% if storage.disk_low %}· <b class="text-danger">running low</b>{% endif %}
     </div>
   </div>
 </div>
@@ -114,7 +114,7 @@
       {% endif %}
 
       {% if notifications.last_failure %}
-        <p class="muted small" style="margin-top:12px">Last failures</p>
+        <p class="muted small mt-12">Last failures</p>
         <ul class="plain-list">
           {% for row in notifications.last_failure %}
             <li><code>{{ row.func }}</code> — {{ row.stopped|date:"d M H:i" }}

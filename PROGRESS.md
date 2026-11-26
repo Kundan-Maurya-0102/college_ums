@@ -329,6 +329,31 @@
   POST logout, aur har page par `href="/logout/"` = 0 / `action="/logout/"` maujood.
   447 tests OK. (hi translation catalogue recompiled.)
 
+- **Admin ke saare 41 templates naye shell par + inline CSS zero**: pehle sirf dashboard
+  naya shell use karta tha, baaki 41 templates `base.html` par the aur unme **236 inline
+  style** the (kuch `--accent-red`, `--text-secondary`, `#25D366`, `#fff`, `0 0 6px`
+  jaise purane tokens jo `style.css` ke saath mar chuke the — yaani kuch cheezein bina
+  rang ke render ho rahi thi). Ab sab `admin_dashboard/shell.html` par (same navbar/
+  sidebar/buttons/tables/forms), `style=` count **0**. Naye reusable helpers:
+  `.filter-row/.filter-grow`, `.split-2`, `.grid-2`, `.row-inline/.row-between/.col-stack`,
+  `.maxw-*`, `.empty-state`, `.banner-card/.banner-img`, `.check-lg`, `.card-foot`,
+  `.text-warn/.text-info`, `.badge-whatsapp` (dark mode ke saath). Saath me student ke
+  **14 authenticated pages** (fees, exam schedule/documents, events, certificates,
+  feedback, leave, change password, profile, attendance, results, timetable, notices,
+  materials) bhi student shell par aa gaye — pehle sirf `/dashboard/` par naya chrome
+  tha. **Do asli bugs isne pakde**: (1) naye shell me **Django messages ka toast stack
+  hi nahi tha** — admin actions ke "saved"/"error" messages dikhte hi nahi the; ab shell
+  me `toast-stack` hai. (2) student dashboard ka dark-mode toggle `DashboardSettings`
+  ko ignore karke hamesha dikh raha tha (context processor ne default True diya) — ab
+  view setting se pass karta hai. Naya `panel_flags` context processor (DB-free) shell
+  ko `show_dark_toggle` deta hai. `.table-responsive` ke mobile card-view rules ab
+  `table.table` par bhi lagte hain (bug-reports page 360px par 54px scroll kar raha tha).
+  Real-Chrome sweep: **student 18 + teacher 8 + admin 23 pages × 360/768/1280 = clean**
+  (overflow 0, shell present, exactly one h1, koi JS error nahi). 447 tests OK.
+  **Baaki (jaan-boojh kar chhoda):** `/forum/`, `/help/`, `/privacy/` abhi bhi `base.html`
+  par hain kyunki ye **teeno roles** ke liye same page hain — inhe shell par laane ke liye
+  menus ko role-wise partials me todna padega (follow-up).
+
 ## In progress
 - Kuch nahi. Dashboard ka Step 2 (shell) + cards + 5 real student pages done.
   Agla: notifications pilot (provider abstraction + dry-run) ya admission module.

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% load i18n %}
 {% block title %}{% translate "Exam documents" %} — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}{% translate "Exam documents" %}{% endblock %}
@@ -14,8 +14,8 @@
 <div class="card">
   <div class="card-header"><span class="card-title">{% translate "1. Choose the class" %}</span></div>
   <div class="card-body">
-    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-      <div style="min-width:180px;">
+    <form class="filter-row" method="get">
+      <div class="grow-1">
         <label class="form-label" for="branch">{% translate "Branch" %}</label>
         <select name="branch" id="branch" class="form-select">
           <option value="">{% translate "Select" %}</option>
@@ -24,7 +24,7 @@
           {% endfor %}
         </select>
       </div>
-      <div style="width:150px;">
+      <div class="w-150">
         <label class="form-label" for="semester">{% translate "Semester" %}</label>
         <select name="semester" id="semester" class="form-select">
           <option value="">{% translate "Select" %}</option>
@@ -48,20 +48,20 @@
     </div>
     <div class="card-body">
       {% if students %}
-        <form method="post" action="{% url 'admin_exam_documents_bulk' %}" class="form-inline"
-              style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <form method="post" action="{% url 'admin_exam_documents_bulk' %}" class="form-inline filter-row"
+             >
           {% csrf_token %}
           {% include 'partials/form_errors.html' %}
           <input type="hidden" name="branch" value="{{ branch }}">
           <input type="hidden" name="semester" value="{{ semester }}">
-          <div style="min-width:220px;">
+          <div class="grow-1">
             <label class="form-label" for="kind">{% translate "Document" %}</label>
             <select name="kind" id="kind" class="form-select">
               <option value="HALL_TICKET">{% translate "Hall tickets (with QR + verification code)" %}</option>
               <option value="MARKSHEET">{% translate "Marksheets (SGPA / CGPA / backlogs)" %}</option>
             </select>
           </div>
-          <div style="min-width:180px;">
+          <div class="grow-1">
             <label class="form-label" for="exam_type">{% translate "Exam (hall tickets only)" %}</label>
             <select name="exam_type" id="exam_type" class="form-select">
               <option value="">{% translate "All examinations" %}</option>

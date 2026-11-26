@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Teachers - {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Teacher Management{% endblock %}
 
@@ -20,13 +20,13 @@
           <th>Assigned Subjects</th>
           <th>Permissions</th>
           <th>Status</th>
-          <th style="text-align:right;" data-nosort>Action</th>
+          <th class="text-right" data-nosort>Action</th>
         </tr>
       </thead>
       <tbody>
         {% for teacher in teachers %}
         <tr>
-          <td style="font-weight:600;">{{ teacher.name }}<br><small class="text-muted">{{ teacher.designation }}</small></td>
+          <td class="cell-strong">{{ teacher.name }}<br><small class="text-muted">{{ teacher.designation }}</small></td>
           <td>{{ teacher.user.username }}</td>
           <td>{{ teacher.department }}</td>
           <td>
@@ -42,8 +42,8 @@
             {% if teacher.can_upload_materials %}<span class="badge badge-purple">Notes</span>{% endif %}
           </td>
           <td>{% if teacher.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Disabled</span>{% endif %}</td>
-          <td style="text-align:right;">
-            <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <td class="text-right">
+            <div class="btn-row is-right">
               <a href="{% url 'teacher_edit' teacher.pk %}" class="btn btn-outline btn-sm">Edit</a>
               <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-danger btn-sm">Delete</a>
             </div>

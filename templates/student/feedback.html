@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'student/shell.html' %}
 {% load static %}
 {% block title %}Feedback — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Feedback{% endblock %}
@@ -26,7 +26,7 @@
                   </div>
                   {% endfor %}
                 </div>
-                <div style="margin-top:1rem;">
+                <div class="mt-16">
                   <button type="submit" class="btn btn-primary">Submit Feedback</button>
                   <a href="{% url 'student_dashboard' %}" class="btn btn-secondary ml-2">Cancel</a>
                 </div>

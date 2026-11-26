@@ -1,16 +1,16 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Add student — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}➕ Add student{% endblock %}
 {% block content %}
 <h1 class="page-title">➕ Add student</h1>
 
-<div class="card" style="max-width:760px;">
+<div class="card maxw-760">
   <div class="card-header">
     <span class="card-title">Student details</span>
     <a href="{% url 'student_list' %}" class="btn btn-outline btn-sm">← Back to students</a>
   </div>
   <div class="card-body">
-    <p class="text-muted" style="margin:0 0 16px;font-size:13px;">
+    <p class="text-muted small mb-16">
       Adding one student? Use this form. Adding a whole class? Use
       <a href="{% url 'csv_upload' %}">CSV Upload</a> — it is much faster.
     </p>
@@ -18,7 +18,7 @@
       {% csrf_token %}
       {% include 'partials/form_errors.html' %}
 
-      <div class="grid-2" style="margin-bottom:14px;">
+      <div class="grid-2 mb-14">
         <div>
           <label class="form-label" for="{{ form.name.id_for_label }}">Full name *</label>
           {{ form.name }}
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom:14px;">
+      <div class="grid-2 mb-14">
         <div>
           <label class="form-label" for="{{ form.branch.id_for_label }}">Branch</label>
           {{ form.branch }}
@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom:14px;">
+      <div class="grid-2 mb-14">
         <div>
           <label class="form-label" for="{{ form.year_of_admission.id_for_label }}">Year of admission</label>
           {{ form.year_of_admission }}
@@ -57,7 +57,7 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom:14px;">
+      <div class="grid-2 mb-14">
         <div>
           <label class="form-label" for="{{ form.email.id_for_label }}">Email (optional)</label>
           {{ form.email }}
@@ -68,7 +68,7 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom:14px;">
+      <div class="grid-2 mb-14">
         <div>
           <label class="form-label" for="{{ form.father_name.id_for_label }}">Father's name</label>
           {{ form.father_name }}
@@ -79,12 +79,12 @@
         </div>
       </div>
 
-      <div style="margin-bottom:16px;">
+      <div class="mb-16">
         <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
         {{ form.address }}
       </div>
 
-      <div style="display:flex;gap:12px;">
+      <div class="btn-row">
         <button type="submit" class="btn btn-primary">Save student</button>
         <a href="{% url 'student_list' %}" class="btn btn-outline">Cancel</a>
       </div>

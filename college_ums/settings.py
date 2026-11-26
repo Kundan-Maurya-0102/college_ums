@@ -115,6 +115,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'students.context_processors.college_settings',
+                'students.context_processors.panel_flags',
             ],
         },
     },

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% load i18n %}
 {% block title %}Fee Payments — UMS{% endblock %}
 {% block page_title %}&#9632; Fee Payments{% endblock %}
@@ -7,7 +7,7 @@
 
 <fieldset>
   <legend>Fee Payments</legend>
-  <div class="mb-8 d-flex gap-8" style="align-items:center;">
+  <div class="row-inline mb-8">
     <a href="{% url 'fee_payment_create' %}" class="btn btn-primary">+ Record Payment</a>
     <form method="get" class="filter-row" role="search">
       <label class="visually-hidden" for="fee-q">{% translate "Search student or receipt" %}</label>

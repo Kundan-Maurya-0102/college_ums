@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Reports — UMS{% endblock %}
 {% block page_title %}&#9632; Reports & Analytics{% endblock %}
 {% block content %}
@@ -41,7 +41,7 @@
         <tr>
           <td>{{ d.student.name }}</td>
           <td>{{ d.student.registration_number }}</td>
-          <td style="color:red;font-weight:bold;">{{ d.percentage }}%</td>
+          <td class="text-danger cell-strong">{{ d.percentage }}%</td>
         </tr>
         {% endfor %}
       </tbody>

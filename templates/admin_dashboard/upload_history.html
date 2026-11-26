@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Upload History — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}🕑 Upload History{% endblock %}
 
@@ -18,9 +18,9 @@
       <tbody>
         {% for u in uploads %}
         <tr>
-          <td style="font-weight:500;">{{ u.description }}</td>
+          <td class="">{{ u.description }}</td>
           <td>{{ u.uploaded_by }}</td>
-          <td style="font-size:12px;color:var(--text-muted);">{{ u.upload_date|date:"d M Y, H:i" }}</td>
+          <td class="muted small">{{ u.upload_date|date:"d M Y, H:i" }}</td>
           <td><span class="badge badge-green">{{ u.students_created }}</span></td>
           <td><span class="badge badge-blue">{{ u.students_updated }}</span></td>
           <td>
@@ -33,16 +33,16 @@
           <td>
             {% if u.errors %}
               <details>
-                <summary style="cursor:pointer;color:var(--accent-red);font-size:12px;">❌ View Errors</summary>
-                <pre style="font-size:11px;color:var(--text-muted);margin-top:6px;white-space:pre-wrap;">{{ u.errors }}</pre>
+                <summary class="text-danger small pointer">❌ View Errors</summary>
+                <pre class="muted small mt-3 pre-wrap">{{ u.errors }}</pre>
               </details>
             {% else %}
-              <span style="color:var(--text-muted);font-size:12px;">None</span>
+              <span class="muted small">None</span>
             {% endif %}
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">No uploads yet.</td></tr>
+        <tr><td class="empty-state" colspan="7">No uploads yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

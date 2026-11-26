@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}{{ action }} Teacher - {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}{{ action }} Teacher{% endblock %}
 
@@ -11,18 +11,18 @@
     <a href="{% url 'teacher_list' %}" class="btn btn-outline btn-sm">Back</a>
   </div>
   <div class="card-body">
-    <form method="post" style="display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:16px;">
+    <form class="grid-2" method="post">
       {% csrf_token %}
 {% include 'partials/form_errors.html' %}
       {% for field in form %}
-        <div {% if field.name == 'bio' or field.name == 'subjects' %}style="grid-column:1/-1;"{% endif %}>
+        <div {% if field.name == 'bio' or field.name == 'subjects' %}class="field-full"{% endif %}>
           <label class="form-label">{{ field.label }}</label>
           {{ field }}
-          {% if field.help_text %}<div class="text-muted" style="font-size:12px;margin-top:4px;">{{ field.help_text }}</div>{% endif %}
-          {% for error in field.errors %}<div class="text-danger" style="font-size:12px;margin-top:4px;">{{ error }}</div>{% endfor %}
+          {% if field.help_text %}<div class="text-muted small mt-3">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}<div class="text-danger small mt-3">{{ error }}</div>{% endfor %}
         </div>
       {% endfor %}
-      <div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;">
+      <div class="field-full btn-row is-right">
         <a href="{% url 'teacher_list' %}" class="btn btn-outline">Cancel</a>
         <button type="submit" class="btn btn-primary">Save Teacher</button>
       </div>

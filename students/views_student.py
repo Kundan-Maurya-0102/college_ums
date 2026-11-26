@@ -220,6 +220,8 @@ def student_dashboard(request):
     context.update({
         'profile': profile,
         'dashboard_settings': settings_obj,
+        # the shell asks for this flag; the college setting decides it
+        'show_dark_toggle': settings_obj.show_dark_mode_toggle,
         'quick_links': dashboard_data.DEFAULT_QUICK_LINKS,
         'read_state': read_state,
         'banners': BannerImage.objects.filter(is_active=True),

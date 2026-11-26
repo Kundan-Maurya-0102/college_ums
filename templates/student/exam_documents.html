@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'student/shell.html' %}
 {% load i18n %}
 {% block title %}{% translate "Exam documents" %} — {{ COLLEGE_NAME }}{% endblock %}
 {% block page_title %}{% translate "Exam documents" %}{% endblock %}
@@ -32,7 +32,7 @@
     <div class="card-body">
       {% if semesters %}
         <p class="muted">{% translate "Semester-wise result with internal and external marks, grade, SGPA and CGPA." %}</p>
-        <div class="btn-group" style="flex-wrap:wrap;">
+        <div class="btn-group row-inline">
           <a class="btn btn-primary" href="{% url 'student_marksheet' %}">
             {% translate "Latest marksheet (PDF)" %}
           </a>

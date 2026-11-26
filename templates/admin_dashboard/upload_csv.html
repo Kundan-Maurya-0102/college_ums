@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Bulk CSV Upload — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}📤 Bulk CSV Upload{% endblock %}
 
@@ -34,13 +34,13 @@
           {% csrf_token %}
 {% include 'partials/form_errors.html' %}
 
-          <div style="margin-bottom:14px;">
+          <div class="mb-14">
             <label class="form-label">What do you want to upload?</label>
             {{ form.upload_type }}
             {% if form.upload_type.errors %}
-            <div class="alert alert-danger" style="margin-top:8px;">{{ form.upload_type.errors }}</div>
+            <div class="alert alert-danger mt-8">{{ form.upload_type.errors }}</div>
             {% endif %}
-            <div style="margin-top:8px;color:var(--text-muted);font-size:12px;line-height:1.4;">
+            <div class="muted small mt-8">
               Tip: Subjects/Marks/Results/Attendance/Notices — sab kuch CSV se upload kar sakte ho.
             </div>
           </div>
@@ -50,18 +50,18 @@
             <div class="drop-zone-icon" id="dropIcon">📁</div>
             <div class="drop-zone-title" id="dropTitle">Drag & Drop CSV File Here</div>
             <div class="drop-zone-sub" id="dropSub">or click to browse · Max 10 MB</div>
-            <input type="file" name="file" id="csvFileInput" accept=".csv" style="display:none;" required>
+            <input class="hidden" type="file" name="file" id="csvFileInput" accept=".csv" required>
           </div>
 
-          <div style="margin-top:18px;">
+          <div class="mt-18">
             <label class="form-label">Description</label>
             {{ form.description }}
             {% if form.description.errors %}
-            <div class="alert alert-danger" style="margin-top:8px;">{{ form.description.errors }}</div>
+            <div class="alert alert-danger mt-8">{{ form.description.errors }}</div>
             {% endif %}
           </div>
 
-          <button type="submit" class="btn btn-primary w-100" style="margin-top:18px;" id="submitBtn">
+          <button type="submit" class="btn btn-primary w-100 mt-18" id="submitBtn">
             🚀 Process CSV
           </button>
         </form>
@@ -74,15 +74,15 @@
         <span class="card-title">🔐 Credentials Management</span>
       </div>
       <div class="card-body">
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+        <p class="muted small mb-14">
           Students ko password share mat karo. Set-password link share karo.
         </p>
-        <div style="display:flex;gap:12px;flex-direction:column;">
-          <a href="{% url 'export_set_password_links_csv' %}" class="btn btn-outline" style="justify-content:center;">
+        <div class="stack">
+          <a href="{% url 'export_set_password_links_csv' %}" class="btn btn-outline text-center">
             ⬇️ Export Set-Password Links CSV
           </a>
-          <a href="{% url 'student_list' %}" class="btn btn-outline"
-            style="color:var(--accent-green);border-color:var(--accent-green);justify-content:center;">
+          <a href="{% url 'student_list' %}" class="btn btn-outline text-success"
+           >
             💬 Send Individual WhatsApp Messages
           </a>
         </div>
@@ -93,7 +93,7 @@
     <div class="card">
       <div class="card-header">
         <span class="card-title">📋 CSV Format Guide</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="row-inline">
           <a href="/static/sample_students.csv" download class="btn btn-outline btn-sm">Students</a>
           <a href="/static/sample_subjects.csv" download class="btn btn-outline btn-sm">Subjects</a>
           <a href="/static/sample_internal_marks.csv" download class="btn btn-outline btn-sm">Marks</a>
@@ -103,13 +103,14 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="alert alert-info" style="margin-bottom:14px;">
+        <div class="alert alert-info mb-14">
           <strong>Rule:</strong> Data automatically unhi students ko dikhega jinke <strong>branch + semester</strong>
           match honge.
           Subjects/Marks/Attendance me subject ko resolve karne ke liye student ka branch+semester use hota hai.
         </div>
 
-        <table class="data-table">
+        <div class="table-responsive">
+      <table class="data-table">
           <thead>
             <tr>
               <th>Column</th>
@@ -119,52 +120,53 @@
           </thead>
           <tbody>
             <tr>
-              <td><code style="color:var(--accent-cyan);">name</code></td>
+              <td><code class="text-info">name</code></td>
               <td><span class="badge badge-red">Required</span></td>
               <td>Rahul Sharma</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">phone</code></td>
+              <td><code class="text-info">phone</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>9876543210</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">registration_number</code></td>
+              <td><code class="text-info">registration_number</code></td>
               <td><span class="badge badge-red">Required</span></td>
               <td>CS2024001</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">email</code></td>
+              <td><code class="text-info">email</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>rahul@gmail.com</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">branch</code></td>
+              <td><code class="text-info">branch</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>CS, IT, EC, ME, CE</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">semester</code></td>
+              <td><code class="text-info">semester</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>1 – 6</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">year_of_admission</code></td>
+              <td><code class="text-info">year_of_admission</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>2024</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">father_name</code></td>
+              <td><code class="text-info">father_name</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>Rakesh Sharma</td>
             </tr>
             <tr>
-              <td><code style="color:var(--accent-cyan);">mother_name</code></td>
+              <td><code class="text-info">mother_name</code></td>
               <td><span class="badge badge-green">Optional</span></td>
               <td>Priya Sharma</td>
             </tr>
           </tbody>
         </table>
+      </div>
 
         <div class="alert alert-warning">
           📱 <strong>Distribution:</strong> Students ko set-password link WhatsApp/SMS/Email se bhejo.
@@ -179,14 +181,15 @@
     <div class="card">
       <div class="card-header">
         <span class="card-title">📊 Processing Results</span>
-        <div style="display:flex;gap:8px;">
+        <div class="btn-row">
           <span class="badge badge-green">✅ {{ result.created }} Created</span>
           <span class="badge badge-blue">🔄 {{ result.updated }} Updated</span>
           <span class="badge badge-red">❌ {{ result.errors|length }} Errors</span>
         </div>
       </div>
-      <div class="card-body" style="padding:0;max-height:600px;overflow-y:auto;">
-        <table class="data-table">
+      <div class="card-body p-0 scroll-y maxh-700">
+        <div class="table-responsive">
+      <table class="data-table">
           <thead>
             <tr>
               <th>#</th>
@@ -200,9 +203,9 @@
           <tbody>
             {% for row in result.rows %}
             <tr class="result-row-{{ row.status }}">
-              <td style="color:var(--text-muted);">{{ forloop.counter }}</td>
+              <td class="muted">{{ forloop.counter }}</td>
               <td><span class="badge badge-purple">{{ row.row }}</span></td>
-              <td style="font-weight:600;color:black">{{ row.reg }}</td>
+              <td class="cell-strong">{{ row.reg }}</td>
               <td>{{ row.name }}</td>
               <td>
                 {% if row.status == 'created' %}
@@ -213,11 +216,11 @@
                 <span class="badge badge-red">❌ Error</span>
                 {% endif %}
               </td>
-              <td style="font-size:12px;color:var(--text-muted);">
+              <td class="muted small">
                 {{ row.message|truncatechars:60 }}
                 {% if row.whatsapp_url %}
-                <div style="margin-top:4px;">
-                  <a href="{{ row.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:#25D366;color:#fff;padding:2px 8px;font-size:10px;">
+                <div class="mt-3">
+                  <a href="{{ row.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm badge badge-whatsapp">
                     💬 Send WhatsApp
                   </a>
                 </div>
@@ -226,18 +229,19 @@
             </tr>
             {% empty %}
             <tr>
-              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">No rows processed.</td>
+              <td class="empty-state" colspan="6">No rows processed.</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      </div>
     </div>
     {% else %}
-    <div class="card" style="text-align:center;padding:60px 20px;">
-      <div style="font-size:64px;margin-bottom:16px;">📊</div>
-      <h3 style="color:var(--text-secondary);margin-bottom:8px;">Results Will Appear Here</h3>
-      <p style="color:var(--text-muted);font-size:14px;">Upload and process a CSV file to see the results panel with
+    <div class="card empty-state">
+      <div class="hero-emoji">📊</div>
+      <h3 class="muted mb-8">Results Will Appear Here</h3>
+      <p class="muted">Upload and process a CSV file to see the results panel with
         created/updated/error rows.</p>
     </div>
     {% endif %}

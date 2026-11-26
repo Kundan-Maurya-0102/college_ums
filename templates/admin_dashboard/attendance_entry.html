@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Attendance Entry — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}📅 Attendance Entry{% endblock %}
 
@@ -6,23 +6,23 @@
 <h1 class="page-title">📅 Attendance Entry</h1>
 
 <div class="split-2">
-  <div class="card" style="height:fit-content;">
+  <div class="card fit-content">
     <div class="card-header"><span class="card-title">Mark Attendance</span></div>
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
         {% for field in form %}
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">{{ field.label }}</label>
           {% if field.field.widget.input_type == 'checkbox' %}
-          <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-            {{ field }}<span style="color:var(--text-secondary);font-size:13px;">Present</span>
+          <div class="row-inline mt-3">
+            {{ field }}<span class="muted small">Present</span>
           </div>
           {% else %}
           {{ field }}
           {% endif %}
-          {% if field.errors %}<div style="color:var(--accent-red);font-size:12px;margin-top:4px;">{{ field.errors }}</div>{% endif %}
+          {% if field.errors %}<div class="field-errors mt-3">{{ field.errors }}</div>{% endif %}
         </div>
         {% endfor %}
         <button type="submit" class="btn btn-primary w-100">💾 Save Attendance</button>
@@ -38,17 +38,17 @@
         <tbody>
           {% for a in recent %}
           <tr>
-            <td style="font-weight:500;">{{ a.student.name }}</td>
+            <td class="">{{ a.student.name }}</td>
             <td>{{ a.subject.subject_code }}</td>
             <td>{{ a.date|date:"d M Y" }}</td>
             <td>
               {% if a.is_present %}<span class="badge badge-green">✅ Present</span>
               {% else %}<span class="badge badge-red">❌ Absent</span>{% endif %}
             </td>
-            <td style="font-size:12px;color:var(--text-muted);">{{ a.marked_by }}</td>
+            <td class="muted small">{{ a.marked_by }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">No records yet.</td></tr>
+          <tr><td class="empty-state" colspan="5">No records yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>

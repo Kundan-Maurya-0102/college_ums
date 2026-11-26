@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}{{ action }} Notice — {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}📢 {{ action }} Notice{% endblock %}
 
 {% block content %}
 <h1 class="page-title">📢 {{ action }} Notice</h1>
 
-<div style="max-width:700px;">
+<div class="maxw-760">
   <div class="card">
     <div class="card-header">
       <span class="card-title">{{ action }} Notice</span>
@@ -15,31 +15,31 @@
       <form method="post">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">Notice Title *</label>
           {{ form.title }}
         </div>
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <label class="form-label">Content *</label>
           {{ form.content }}
         </div>
-        <div class="grid-2" style="margin-bottom:14px;">
+        <div class="grid-2 mb-14">
           <div>
             <label class="form-label">Target Branches</label>
             {{ form.target_branches }}
-            <small style="color:var(--text-muted);">e.g. CS,IT — blank = all</small>
+            <small class="muted">e.g. CS,IT — blank = all</small>
           </div>
           <div>
             <label class="form-label">Target Semesters</label>
             {{ form.target_semesters }}
-            <small style="color:var(--text-muted);">e.g. 1,2,3 — blank = all</small>
+            <small class="muted">e.g. 1,2,3 — blank = all</small>
           </div>
         </div>
-        <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <div class="row-inline mb-16">
           {{ form.is_active }}
           <label class="form-label mb-0">Active (visible to students)</label>
         </div>
-        <div style="display:flex;gap:12px;">
+        <div class="btn-row">
           <button type="submit" class="btn btn-primary">💾 Save Notice</button>
           <a href="{% url 'notice_list' %}" class="btn btn-outline">Cancel</a>
         </div>

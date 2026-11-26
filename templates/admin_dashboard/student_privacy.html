@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Privacy Tools — {{ profile.name }}{% endblock %}
 {% block breadcrumb %}Students / Privacy{% endblock %}
 
@@ -10,15 +10,15 @@
     <span class="card-title">Privacy actions — {{ profile.name }} ({{ profile.registration_number }})</span>
   </div>
   <div class="card-body">
-    <p class="text-muted" style="margin-top:0;">
+    <p class="text-muted mt-0">
       Data-subject requests ke liye do actions: poora data export, aur personal identifiers erase
       (academic + fee records college archive ke liye rakhe jaate hain). Dono audit log mein jaate hain.
     </p>
 
-    <div class="card" style="border:1px solid var(--line);margin-bottom:16px;">
+    <div class="card card mb-16">
       <div class="card-body">
-        <h3 style="margin:0 0 6px;font-size:15px;">1. Export this student's data</h3>
-        <p class="text-muted" style="font-size:13px;margin:0 0 12px;">
+        <h3 class="h3-small">1. Export this student's data</h3>
+        <p class="text-muted small mb-14">
           JSON file: profile, attendance, marks, fee payments, leave, feedback, doubts, certificates.
         </p>
         <a class="btn btn-primary" href="{% url 'student_data_export' profile.pk %}">
@@ -27,23 +27,23 @@
       </div>
     </div>
 
-    <div class="card" style="border:1px solid var(--danger, #dc2626);">
+    <div class="card danger-border">
       <div class="card-body">
-        <h3 style="margin:0 0 6px;font-size:15px;color:var(--danger, #dc2626);">2. Erase personal data</h3>
-        <table style="width:100%;font-size:13.5px;margin:8px 0 14px;">
-          <tr><td style="padding:3px 0;width:50%;">Removed</td>
-              <td style="padding:3px 0;">Name, phone, email, address, parents' names, date of birth, login access</td></tr>
-          <tr><td style="padding:3px 0;">Kept (anonymised)</td>
-              <td style="padding:3px 0;">Registration number, attendance, marks, fee receipts, audit trail</td></tr>
+        <h3 class="h3-small text-danger">2. Erase personal data</h3>
+        <table class="form-control mb-14 mt-8">
+          <tr><td class="strike-list half">Removed</td>
+              <td class="strike-list">Name, phone, email, address, parents' names, date of birth, login access</td></tr>
+          <tr><td class="strike-list">Kept (anonymised)</td>
+              <td class="strike-list">Registration number, attendance, marks, fee receipts, audit trail</td></tr>
         </table>
         <form method="post" action="{% url 'student_anonymize' profile.pk %}">
           {% csrf_token %}
 {% include 'partials/form_errors.html' %}
-          <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin-bottom:12px;">
+          <label class="row-inline small mb-14">
             <input type="checkbox" name="confirm" value="yes" required>
             <span>Main confirm karta hoon ki ye student ka personal data erase karna hai. Ye undo nahi hoga.</span>
           </label>
-          <button type="submit" class="btn" style="background:var(--danger, #dc2626);color:#fff;"
+          <button type="submit" class="btn btn-danger"
                   data-confirm="Anonymise {{ profile.name }}? Personal data permanently erase ho jayega.">
             Anonymise this student
           </button>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Leave Applications — UMS{% endblock %}
 {% block page_title %}&#9632; Leave Applications{% endblock %}
 {% block content %}
@@ -25,7 +25,7 @@
           <td>{{ a.from_date }}</td>
           <td>{{ a.to_date }}</td>
           <td>{{ a.duration_days }}</td>
-          <td style="max-width:200px;">{{ a.reason|truncatewords:15 }}</td>
+          <td class="maxw-200">{{ a.reason|truncatewords:15 }}</td>
           <td>
             <span class="badge {% if a.status == 'APPROVED' %}badge-green{% elif a.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">{{ a.status }}</span>
           </td>

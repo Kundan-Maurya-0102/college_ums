@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Delete Subject - {{ COLLEGE_NAME }} UMS{% endblock %}
 {% block page_title %}Delete Subject{% endblock %}
 
 {% block content %}
 <h1 class="page-title">Delete Subject</h1>
 
-<div style="max-width:680px;">
+<div class="maxw-680">
   <div class="card">
     <div class="card-header">
       <span class="card-title">Confirm Delete</span>
@@ -32,7 +32,7 @@
         </tbody>
       </table>
 
-      <form method="post" style="display:flex;gap:12px;justify-content:flex-end;">
+      <form class="btn-row is-right" method="post">
         {% csrf_token %}
 {% include 'partials/form_errors.html' %}
         <a href="{% url 'subject_list' %}" class="btn btn-outline">Cancel</a>

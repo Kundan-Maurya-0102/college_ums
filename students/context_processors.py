@@ -28,3 +28,12 @@ def college_settings(request):
         "COLLEGE_PRINCIPAL_NAME": settings.COLLEGE_PRINCIPAL_NAME,
         "PORTAL_URL": settings.PORTAL_URL,
     }
+
+
+def panel_flags(request):
+    """Shell flags that every panel needs; a view may override any of them.
+
+    Deliberately DB-free: pages that decide per college (the dashboards) pass their
+    own values in the context, which wins over a context processor.
+    """
+    return {"show_dark_toggle": True}

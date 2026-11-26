@@ -1,23 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Review Leave — UMS{% endblock %}
 {% block page_title %}&#9632; Review Leave Application{% endblock %}
 {% block content %}
 <h1 class="page-title">&#9632; Review Leave Application</h1>
 
-<fieldset style="max-width:600px;">
+<fieldset class="maxw-600">
   <legend>Leave Application Details</legend>
   <table class="data-table">
-    <tr><td style="font-weight:bold;width:130px;">Student</td><td>{{ application.student.name }} ({{ application.student.registration_number }})</td></tr>
-    <tr><td style="font-weight:bold;">Leave Type</td><td>{{ application.get_leave_type_display }}</td></tr>
-    <tr><td style="font-weight:bold;">Period</td><td>{{ application.from_date }} to {{ application.to_date }} ({{ application.duration_days }} days)</td></tr>
-    <tr><td style="font-weight:bold;">Reason</td><td>{{ application.reason }}</td></tr>
-    <tr><td style="font-weight:bold;">Status</td><td><span class="badge {% if application.status == 'APPROVED' %}badge-green{% elif application.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">{{ application.status }}</span></td></tr>
-    <tr><td style="font-weight:bold;">Applied On</td><td>{{ application.created_at }}</td></tr>
+    <tr><td class="cell-strong w-150">Student</td><td>{{ application.student.name }} ({{ application.student.registration_number }})</td></tr>
+    <tr><td class="cell-strong">Leave Type</td><td>{{ application.get_leave_type_display }}</td></tr>
+    <tr><td class="cell-strong">Period</td><td>{{ application.from_date }} to {{ application.to_date }} ({{ application.duration_days }} days)</td></tr>
+    <tr><td class="cell-strong">Reason</td><td>{{ application.reason }}</td></tr>
+    <tr><td class="cell-strong">Status</td><td><span class="badge {% if application.status == 'APPROVED' %}badge-green{% elif application.status == 'REJECTED' %}badge-red{% else %}badge-yellow{% endif %}">{{ application.status }}</span></td></tr>
+    <tr><td class="cell-strong">Applied On</td><td>{{ application.created_at }}</td></tr>
   </table>
 </fieldset>
 
 {% if application.status == 'PENDING' %}
-<fieldset style="max-width:600px;">
+<fieldset class="maxw-600">
   <legend>Take Action</legend>
   <form method="post">
     {% csrf_token %}

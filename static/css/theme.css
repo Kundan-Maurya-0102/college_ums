@@ -803,22 +803,29 @@ tr.is-hidden { display: none !important; }
 
 @media (max-width: 640px) {
   /* Card view: each row becomes a labelled block instead of horizontal scroll */
-  .table-responsive > table.data-table thead { position: absolute; left: -9999px; }
+  .table-responsive > table.data-table thead,
+  .table-responsive > table.table thead { position: absolute; left: -9999px; }
   .table-responsive > table.data-table,
+  .table-responsive > table.table,
   .table-responsive > table.data-table tbody,
+  .table-responsive > table.table tbody,
   .table-responsive > table.data-table tr,
-  .table-responsive > table.data-table td {
+  .table-responsive > table.table tr,
+  .table-responsive > table.data-table td,
+  .table-responsive > table.table td {
     display: block;
     width: 100%;
   }
-  .table-responsive > table.data-table tr {
+  .table-responsive > table.data-table tr,
+  .table-responsive > table.table tr {
     border: 1px solid var(--border);
     border-radius: var(--r2);
     margin-bottom: var(--s2);
     background: var(--surface);
     padding: var(--s2) var(--s3);
   }
-  .table-responsive > table.data-table td {
+  .table-responsive > table.data-table td,
+  .table-responsive > table.table td {
     border: 0;
     padding: 4px 0;
     display: flex;
@@ -1256,3 +1263,59 @@ label.required::after { content: " *"; color: var(--danger, #dc2626); }
 .link-button:hover { color: var(--primary); }
 .link-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .logout-form .dash-side-link { width: 100%; border: 0; background: none; cursor: pointer; font: inherit; }
+
+/* ── small utilities the admin pages needed when their inline styles went ─ */
+.maxw-380 { max-width: 380px; }
+.maxw-480 { max-width: 480px; }
+.maxw-500 { max-width: 500px; }
+.maxw-600 { max-width: 600px; }
+.maxw-680 { max-width: 680px; }
+.maxw-760 { max-width: 760px; }
+.maxw-900 { max-width: 900px; }
+.maxw-200 { max-width: 200px; }
+.w-150 { width: 150px; }
+.mb-14 { margin-bottom: 14px; }
+.mt-12 { margin-top: 12px; }
+.mt-18 { margin-top: 18px; }
+.mt-20 { margin-top: 20px; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+.inline-flex { display: inline-flex; align-items: center; gap: var(--s1); }
+.row-inline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); }
+.row-between { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
+.col-stack { display: flex; flex-direction: column; gap: var(--s3); }
+.center-block { margin: 0 auto; }
+.fit-content { height: fit-content; }
+.scroll-y { overflow-y: auto; }
+.strike-list { list-style: none; margin: 0; padding: 0; }
+.strike-list > li { padding: 3px 0; }
+.grow-1 { flex: 1 1 200px; min-width: 0; }
+.grow-2 { flex: 2 1 300px; min-width: 0; }
+.hero-emoji { font-size: 48px; line-height: 1; margin-bottom: 14px; }
+.badge-whatsapp { background: color-mix(in srgb, #25d366 18%, var(--surface)); color: #128c4a; }
+[data-theme="dark"] .badge-whatsapp { background: color-mix(in srgb, #25d366 22%, var(--surface)); color: #6ee7a0; }
+
+/* helpers introduced when the admin pages lost their inline styles */
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
+@media (max-width: 900px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
+.gap-24 { gap: var(--s5); }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.pt-0 { padding-top: 0; }
+.p-0 { padding: 0; }
+.ml-auto { margin-left: auto; }
+.ml-2 { margin-left: var(--s1); }
+.block { display: block; }
+.pointer { cursor: pointer; }
+.half { width: 50%; }
+.pre-wrap { white-space: pre-wrap; }
+.maxh-700 { max-height: 700px; }
+.banner-card { overflow: hidden; }
+.banner-img { width: 100%; height: 160px; object-fit: cover; }
+.check-lg { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+.card-foot { border-top: 1px solid var(--line); padding: var(--s3) var(--s4); }
+.btn-lg { font-size: 15px; padding: 10px 24px; }
+.btn-row.is-center { justify-content: center; }
+.danger-border { border: 1px solid var(--danger); }
+.text-warn { color: var(--warn); }
+.text-info { color: var(--info); }

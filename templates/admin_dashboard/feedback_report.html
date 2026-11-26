@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}Feedback Report — UMS{% endblock %}
 {% block page_title %}&#9632; Feedback Report{% endblock %}
 {% block content %}
@@ -9,8 +9,8 @@
   <div class="mb-8">
     <b>Total Responses:</b> {{ total_count }} | <b>Average Rating:</b> {{ avg_rating }}/5
   </div>
-  <div class="mb-8 d-flex gap-8" style="align-items:center;flex-wrap:wrap;">
-    <form method="get" style="display:flex;gap:4px;">
+  <div class="mb-8 d-flex gap-8 row-inline">
+    <form class="row-inline" method="get">
       <select name="branch">
         <option value="">All Branches</option>
         {% for code, name in branch_choices %}

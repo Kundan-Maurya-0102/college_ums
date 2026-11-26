@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/shell.html' %}
 {% block title %}{{ action }} Exam Schedule — UMS{% endblock %}
 {% block page_title %}&#9632; {{ action }} Exam Schedule{% endblock %}
 {% block content %}
 <h1 class="page-title">&#9632; {{ action }} Exam Schedule</h1>
 
-<fieldset style="max-width:500px;">
+<fieldset class="maxw-500">
   <legend>{{ action }} Exam Schedule</legend>
   <form method="post">
     {% csrf_token %}
