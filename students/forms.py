@@ -180,6 +180,24 @@ class InternalExamForm(forms.ModelForm):
             'exam_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
+    def clean_max_marks(self):
+        value = self.cleaned_data.get('max_marks')
+        if value is not None and value < 1:
+            raise forms.ValidationError("Max marks must be at least 1.")
+        return value
+
+    def clean(self):
+        cleaned = super().clean()
+        marks = cleaned.get('marks_obtained')
+        max_marks = cleaned.get('max_marks')
+        if marks is not None and max_marks is not None:
+            if marks < 0:
+                self.add_error('marks_obtained', "Marks cannot be negative.")
+            elif marks > max_marks:
+                self.add_error('marks_obtained',
+                               f"Marks obtained ({marks}) cannot exceed max marks ({max_marks}).")
+        return cleaned
+
 
 class AttendanceForm(forms.ModelForm):
     class Meta:

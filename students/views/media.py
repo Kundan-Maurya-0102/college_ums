@@ -33,7 +33,8 @@ def _safe_path(path):
 
 def serve_media(request, path):
     if not request.user.is_authenticated:
-        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+        from django.utils.http import urlencode
+        return redirect(f"{settings.LOGIN_URL}?{urlencode({'next': request.path})}")
 
     normalised = path.replace("\\", "/").lstrip("/")
     if normalised.startswith(tuple(STAFF_ONLY_PREFIXES)) and not (

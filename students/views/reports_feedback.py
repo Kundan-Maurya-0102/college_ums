@@ -4,6 +4,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from ..audit import log_action
@@ -12,6 +13,18 @@ from ..models import BugReport
 from ..security import rate_limit_hit
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_next_url(request):
+    """Return the user-supplied 'next' URL only if it is safe, else fallback."""
+    url = request.POST.get('next', '') or ''
+    if url and url_has_allowed_host_and_scheme(
+        url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return url
+    return 'help_center'
 
 
 def _role_of(user):
@@ -26,15 +39,17 @@ def _role_of(user):
 @require_POST
 def report_problem(request):
     """Store a bug report and bounce back to the page the user came from."""
+    next_url = _safe_next_url(request)
+
     if rate_limit_hit(request, 'bugreport', limit=5, window_seconds=600):
         messages.error(request, "Too many reports in a short time. Please try again in a few minutes.")
-        return redirect(request.POST.get('next') or 'help_center')
+        return redirect(next_url)
 
     form = BugReportForm(request.POST)
     if not form.is_valid():
         messages.error(request, "Could not send that: " + " ".join(
             error for errors in form.errors.values() for error in errors))
-        return redirect(request.POST.get('next') or 'help_center')
+        return redirect(next_url)
 
     report = form.save(commit=False)
     report.user = request.user
@@ -45,7 +60,7 @@ def report_problem(request):
     log_action(request, 'bug_report', obj=report, detail=report.category)
     logger.info("bug report #%s from role=%s category=%s", report.pk, report.role, report.category)
     messages.success(request, "Thanks! Your report was sent to the college office.")
-    return redirect(request.POST.get('next') or 'help_center')
+    return redirect(next_url)
 
 
 @login_required

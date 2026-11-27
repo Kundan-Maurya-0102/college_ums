@@ -15,9 +15,12 @@ echo "==> bandit (medium+ severity fails the build; test files hold dummy secret
   -x "*/tests/*,students/tests,platform_admin/tests.py,*/migrations/*"
 
 echo "==> django check --deploy (production settings)"
+# SECURE_SSL_REDIRECT is intentionally False for CI (no TLS terminator here).
+# In production settings.py, it defaults to True. W008 is the expected warning
+# about this override; we silence it in CI only.
 DEBUG=False SECURE_SSL_REDIRECT=False ALLOWED_HOSTS=ci.example.com \
   CSRF_TRUSTED_ORIGINS=https://ci.example.com ENVIRONMENT=production \
-  $PY_BIN manage.py check --deploy
+  $PY_BIN manage.py check --deploy --fail-level ERROR
 
 echo "==> pip-audit (Django 5.2 LTS: no accepted advisories)"
 .venv/bin/pip-audit -r requirements.txt --progress-spinner off
@@ -38,8 +41,8 @@ from django.template import engines
 engines["django"]
 print("template engine ok in production settings")
 PY
-DEBUG=False SECURE_SSL_REDIRECT=False $PY_BIN manage.py test students.tests.test_ops students.tests.test_smoke_pages students.tests.test_pwa
+DEBUG=False SECURE_SSL_REDIRECT=False $PY_BIN manage.py test --noinput students.tests.test_ops students.tests.test_smoke_pages students.tests.test_pwa
 
 echo "==> full test suite (dev settings)"
-DEBUG=True $PY_BIN manage.py test
+DEBUG=True $PY_BIN manage.py test --noinput
 echo "CI mirror finished OK"

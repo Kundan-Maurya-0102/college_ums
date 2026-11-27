@@ -82,6 +82,23 @@ def marks_entry(request):
 
     if request.method == 'POST' and form.is_valid():
         obj = form.save(commit=False)
+
+        # ── Server-side marks validation (same as teacher_marks) ──
+        if obj.max_marks is not None and obj.max_marks < 1:
+            messages.error(request, "Max marks must be at least 1.")
+            return render(request, 'admin_dashboard/marks_entry.html', {
+                'form': form, 'recent_marks': recent_marks,
+            })
+        if obj.marks_obtained is not None and obj.max_marks is not None:
+            if obj.marks_obtained < 0 or obj.marks_obtained > obj.max_marks:
+                messages.error(
+                    request,
+                    f"Marks obtained must be between 0 and {obj.max_marks}.",
+                )
+                return render(request, 'admin_dashboard/marks_entry.html', {
+                    'form': form, 'recent_marks': recent_marks,
+                })
+
         # Update or create
         existing = InternalExam.objects.filter(
             student=obj.student,
