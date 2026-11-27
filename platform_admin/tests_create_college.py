@@ -1,4 +1,5 @@
 """`manage.py create_college` must turn a fresh install into a usable college."""
+import re
 from io import StringIO
 
 from django.contrib.auth import get_user_model
@@ -51,8 +52,33 @@ class CreateCollegeCommandTests(TestCase):
         output = self.run_command("--name", "C College", "--slug", "ccollege",
                                   "--admin-username", "cadmin")
         self.assertIn("Temporary password", output)
-        password = output.split("Temporary password (shown once, change after first login): ")[1].split()[0]
+        password = self._printed_password(output)
         self.assertTrue(User.objects.get(username="cadmin").check_password(password))
+
+    def test_generated_password_is_clean_even_with_colour_codes(self):
+        """Regression: on a TTY the command styles its output, and the ANSI reset
+        code used to sit directly after the password — so the printed password,
+        copy-pasted or parsed, did not match the one stored in the database."""
+        out = StringIO()
+        call_command("create_college", "--name", "G College", "--slug", "gcollege",
+                     "--admin-username", "gadmin", stdout=out, stderr=out,
+                     force_color=True)
+        output = out.getvalue()
+        self.assertIn("\x1b[", output)          # colour codes really were emitted
+        password = self._printed_password(output)
+        self.assertTrue(password.isalnum() or "-" in password or "_" in password)
+        self.assertNotIn("\x1b", password)      # no escape code glued to it
+        self.assertTrue(User.objects.get(username="gadmin").check_password(password))
+
+    @staticmethod
+    def _printed_password(output):
+        clean = re.sub(r"\x1b\[[0-9;]*m", "", output)   # strip ANSI colour codes
+        match = re.search(
+            r"Temporary password \(shown once, change after first login\):\s*(\S+)",
+            clean,
+        )
+        assert match, "no printed temporary password found in output"
+        return match.group(1)
 
     def test_existing_slug_is_an_error_without_update(self):
         self.run_command("--name", "D College", "--slug", "dcollege",

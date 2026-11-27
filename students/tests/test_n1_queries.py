@@ -4,9 +4,9 @@ These tests set an upper bound on the number of queries each dashboard
 executes so a future ORM change that adds per-row queries breaks CI.
 """
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
-from django.db import connection
 
 from students.models import (
     FacultyProfile,

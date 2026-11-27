@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from students.password_links import build_set_password_link, token_generator
+from students.password_links import token_generator
 
 User = get_user_model()
 

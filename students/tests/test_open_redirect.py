@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from students.models import BugReport
-
 
 class OpenRedirectTests(TestCase):
     """POST to report_problem with various malicious 'next' values."""

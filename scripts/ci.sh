@@ -15,10 +15,9 @@ echo "==> bandit (medium+ severity fails the build; test files hold dummy secret
   -x "*/tests/*,students/tests,platform_admin/tests.py,*/migrations/*"
 
 echo "==> django check --deploy (production settings)"
-# SECURE_SSL_REDIRECT is intentionally False for CI (no TLS terminator here).
-# In production settings.py, it defaults to True. W008 is the expected warning
-# about this override; we silence it in CI only.
-DEBUG=False SECURE_SSL_REDIRECT=False ALLOWED_HOSTS=ci.example.com \
+# Production-like: SECURE_SSL_REDIRECT=True (as in settings.py under DEBUG=False)
+# so no warning is silenced here — W008 would fail the check otherwise.
+DEBUG=False SECURE_SSL_REDIRECT=True ALLOWED_HOSTS=ci.example.com \
   CSRF_TRUSTED_ORIGINS=https://ci.example.com ENVIRONMENT=production \
   $PY_BIN manage.py check --deploy --fail-level ERROR
 

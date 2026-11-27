@@ -83,7 +83,25 @@ class Command(BaseCommand):
         password = options["admin_password"]
         generated = False
         if not password and not existing_admin:
-            password = secrets.token_urlsafe(12)
+            # One generation, validated against AUTH_PASSWORD_VALIDATORS: whatever
+            # is printed must be the exact string that is set, and it must survive
+            # the project's password policy (min length, common-password check...).
+            from django.contrib.auth.password_validation import validate_password
+            from django.core.exceptions import ValidationError
+
+            for _attempt in range(5):
+                candidate = secrets.token_urlsafe(12)
+                try:
+                    validate_password(candidate)
+                except ValidationError:
+                    continue
+                password = candidate
+                break
+            else:
+                raise CommandError(
+                    "Could not generate a password that passes the password "
+                    "validators; set one explicitly with --admin-password."
+                )
             generated = True
 
         if options["dry_run"]:
@@ -143,8 +161,12 @@ class Command(BaseCommand):
                           f"{' (superuser)' if admin.is_superuser else ''}{group_note}")
         if generated:
             self.stdout.write(self.style.WARNING(
-                f"Temporary password (shown once, change after first login): {password}"
-            ))
+                "Temporary password (shown once, change after first login):"))
+            # The password itself is printed plain, on its own line: a colour code
+            # glued to it ends up inside a copy-pasted password (and inside any
+            # test/tooling that parses this line) — on a TTY the ANSI reset
+            # sequence sits directly after the last character.
+            self.stdout.write(password)
         steps = []
         if college.domain:
             steps.append(f"Point DNS for {college.domain} at this server.")
